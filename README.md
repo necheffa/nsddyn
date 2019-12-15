@@ -16,6 +16,12 @@ nsdyn aims to provide a secure alternative.
 Currently the project is under heavy development. As the project evolves, look here for a more detailed list \
 of what is and is not working.
 
+## Development Model
+
+nsddyn uses a relaxed Gitflow strategy. That is, `master` should always be buildable, stable, and only contain tagged releases.
+`devel` acts as an integration branch and serves as a parent to any number of feature branches.
+Given the size of the project, release branches are overkill.
+
 ## Design
 
 nsddyn is comprised of 3 components:
