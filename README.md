@@ -51,14 +51,14 @@ The data sent will be of a JSON object taking the following form:
 }
 ```
 
-Note that `hosts` may simply be an array containing a single element but will always be an array and not a scalar. This provides maxium flexability while \
+Note that `hosts` may simply be an array containing a single element but will always be an array and not a scalar. This provides maxium flexability while
 limiting edge cases to be handled.
-One might find it odd to explicitly specify `ipaddr` as well as one could infer this from the HTTP session data. \
+One might find it odd to explicitly specify `ipaddr` as well as one could infer this from the HTTP session data.
 However, this limits client flexability, one might wish to use a proxy for updating for some bizzare reason.
 
 Once dynupd receaves the request it will perform some preliminary validation, ensuring the request is in the proper format. \
-With the data somewhat validated, a message is passed in a to-be-determined format to nsddynd which first authenticates both \
-the user account and permitted hosts. Once successfully authenticated, nsdynd uses `nsd-control` to update the zone if it already \
+With the data somewhat validated, a message is passed in a to-be-determined format to nsddynd which first authenticates both 
+the user account and permitted hosts. Once successfully authenticated, nsdynd uses `nsd-control` to update the zone if it already 
 exists and reload the zones. Finally, dynupd returns a status code and message to the client.
 
 nsddyn will always return a status as a JSON object with the following form:
