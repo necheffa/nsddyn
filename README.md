@@ -11,6 +11,11 @@ Several other third-party scripts can be found on the web for providing Dynamic 
 I found them all to lack security. \
 nsdyn aims to provide a secure alternative.
 
+## Project Status
+
+Currently the project is under heavy development. As the project evolves, look here for a more detailed list \
+of what is and is not working.
+
 ## Design
 
 nsddyn is comprised of 3 components:
