@@ -43,5 +43,5 @@ def dynupd():
 #    return "This will be the URL for my nsddyn app."
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host="0.0.0.0")
 
