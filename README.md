@@ -50,6 +50,7 @@ Clients will initiate an update by sending an HTTP POST with the content type se
 The data sent will be of a JSON object taking the following form:
 ```
 {
+    "version": "0.1.0",
     "username": "clientusername",
     "password": "plaintextpassword",
     "ipaddr": "desiredipaddress",
@@ -61,6 +62,7 @@ Note that `hosts` may simply be an array containing a single element but will al
 limiting edge cases to be handled.
 One might find it odd to explicitly specify `ipaddr` as well as one could infer this from the HTTP session data.
 However, this limits client flexability, one might wish to use a proxy for updating for some bizzare reason.
+The version of the nsddyn client is included in the request so that the protocol may be versioned.
 
 Once dynupd receaves the request it will perform some preliminary validation, ensuring the request is in the proper format. \
 With the data somewhat validated, a message is passed in a to-be-determined format to nsddynd which first authenticates both 
@@ -70,6 +72,7 @@ exists and reload the zones. Finally, dynupd returns a status code and message t
 nsddyn will always return a status as a JSON object with the following form:
 ```
 {
+    "version": "0.1.0",
     "code": "codenumber"
 }
 ```
@@ -80,6 +83,8 @@ The following status codes may be returned:
 * XXX - Authentication failed, nsddynd didn't agree with your provided username or password.
 * XXX - Account authentication succeeded, but permitted hosts authentication failed.
 * XXX - Account and permitted hosts authentication succeeded, but something failed when updating the zone. Probably not the client's fault.
+
+Notice that the nsddyn server will always return its version number in the responce, this is so the protocol may be versioned.
 
 ### Further Design Discussion
 
