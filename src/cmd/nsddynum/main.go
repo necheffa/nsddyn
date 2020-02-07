@@ -79,5 +79,15 @@ func main() {
 			log.Println(err)
 			log.Fatal("nsddynum: Error: could not add user to passwd file.")
 		}
+	case "help":
+		msg := "Usage: nsddynum SUB-COMMAND [OPTS]\n" +
+			"  nsddynnum is the nsddyn User Manager utility.\n" +
+			"\n" +
+			"Available SUB-COMMANDs:\n" +
+			"help [SUB-COMMAND]\tPrints this message if no argument is given, otherwise prints help text for specified SUB-COMMAND.\n" +
+			"version\t\t\tPrints version information and exits.\n" +
+			"adduser [OPTS]\t\tAdds a user to the passwd file.\n"
+
+		fmt.Fprintf(os.Stderr, msg)
 	}
 }
