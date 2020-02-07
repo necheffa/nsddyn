@@ -97,7 +97,19 @@ However, the author may be open to providing these facilities in the future shou
 
 ## Installation Instructions
 
-TODO
+### Prereqs
+
+nsddyn is currently a source only distribution. A Unix-like system is required to perform compilation. In particular, GNU Make and Google Go are required.
+
+### Compilation
+
+After the source distribution is unpacked (or the git-repo cloned!), cd into the top level of the project directory. \
+Then, execute `make` to start the compilation.
+
+### Finishing the Install
+
+Once the compilation is complete, the binaries will be placed under bin/ and you will need to manually copy them to your desired destination. \
+Currently there is no install target for make but one is planned for the future.
 
 ## Licensing and Copyright
 
