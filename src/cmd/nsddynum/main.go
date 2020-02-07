@@ -72,6 +72,8 @@ func main() {
 		addUserCmd.StringVar(&hostnames, "hosts", "", "Comma separated list of permitted hostnames.")
 		addUserCmd.StringVar(&hostnames, "h", "", "Comma separated list of permitted hostnames.")
 
+		addUserCmd.Parse(os.Args[2:])
+
 		err = addUser(userName, fileName, password, hostnames)
 		if err != nil {
 			log.Println(err)
