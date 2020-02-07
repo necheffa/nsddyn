@@ -6,12 +6,14 @@ PLATFORM=
 VERSION=$VERSION
 GITCOMMIT=$(git rev-parse --short HEAD 2> /dev/null)
 BUILDTIME=$(date -u +"%Y-%m-%d %H:%M:%SZ")
+GOVERSION=$(go version | awk '{print $3}' | sed 's/go//')
 
 export LDFLAGS="\
     -w \
     -X \"cmd/internal/version.GitCommit=${GITCOMMIT}\" \
     -X \"cmd/internal/version.Version=${VERSION}\" \
     -X \"cmd/internal/version.BuildTime=${BUILDTIME}\" \
+    -X \"cmd/internal/version.GoVersion=${GOVERSION}\" \
     ${LDFLAGS:-} \
 "
 

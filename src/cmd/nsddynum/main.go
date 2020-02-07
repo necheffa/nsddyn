@@ -28,4 +28,5 @@ func main() {
 	fmt.Println(version.Version)
 	fmt.Println(version.GitCommit)
 	fmt.Println(version.BuildTime)
+	fmt.Println(version.GoVersion)
 }
