@@ -19,6 +19,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -40,5 +41,41 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Alexander Necheff\nnsddynum is licensed under the terms of the GPLv3.\n")
 		fmt.Fprintf(os.Stderr, "Git Commit: "+version.GitCommit+"\n")
 		fmt.Fprintf(os.Stderr, "Build on: "+version.BuildTime+" by Go toolchain version: "+version.GoVersion+"\n")
+	case "adduser":
+		addUserCmd := flag.NewFlagSet("adduser", flag.ExitOnError)
+
+		var userName string
+		var fileName string
+		var password string
+		var hostnames string
+
+		nsddynHome, ok := os.LookupEnv("NSDDYN_HOME")
+
+		if !ok {
+			nsddynHome = "/usr/local"
+		}
+
+		fi, err := os.Stat(nsddynHome)
+		if os.IsNotExist(err) {
+			log.Fatal("nsddynum: Error: $NSDDYN_HOME set to non-existent location.")
+		}
+		if !fi.IsDir() {
+			log.Fatal("nsddynum: Error: $NSDDYN_HOME is not set to a directory.")
+		}
+
+		addUserCmd.StringVar(&userName, "user-name", "", "Username to add.")
+		addUserCmd.StringVar(&userName, "u", "", "Username to add.")
+		addUserCmd.StringVar(&fileName, "passwd-file", nsddynHome+"/etc/nsddynpasswd", "Path to nsddyn passwd file.")
+		addUserCmd.StringVar(&fileName, "f", nsddynHome+"/etc/nsddynpasswd", "Path to nsddyn passwd file.")
+		addUserCmd.StringVar(&password, "passwd", "", "Desired password.")
+		addUserCmd.StringVar(&password, "p", "", "Desired password.")
+		addUserCmd.StringVar(&hostnames, "hosts", "", "Comma separated list of permitted hostnames.")
+		addUserCmd.StringVar(&hostnames, "h", "", "Comma separated list of permitted hostnames.")
+
+		err = addUser(userName, fileName, password, hostnames)
+		if err != nil {
+			log.Println(err)
+			log.Fatal("nsddynum: Error: could not add user to passwd file.")
+		}
 	}
 }
