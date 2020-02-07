@@ -20,13 +20,25 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"os"
 
 	"cmd/internal/version"
 )
 
 func main() {
-	fmt.Println(version.Version)
-	fmt.Println(version.GitCommit)
-	fmt.Println(version.BuildTime)
-	fmt.Println(version.GoVersion)
+	if len(os.Args) <= 1 {
+		log.Fatal("nsddynum: Error: no sub-command specified.")
+	}
+
+	switch os.Args[1] {
+	default:
+		log.Fatal("nsddynum: Error: unknown sub-command.")
+	case "version":
+		fmt.Fprintf(os.Stderr, "nsddynum v"+version.Version+"\n")
+		fmt.Fprintf(os.Stderr, "Copyright (C) 2019, 2020\n")
+		fmt.Fprintf(os.Stderr, "Alexander Necheff\nnsddynum is licensed under the terms of the GPLv3.\n")
+		fmt.Fprintf(os.Stderr, "Git Commit: "+version.GitCommit+"\n")
+		fmt.Fprintf(os.Stderr, "Build on: "+version.BuildTime+" by Go toolchain version: "+version.GoVersion+"\n")
+	}
 }
