@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -eu
+
+PLATFORM=
+VERSION=$VERSION
+GITCOMMIT=$(git rev-parse --short HEAD 2> /dev/null)
+BUILDTIME=$(date -u +"%Y-%m-%d %H:%M:%SZ")
+
+export LDFLAGS="\
+    -w \
+    -X \"cmd/internal/version.GitCommit=${GITCOMMIT}\" \
+    -X \"cmd/internal/version.Version=${VERSION}\" \
+    -X \"cmd/internal/version.BuildTime=${BUILDTIME}\" \
+    ${LDFLAGS:-} \
+"
+
+echo "using build root $BUILD_ROOT"
+#export GOPATH=${BUILD_ROOT}
