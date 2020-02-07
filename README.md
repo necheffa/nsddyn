@@ -25,8 +25,8 @@ Given the size of the project, release branches are overkill.
 ## Design
 
 nsddyn is comprised of 3 components:
-* dynupd - A Flask webapp that provides an HTTP API for accessing the name server.
-* nsddynd - A Python daemon used to perform forward zone updates. While dynupd could \
+* dynupd - A webapp that provides an HTTP API for accessing the name server.
+* nsddynd - A daemon used to perform forward zone updates. While dynupd could \
         handle this itself, a concious design decision was made to seporate these tasks so \
         that the HTTP API has limited control over zone updates.
 * A web client. While official clients will be provided, anyone can create their own. \
