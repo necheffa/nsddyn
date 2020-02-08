@@ -22,6 +22,7 @@ package version
 import (
 	"fmt"
 	"os"
+    "path/filepath"
 )
 
 // ldflags are used to set these.
@@ -34,7 +35,7 @@ var (
 )
 
 func PrintVersion() {
-	fmt.Fprintf(os.Stderr, "nsddynum v"+Version+"\n")
+	fmt.Fprintf(os.Stderr, filepath.Base(os.Args[0])+" v"+Version+"\n")
 	fmt.Fprintf(os.Stderr, "Copyright (C) 2019, 2020\n")
 	fmt.Fprintf(os.Stderr, "Alexander Necheff\nnsddynum is licensed under the terms of the GPLv3.\n")
 	fmt.Fprintf(os.Stderr, "Git Commit: "+GitCommit+"\n")
