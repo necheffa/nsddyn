@@ -4,7 +4,8 @@ BUILD_ROOT:=$(CURDIR)
 CMD_DIR:=$(CURDIR)/cmd
 #VER_DIR:=$(CURDIR)/version
 BIN_DIR:=$(CURDIR)/bin
-GOPATH=$(shell dirname $(CURDIR))
+OLD_GOPATH:=$(GOPATH)
+GOPATH="$(shell dirname $(CURDIR)):$(HOME)/go:$(OLD_GOPATH)"
 
 .PHONY: bin
 bin: ## build the standard distribution
