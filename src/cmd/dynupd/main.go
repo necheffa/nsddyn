@@ -21,6 +21,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net/http"
 	"os"
 
 	"cmd/internal/version"
@@ -54,6 +55,8 @@ func main() {
 		return
 	}
 
-	// TODO: serve the API
+	http.HandleFunc("/api/dynupd", dynupdHandler)
+	http.ListenAndServe("localhost:8080", nil)
+
 	return
 }
