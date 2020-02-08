@@ -36,11 +36,7 @@ func main() {
 	default:
 		log.Fatal("nsddynum: Error: unknown sub-command.")
 	case "version":
-		fmt.Fprintf(os.Stderr, "nsddynum v"+version.Version+"\n")
-		fmt.Fprintf(os.Stderr, "Copyright (C) 2019, 2020\n")
-		fmt.Fprintf(os.Stderr, "Alexander Necheff\nnsddynum is licensed under the terms of the GPLv3.\n")
-		fmt.Fprintf(os.Stderr, "Git Commit: "+version.GitCommit+"\n")
-		fmt.Fprintf(os.Stderr, "Build on: "+version.BuildTime+" by Go toolchain version: "+version.GoVersion+"\n")
+		version.PrintVersion()
 	case "adduser":
 		addUserCmd := flag.NewFlagSet("adduser", flag.ExitOnError)
 

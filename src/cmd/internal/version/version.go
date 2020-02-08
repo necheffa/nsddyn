@@ -19,6 +19,11 @@
 // Package version provides versioning information.
 package version
 
+import (
+	"fmt"
+	"os"
+)
+
 // ldflags are used to set these.
 var (
 	PlatformName = ""
@@ -27,3 +32,11 @@ var (
 	BuildTime    = "unknown-buildtime"
 	GoVersion    = "unknown-goversion"
 )
+
+func PrintVersion() {
+	fmt.Fprintf(os.Stderr, "nsddynum v"+Version+"\n")
+	fmt.Fprintf(os.Stderr, "Copyright (C) 2019, 2020\n")
+	fmt.Fprintf(os.Stderr, "Alexander Necheff\nnsddynum is licensed under the terms of the GPLv3.\n")
+	fmt.Fprintf(os.Stderr, "Git Commit: "+GitCommit+"\n")
+	fmt.Fprintf(os.Stderr, "Build on: "+BuildTime+" by Go toolchain version: "+GoVersion+"\n")
+}
