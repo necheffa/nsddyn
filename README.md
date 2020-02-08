@@ -32,6 +32,7 @@ nsddyn is comprised of 3 components:
 * A web client. While official clients will be provided, anyone can create their own. \
         A minimal client might take the form of a shell script wrapped around curl. \
         More interesting might be a RouterOS script wrapped around the `/tool fetch` client.
+* nsddynum - A command-line, swiss army knife style tool for managing the nsddynpasswd file. \
 
 nsddyn is a secure protocol for the following reasons:
 * It is just HTTP and so may be tunneled over TLS for confidentiality.
@@ -100,6 +101,12 @@ However, the author may be open to providing these facilities in the future shou
 ### Prereqs
 
 nsddyn is currently a source only distribution. A Unix-like system is required to perform compilation. In particular, GNU Make and Google Go are required.
+
+In addition to the standard Google Go distribution, the following additional libraries should appear in the $GOPATH:
+* golang.org/x/crypto/bcrypt
+* github.com/bwesterb/go-zonefile
+
+And remember, if these libraries are already installed, update them before compiling nsddyn.
 
 ### Compilation
 
