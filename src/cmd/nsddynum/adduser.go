@@ -26,12 +26,6 @@ import (
 )
 
 func addUser(userName, fileName, password, hostnames string) error {
-	fmt.Println("calling addUser with:")
-	fmt.Println("username: " + userName)
-	fmt.Println("filename: " + fileName)
-	fmt.Println("password: " + password)
-	fmt.Println("hostnames: " + hostnames)
-
 	// TODO: need to check if the user already exists in the passwd file or not
 
 	// TODO: validate the format of the hostnames, check for conflicts...
