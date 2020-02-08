@@ -4,6 +4,4 @@ set -eu
 
 source ${BUILD_ROOT}/scripts/build/variables
 
-echo "Building cmd..."
-echo $LDFLAGS
 go build --ldflags "${LDFLAGS}"

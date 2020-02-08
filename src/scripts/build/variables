@@ -16,6 +16,3 @@ export LDFLAGS="\
     -X \"cmd/internal/version.GoVersion=${GOVERSION}\" \
     ${LDFLAGS:-} \
 "
-
-echo "using build root $BUILD_ROOT"
-#export GOPATH=${BUILD_ROOT}
