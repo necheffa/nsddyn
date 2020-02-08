@@ -22,7 +22,7 @@ package version
 import (
 	"fmt"
 	"os"
-    "path/filepath"
+	"path/filepath"
 )
 
 // ldflags are used to set these.
