@@ -32,7 +32,7 @@ nsddyn is comprised of 3 components:
 * A web client. While official clients will be provided, anyone can create their own. \
         A minimal client might take the form of a shell script wrapped around curl. \
         More interesting might be a RouterOS script wrapped around the `/tool fetch` client.
-* nsddynum - A command-line, swiss army knife style tool for managing the nsddynpasswd file. \
+* nsddynum - A command-line, swiss army knife style tool for managing the nsddynpasswd file.
 
 nsddyn is a secure protocol for the following reasons:
 * It is just HTTP and so may be tunneled over TLS for confidentiality.
@@ -66,8 +66,8 @@ However, this limits client flexability, one might wish to use a proxy for updat
 The version of the nsddyn client is included in the request so that the protocol may be versioned.
 
 Once dynupd receaves the request it will perform some preliminary validation, ensuring the request is in the proper format. \
-With the data somewhat validated, a message is passed in a to-be-determined format to nsddynd which first authenticates both 
-the user account and permitted hosts. Once successfully authenticated, nsdynd uses `nsd-control` to update the zone if it already 
+With the data somewhat validated, a message is passed in a to-be-determined format to nsddynd which first authenticates both
+the user account and permitted hosts. Once successfully authenticated, nsdynd uses `nsd-control` to update the zone if it already
 exists and reload the zones. Finally, dynupd returns a status code and message to the client.
 
 nsddyn will always return a status as a JSON object with the following form:
