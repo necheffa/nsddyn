@@ -23,5 +23,5 @@ type DynReq struct {
 	Username  string
 	Password  string
 	Ipaddr    string
-	Hostnames string
+	Hostnames []string
 }
