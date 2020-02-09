@@ -21,8 +21,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
-    "io/ioutil"
 
 	"cmd/internal/dynreq"
 )
@@ -36,27 +36,28 @@ func dynupdHandler(w http.ResponseWriter, r *http.Request) {
 	case "POST":
 		var msg dynreq.DynReq
 		// parse the reqest
-        body, err := ioutil.ReadAll(r.Body)
-        if err != nil {
-            fmt.Fprintf(w, "Unknown read error")
-            return
-        }
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			fmt.Fprintf(w, "Unknown read error")
+			return
+		}
 		err = json.Unmarshal(body, &msg)
 		if err != nil {
 			fmt.Fprintf(w, "Unknown parse error")
 			return
 		}
-        fmt.Println("Debug: " + string(body))
+		fmt.Println("Debug: " + string(body))
 
-        // TODO: if successful, open a local socket to communicate with nsddynd
+		// TODO: if successful, open a local socket to communicate with nsddynd
 
 		//fmt.Println(r.Body)
 		fmt.Fprintf(w, "Posted username: %v\n", msg.Username)
 		fmt.Fprintf(w, "Posted password: %v\n", msg.Password)
 		fmt.Fprintf(w, "Posted ipaddr: %v\n", msg.Ipaddr)
+		fmt.Fprintf(w, "Posted client version: %v\n", msg.Version)
 		fmt.Fprintf(w, "Posted hosts:\n")
-        for i := 0; i < len(msg.Hostnames); i++ {
-            fmt.Fprintf(w, "host: %v\n", msg.Hostnames[i])
-        }
+		for i := 0; i < len(msg.Hostnames); i++ {
+			fmt.Fprintf(w, "host: %v\n", msg.Hostnames[i])
+		}
 	}
 }

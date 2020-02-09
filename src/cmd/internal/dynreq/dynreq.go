@@ -20,6 +20,7 @@
 package dynreq
 
 type DynReq struct {
+	Version   string
 	Username  string
 	Password  string
 	Ipaddr    string
