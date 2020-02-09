@@ -4,4 +4,8 @@ set -eu
 
 source ${BUILD_ROOT}/scripts/build/variables
 
+if ! [ -d ${BUILD_ROOT}/bin ]; then
+    mkdir ${BUILD_ROOT}/bin
+fi
+
 go build --ldflags "${LDFLAGS}"
