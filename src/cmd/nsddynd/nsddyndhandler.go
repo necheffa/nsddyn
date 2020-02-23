@@ -21,6 +21,10 @@ package main
 import (
 	"fmt"
 	"net/http"
+	//    "encoding/json"
+	//    "io/ioutil"
+	"os"
+	//    "cmd/internal/dynreq"
 )
 
 func nsddyndHandler(w http.ResponseWriter, r *http.Request) {
@@ -30,6 +34,6 @@ func nsddyndHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Bad method: only POST is allowed.")
 		return
 	case "POST":
-		fmt.Println("nsddynd: handling authentication request")
+		fmt.Fprintln(os.Stderr, "nsddynd: handling authentication request")
 	}
 }
