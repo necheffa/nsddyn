@@ -24,7 +24,13 @@ import (
 	"net/http"
 	"os"
 
+	"cmd/internal/debug"
 	"cmd/internal/version"
+)
+
+const (
+	uri  = "/api/dynupd"
+	host = "localhost:8080"
 )
 
 func main() {
@@ -32,11 +38,14 @@ func main() {
 
 	var printHelp bool
 	var printVersion bool
+	var debugFlag bool
 
 	dynupdCmd.BoolVar(&printHelp, "help", false, "Print usage message and exit successfully.")
 	dynupdCmd.BoolVar(&printHelp, "h", false, "Print usage message and exit successfully.")
-	dynupdCmd.BoolVar(&printVersion, "version", false, "Print version information and exit successfully")
-	dynupdCmd.BoolVar(&printVersion, "v", false, "Print version information and exit successfully")
+	dynupdCmd.BoolVar(&printVersion, "version", false, "Print version information and exit successfully.")
+	dynupdCmd.BoolVar(&printVersion, "v", false, "Print version information and exit successfully.")
+	dynupdCmd.BoolVar(&debugFlag, "d", false, "Activate verbose messaging.")
+	dynupdCmd.BoolVar(&debugFlag, "debug", false, "Activate verbose messaging.")
 
 	dynupdCmd.Parse(os.Args[1:])
 
@@ -45,18 +54,28 @@ func main() {
 		return
 	}
 
+	if debugFlag {
+		debug.Debug = true
+	}
+
 	if printHelp {
 		msg := "Usage: dynupd [OPTS]\n" +
 			"  dynupd is the HTTP API host component of nsddyn.\n" +
 			"\n" +
 			"  -v,--version\t\tPrint version information and exit successfully.\n" +
-			"  -h,--help\t\tPrint usage message and exit successfully.\n"
+			"  -h,--help\t\tPrint usage message and exit successfully.\n" +
+			"  -d,--debug\t\tActivate verbose messaging.\n"
 		fmt.Fprintf(os.Stderr, msg)
 		return
 	}
 
-	http.HandleFunc("/api/dynupd", dynupdHandler)
-	http.ListenAndServe("localhost:8080", nil)
+	if debug.Debug {
+		msg := "dynupd: listening on: " + host + uri + "\n"
+		fmt.Fprintf(os.Stderr, msg)
+	}
+
+	http.HandleFunc(uri, dynupdHandler)
+	http.ListenAndServe(host, nil)
 
 	return
 }

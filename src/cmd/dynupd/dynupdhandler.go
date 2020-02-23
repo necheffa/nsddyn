@@ -23,8 +23,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 
+	"cmd/internal/debug"
 	"cmd/internal/dynreq"
+	//	"github.com/bwesterb/go-zonefile"
 )
 
 func dynupdHandler(w http.ResponseWriter, r *http.Request) {
@@ -46,25 +49,19 @@ func dynupdHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "Unknown parse error")
 			return
 		}
-		fmt.Println("Debug: " + string(body))
 
-		// TODO: if successful, open a local socket to communicate with nsddynd
-		// for now, just resend the body.
-		// I will need to come up with something to prevent users from directly touching nsddynd.
-		resp, err := http.Post("http://localhost:1337", "text/json", r.Body)
-		if err != nil {
-			fmt.Fprintf(w, "Unknown nsddynd error")
+		if debug.Debug {
+			fmt.Fprintf(os.Stderr, "Receaved request:\n")
+			fmt.Fprintf(os.Stderr, "Posted username: %v\n", msg.Username)
+			fmt.Fprintf(os.Stderr, "Posted password: %v\n", msg.Password)
+			fmt.Fprintf(os.Stderr, "Posted ipaddr: %v\n", msg.Ipaddr)
+			fmt.Fprintf(os.Stderr, "Posted client version: %v\n", msg.Version)
+			fmt.Fprintf(os.Stderr, "Posted hosts:\n")
+			for i := 0; i < len(msg.Hostnames); i++ {
+				fmt.Fprintf(os.Stderr, "host: %v\n", msg.Hostnames[i])
+			}
 		}
-		resp.Body.Close()
 
-		//fmt.Println(r.Body)
-		fmt.Fprintf(w, "Posted username: %v\n", msg.Username)
-		fmt.Fprintf(w, "Posted password: %v\n", msg.Password)
-		fmt.Fprintf(w, "Posted ipaddr: %v\n", msg.Ipaddr)
-		fmt.Fprintf(w, "Posted client version: %v\n", msg.Version)
-		fmt.Fprintf(w, "Posted hosts:\n")
-		for i := 0; i < len(msg.Hostnames); i++ {
-			fmt.Fprintf(w, "host: %v\n", msg.Hostnames[i])
-		}
+		fmt.Fprintf(w, "Receaved update request.\n")
 	}
 }
