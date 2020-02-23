@@ -24,7 +24,7 @@ import (
 	"net/http"
 	"os"
 
-	"cmd/internal/debug"
+	"cmd/internal/config"
 	"cmd/internal/version"
 )
 
@@ -55,7 +55,7 @@ func main() {
 	}
 
 	if debugFlag {
-		debug.Debug = true
+		config.Debug = true
 	}
 
 	if printHelp {
@@ -69,7 +69,7 @@ func main() {
 		return
 	}
 
-	if debug.Debug {
+	if config.Debug {
 		msg := "dynupd: listening on: " + host + uri + "\n"
 		fmt.Fprintf(os.Stderr, msg)
 	}

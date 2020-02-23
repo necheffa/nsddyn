@@ -25,7 +25,7 @@ import (
 	"net/http"
 	"os"
 
-	"cmd/internal/debug"
+	"cmd/internal/config"
 	"cmd/internal/dynreq"
 	//	"github.com/bwesterb/go-zonefile"
 )
@@ -50,7 +50,7 @@ func dynupdHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if debug.Debug {
+		if config.Debug {
 			fmt.Fprintf(os.Stderr, "Receaved request:\n")
 			fmt.Fprintf(os.Stderr, "Posted username: %v\n", msg.Username)
 			fmt.Fprintf(os.Stderr, "Posted password: %v\n", msg.Password)

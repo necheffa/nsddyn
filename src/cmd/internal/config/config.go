@@ -16,9 +16,10 @@
    along with nsddyn.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// Package debug provides debug flags set during nsddyn initalization
-package debug
+// Package config provides a mechanism to track configuration data passed on the command line.
+package config
 
 var (
-	Debug = false
+	Debug        = false
+	ZoneFilePath = ""
 )
