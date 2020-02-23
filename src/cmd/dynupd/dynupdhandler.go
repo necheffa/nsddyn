@@ -49,6 +49,13 @@ func dynupdHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Debug: " + string(body))
 
 		// TODO: if successful, open a local socket to communicate with nsddynd
+		// for now, just resend the body.
+		// I will need to come up with something to prevent users from directly touching nsddynd.
+		resp, err := http.Post("http://localhost:1337", "text/json", r.Body)
+		if err != nil {
+			fmt.Fprintf(w, "Unknown nsddynd error")
+		}
+		resp.Body.Close()
 
 		//fmt.Println(r.Body)
 		fmt.Fprintf(w, "Posted username: %v\n", msg.Username)
