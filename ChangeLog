@@ -1,3 +1,8 @@
+2020-02-29 Alexander Necheff <alex@necheff.net>
+    * Set version to 0.1.2-dev
+    * Changed API handler internals to support instance state instead of using global variables
+    * Added capability to update zonefile, without authentication
+
 2020-02-09 Alexander Necheff <alex@necheff.net>
     * Set version to 0.1.1-dev.
     * Completed re-write in Go, using 1.13.7 toolchain.
