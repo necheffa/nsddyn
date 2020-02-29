@@ -20,6 +20,5 @@
 package config
 
 var (
-	Debug        = false
-	ZoneFilePath = ""
+	Debug = false
 )
