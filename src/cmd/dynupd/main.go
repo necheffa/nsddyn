@@ -39,6 +39,7 @@ func main() {
 	var printHelp bool
 	var printVersion bool
 	var debugFlag bool
+	var zoneFile string
 
 	dynupdCmd.BoolVar(&printHelp, "help", false, "Print usage message and exit successfully.")
 	dynupdCmd.BoolVar(&printHelp, "h", false, "Print usage message and exit successfully.")
@@ -46,6 +47,8 @@ func main() {
 	dynupdCmd.BoolVar(&printVersion, "v", false, "Print version information and exit successfully.")
 	dynupdCmd.BoolVar(&debugFlag, "d", false, "Activate verbose messaging.")
 	dynupdCmd.BoolVar(&debugFlag, "debug", false, "Activate verbose messaging.")
+	dynupdCmd.StringVar(&zoneFile, "f", "", "Specify the zonefile to manage.")
+	dynupdCmd.StringVar(&zoneFile, "zone-file", "", "Specify the zonefile to manage.")
 
 	dynupdCmd.Parse(os.Args[1:])
 
@@ -59,13 +62,13 @@ func main() {
 	}
 
 	if printHelp {
-		msg := "Usage: dynupd [OPTS]\n" +
-			"  dynupd is the HTTP API host component of nsddyn.\n" +
-			"\n" +
-			"  -v,--version\t\tPrint version information and exit successfully.\n" +
-			"  -h,--help\t\tPrint usage message and exit successfully.\n" +
-			"  -d,--debug\t\tActivate verbose messaging.\n"
-		fmt.Fprintf(os.Stderr, msg)
+		PrintUsage()
+		return
+	}
+
+	if zoneFile == "" {
+		PrintUsage()
+		fmt.Fprintf(os.Stderr, "dynupd: error: missing required argument, --zone-file\n")
 		return
 	}
 
@@ -75,7 +78,7 @@ func main() {
 	}
 
 	d := new(DynUpd)
-	d.NewDynUpd("passwdfile")
+	d.NewDynUpd("passwdfile", zoneFile)
 
 	http.HandleFunc(uri, d.DynUpdHandler)
 	http.ListenAndServe(host, nil)

@@ -32,10 +32,12 @@ import (
 
 type DynUpd struct {
 	passwdFile string
+	zoneFile   string
 }
 
-func (d *DynUpd) NewDynUpd(passwdFile string) {
+func (d *DynUpd) NewDynUpd(passwdFile string, zoneFile string) {
 	d.passwdFile = passwdFile
+	d.zoneFile = zoneFile
 }
 
 func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
@@ -70,6 +72,13 @@ func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		fmt.Fprintf(w, "Receaved update request.\n")
+		// sanitize input
+
+		// authenticate user
+
+		// if authentication successful, update zonefile
+		if config.Debug {
+			fmt.Fprintf(os.Stderr, "authentication successful, updating: "+d.zoneFile)
+		}
 	}
 }
