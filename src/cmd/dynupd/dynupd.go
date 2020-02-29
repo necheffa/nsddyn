@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2019, 2020 Alexander Necheff
+   Copyright (C) 2020 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -27,10 +27,18 @@ import (
 
 	"cmd/internal/config"
 	"cmd/internal/dynreq"
-	//	"github.com/bwesterb/go-zonefile"
+	//"github.com/bwesterb/go-zonefile"
 )
 
-func dynupdHandler(w http.ResponseWriter, r *http.Request) {
+type DynUpd struct {
+	passwdFile string
+}
+
+func (d *DynUpd) NewDynUpd(passwdFile string) {
+	d.passwdFile = passwdFile
+}
+
+func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	default:

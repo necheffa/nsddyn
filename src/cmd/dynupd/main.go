@@ -74,7 +74,10 @@ func main() {
 		fmt.Fprintf(os.Stderr, msg)
 	}
 
-	http.HandleFunc(uri, dynupdHandler)
+	d := new(DynUpd)
+	d.NewDynUpd("passwdfile")
+
+	http.HandleFunc(uri, d.DynUpdHandler)
 	http.ListenAndServe(host, nil)
 
 	return
