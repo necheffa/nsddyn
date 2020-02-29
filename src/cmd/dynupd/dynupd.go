@@ -183,7 +183,7 @@ func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 
 		// if authentication successful, update zonefile
 		if config.Debug {
-			fmt.Fprintf(os.Stderr, "authentication successful, updating: "+d.zoneFile)
+			fmt.Fprintf(os.Stderr, "authentication successful, updating: "+d.zoneFile + "\n")
 		}
 
 		status := d.UpdateZone(msg)
