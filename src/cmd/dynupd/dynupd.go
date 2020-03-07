@@ -27,6 +27,7 @@ import (
 	"os"
 	"strconv"
 
+	"cmd/internal/auth"
 	"cmd/internal/config"
 	"cmd/internal/dynreq"
 	"cmd/internal/version"
@@ -42,12 +43,12 @@ const (
 )
 
 type DynUpd struct {
-	passwdFile string
-	zoneFile   string
+	passwdDb auth.AuthReader
+	zoneFile string
 }
 
-func (d *DynUpd) NewDynUpd(passwdFile string, zoneFile string) {
-	d.passwdFile = passwdFile
+func (d *DynUpd) NewDynUpd(passwdDb auth.AuthReader, zoneFile string) {
+	d.passwdDb = passwdDb
 	d.zoneFile = zoneFile
 }
 
@@ -180,6 +181,13 @@ func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 		// sanitize input
 
 		// authenticate user
+		// TODO: see critical issue #19
+		err = d.passwdDb.AuthRequest([]byte(msg.Password), msg.Username, msg.Hostnames)
+		if err != nil {
+			// TODO: parse out err and return a specific error code
+			fmt.Fprintf(w, "authentication failure")
+			return
+		}
 
 		// if authentication successful, update zonefile
 		if config.Debug {

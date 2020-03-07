@@ -24,6 +24,7 @@ import (
 	"net/http"
 	"os"
 
+	"cmd/internal/auth"
 	"cmd/internal/config"
 	"cmd/internal/version"
 )
@@ -78,7 +79,10 @@ func main() {
 	}
 
 	d := new(DynUpd)
-	d.NewDynUpd("passwdfile", zoneFile)
+	// TODO: support multiple auth mechanisms here...
+	passwdDb := new(auth.FlatFile)
+	passwdDb.SetFilePath("passwdFile") // TODO: see issue #20
+	d.NewDynUpd(passwdDb, zoneFile)
 
 	http.HandleFunc(uri, d.DynUpdHandler)
 	http.ListenAndServe(host, nil)
