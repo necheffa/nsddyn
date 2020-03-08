@@ -164,9 +164,11 @@ func hostSize(hosts []string) (size int) {
 		size += len(host)
 	}
 
-	// the number of commas needed is n - 1 if the number of hosts is n
-	// note that we cannot assume "," is a single byte.
-	size += len(",") * (len(hosts) - 1)
+	if size > 0 {
+		// the number of commas needed is n - 1 if the number of hosts is n
+		// note that we cannot assume "," is a single byte.
+		size += len(",") * (len(hosts) - 1)
+	}
 
 	return size
 }
