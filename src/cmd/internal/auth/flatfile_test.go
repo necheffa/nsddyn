@@ -47,3 +47,25 @@ func TestUserExists(t *testing.T) {
 		t.Error("userExists did not find a user when it should have.")
 	}
 }
+
+func TestHostSize(t *testing.T) {
+	var noHost []string
+	if hostSize(noHost) != 0 {
+		t.Error("hostSize failed on an empty host list.")
+	}
+
+	oneHost := []string{"host1"}
+	if hostSize(oneHost) != 5 {
+		t.Error("hostSize failed on single entry list.")
+	}
+
+	twoHost := []string{"host1", "host2"}
+	if hostSize(twoHost) != 11 {
+		t.Error("hostSize failed on two entry list.")
+	}
+
+	listOfEmpty := []string{"", ""}
+	if hostSize(listOfEmpty) != 0 {
+		t.Error("hostSize failed on a list of empty strings.")
+	}
+}
