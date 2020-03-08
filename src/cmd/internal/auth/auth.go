@@ -25,6 +25,11 @@
 // can be overwritten before releasing the memory back to the system.
 package auth
 
+const (
+	MaxPasswd = 256 // max (inclusive) password length in bytes
+	MinPasswd = 8   // min (inclusive) password length in bytes
+)
+
 // AuthReader provides read-only access to the password store.
 // This allows better enforcement of role seperation.
 type AuthReader interface {
@@ -60,4 +65,14 @@ type AuthWriter interface {
 type AuthReadWriter interface {
 	AuthReader
 	AuthWriter
+}
+
+// EraseBuf fills cap(buf) with space characters.
+// if buf is nil or zero length, EraseBuf takes no action.
+func EraseBuf(buf []byte) {
+	if len(buf) != 0 {
+		for i := 0; i < cap(buf); i++ {
+			buf[i] = ' '
+		}
+	}
 }
