@@ -16,13 +16,6 @@
    along with nsddyn.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// Package auth provides the authentication interface to nsddyn.
-// Byte slices are used throughout this package for handling things that
-// naively should be handled by strings (e.g. passwords). This is because
-// strings are immutable and are therefore unable to be erased when no longer
-// needed. Care should be taken by callers to not just cast a string to []byte
-// while using the facilities provided by this package, favor raw []byte which
-// can be overwritten before releasing the memory back to the system.
 package auth
 
 import (
