@@ -131,7 +131,7 @@ func userExists(userName string, fileBuf []byte) (ok bool) {
 
 	if len(fileBuf) == 0 {
 		// there are not any users in the password store yet.
-		ok = true
+		ok = false
 		return ok
 	}
 
