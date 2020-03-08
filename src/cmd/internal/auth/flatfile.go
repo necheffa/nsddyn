@@ -128,8 +128,14 @@ func (f *FlatFile) RemoveUser(userName string) (err error) {
 // to pass an un-validated buffer into userExists may result in grave errors.
 func userExists(userName string, fileBuf []byte) (ok bool) {
 	ok = false
-	lines := bytes.Split(fileBuf, []byte("\n"))
 
+	if len(fileBuf) == 0 {
+		// there are not any users in the password store yet.
+		ok = true
+		return ok
+	}
+
+	lines := bytes.Split(fileBuf, []byte("\n"))
 	for _, line := range lines {
 		fields := bytes.Split(line, []byte(":"))
 		if bytes.Equal([]byte(userName), fields[0]) {
