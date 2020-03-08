@@ -8,6 +8,10 @@ bin: ## build the binary proper
 	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) GOPATH=$(GOPATH) -C $(NSDDYNUM_DIR) bin
 	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) GOPATH=$(GOPATH) -C $(DYNUPD_DIR) bin
 
+.PHONY: unittest
+unittest:
+	@go test -cover ./...
+
 .PHONY: fmt
 fmt: ## run `go fmt` on all source files
 	@go list -f {{.Dir}} ./... | xargs gofmt -w -s -d
