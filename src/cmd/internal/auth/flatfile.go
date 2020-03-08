@@ -155,6 +155,11 @@ func userExists(userName string, fileBuf []byte) (ok bool) {
 // they expected.
 func hostSize(hosts []string) (size int) {
 	size = 0
+
+	if len(hosts) == 0 {
+		return size
+	}
+
 	for _, host := range hosts {
 		size += len(host)
 	}
