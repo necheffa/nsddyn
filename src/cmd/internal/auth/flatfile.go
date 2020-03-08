@@ -21,6 +21,7 @@ package auth
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 
@@ -67,6 +68,11 @@ func (f *FlatFile) AddUser(passwd []byte, userName string, hosts []string) (err 
 	}
 	defer file.Close()
 
+	return f.addUser(passwd, userName, hosts, file)
+}
+
+// addUser is a private helper funcion which allows the mocking of the passwd file for unit testing.
+func (f *FlatFile) addUser(passwd []byte, userName string, hosts []string, file io.ReadWriter) (err error) {
 	fileBuf, err := ioutil.ReadAll(file)
 	if err != nil {
 		return fmt.Errorf("AddUser: %v", err)
@@ -110,6 +116,12 @@ func (f *FlatFile) AddUser(passwd []byte, userName string, hosts []string) (err 
 	// TODO: currently, we assume that file.Write() passes a pointer to our lineBuf all
 	// the way down to the kernel write() call and by wiping lineBuf here we have really
 	// wiped it. It would be nice to confirm this is the case.
+	/*
+	   _, err = file.Seek(0, io.SeekEnd) // needed for unit tests that mock a real file as a buffer.
+	   if err != nil {
+	       return fmt.Errorf("Adduser: %v", err)
+	   }
+	*/
 	_, err = file.Write(lineBuf)
 	if err != nil {
 		return fmt.Errorf("AddUser: %v", err)

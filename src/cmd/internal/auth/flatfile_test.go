@@ -19,6 +19,7 @@
 package auth
 
 import (
+	"bytes"
 	"testing"
 )
 
@@ -48,6 +49,7 @@ func TestUserExists(t *testing.T) {
 	}
 }
 
+// TestHostSize tests the hostSize() function.
 func TestHostSize(t *testing.T) {
 	var noHost []string
 	if hostSize(noHost) != 0 {
@@ -68,4 +70,17 @@ func TestHostSize(t *testing.T) {
 	if hostSize(listOfEmpty) != 0 {
 		t.Error("hostSize failed on a list of empty strings.")
 	}
+}
+
+// TestAddUser mocks a nsddynpasswd file in order to test the flatfile.AddUser method.
+// We can't test Adduser directly, but we can test the internal addUser method.
+func TestAddUser(t *testing.T) {
+	passwd := new(FlatFile)
+	emptyBuf := bytes.NewBufferString("")
+
+	err := passwd.addUser([]byte("password"), "alex", []string{"host1"}, emptyBuf)
+	if err != nil {
+		t.Error(err)
+	}
+	//TODO finish testing passwd.addUser()
 }
