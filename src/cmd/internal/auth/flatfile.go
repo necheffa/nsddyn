@@ -80,7 +80,7 @@ func (f *FlatFile) addUser(passwd []byte, userName string, hosts []string, file 
 	defer EraseBuf(fileBuf)
 
 	ok := userExists(userName, fileBuf)
-	if !ok {
+	if ok {
 		return fmt.Errorf("AddUser: user account already exists with name: %v", userName)
 	}
 
