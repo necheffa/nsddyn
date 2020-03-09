@@ -67,12 +67,10 @@ type AuthReadWriter interface {
 	AuthWriter
 }
 
-// EraseBuf fills cap(buf) with space characters.
+// EraseBuf fills len(buf) with space characters.
 // if buf is nil or zero length, EraseBuf takes no action.
 func EraseBuf(buf []byte) {
-	if len(buf) != 0 {
-		for i := 0; i < cap(buf); i++ {
-			buf[i] = ' '
-		}
+	for i := 0; i < len(buf); i++ {
+		buf[i] = ' '
 	}
 }
