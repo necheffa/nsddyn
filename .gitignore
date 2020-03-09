@@ -1,4 +1,2 @@
-*__pycache__*/
-.coverage
 bin/
-src/bin/nsddynum
+coverage.out
