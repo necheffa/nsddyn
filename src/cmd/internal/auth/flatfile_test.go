@@ -72,6 +72,27 @@ func TestHostSize(t *testing.T) {
 	}
 }
 
+func TestHostsToBytes(t *testing.T) {
+	emptyList := []string{}
+	buf := hostsToBytes(emptyList)
+
+	if !bytes.Equal(buf, []byte("")) {
+		t.Errorf("Expected empty buf but got: %v", string(buf))
+	}
+
+	oneList := []string{"host1"}
+	buf = hostsToBytes(oneList)
+	if !bytes.Equal(buf, []byte("host1")) {
+		t.Errorf("Expected: %v but got: %v", "host1", string(buf))
+	}
+
+	twoList := []string{"host1", "host1"}
+	buf = hostsToBytes(twoList)
+	if !bytes.Equal(buf, []byte("host1,host2")) {
+		t.Errorf("Expected: %v but got: %v", "host1,host2", string(buf))
+	}
+}
+
 // TestAddUser mocks a nsddynpasswd file in order to test the flatfile.AddUser method.
 // We can't test Adduser directly, but we can test the internal addUser method.
 func TestAddUser(t *testing.T) {
