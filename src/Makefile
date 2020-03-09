@@ -21,6 +21,10 @@ test: unittest
 unittest:
 	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) GOPATH=$(GOPATH) -C $(CMD_DIR) unittest
 
+.PHONY: linecount
+linecount:
+	find . -type f -iname *.go | xargs wc -l
+
 .PHONY: clean
 clean: ## remove old binaries
 	rm -rf $(BUILD_ROOT)/bin
