@@ -97,5 +97,14 @@ func TestAddUser(t *testing.T) {
 	}
 	// TODO test that oneBuf was updated with a new entry for joe
 
-	//TODO finish testing passwd.addUser()
+	twoBuf := bytes.NewBufferString("dave:hash:host1,host2\nalex:hash:host3,host4")
+	err = passwd.addUser([]byte("password"), "alex", []string{"host1", "host2"}, twoBuf)
+	if err.Error() != expected1 {
+		t.Errorf("Expected: [%s], but got: [%v]", expected1, err)
+	}
+
+	err = passwd.addUser([]byte("password"), "joe", []string{"host"}, twoBuf)
+	if err != nil {
+		t.Error(err)
+	}
 }
