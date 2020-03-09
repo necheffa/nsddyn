@@ -82,5 +82,20 @@ func TestAddUser(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+
+	oneBuf := bytes.NewBufferString("alex:hash:host1")
+	err = passwd.addUser([]byte("password"), "alex", []string{"host1"}, oneBuf)
+	expected1 := "AddUser: user account already exists with name: alex"
+	if err.Error() != expected1 {
+		t.Errorf("Expected: [%s], but got: [%v]", expected1, err)
+	}
+	// TODO test that oneBuf is unchanged
+
+	err = passwd.addUser([]byte("password"), "joe", []string{"host"}, oneBuf)
+	if err != nil {
+		t.Error(err)
+	}
+	// TODO test that oneBuf was updated with a new entry for joe
+
 	//TODO finish testing passwd.addUser()
 }
