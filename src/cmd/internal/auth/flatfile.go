@@ -191,9 +191,9 @@ func hostsToBytes(hosts []string) (buf []byte) {
 	buf = nil
 	numHosts := len(hosts)
 	for i, host := range hosts {
-		buf = append([]byte(host))
+		buf = append(buf, []byte(host)...)
 		if i+1 < numHosts {
-			buf = append([]byte(","))
+			buf = append(buf, []byte(",")...)
 		}
 	}
 

@@ -86,7 +86,7 @@ func TestHostsToBytes(t *testing.T) {
 		t.Errorf("Expected: %v but got: %v", "host1", string(buf))
 	}
 
-	twoList := []string{"host1", "host1"}
+	twoList := []string{"host1", "host2"}
 	buf = hostsToBytes(twoList)
 	if !bytes.Equal(buf, []byte("host1,host2")) {
 		t.Errorf("Expected: %v but got: %v", "host1,host2", string(buf))
