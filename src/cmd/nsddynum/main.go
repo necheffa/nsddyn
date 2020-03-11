@@ -67,7 +67,7 @@ func main() {
 
 		addUserCmd.Parse(os.Args[2:])
 
-		hostNames = flag.Args()
+		hostNames = addUserCmd.Args()
 
 		// we are intentionally using lower level, unbuffered routines for reading the new password.
 		// this way, we control the buffer and can wipe it when we are done.

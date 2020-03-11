@@ -106,6 +106,7 @@ func (f *FlatFile) addUser(passwd []byte, userName string, hosts []string, file 
 	// in memory.
 	lineBuf = append(lineBuf, []byte(userName+":")...)
 	lineBuf = append(lineBuf, hashedPasswd...)
+	lineBuf = append(lineBuf, []byte(":")...)
 	lineBuf = append(lineBuf, hostsToBytes(hosts)...)
 	lineBuf = append(lineBuf, []byte("\n")...)
 
