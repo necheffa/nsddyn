@@ -24,6 +24,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"strings"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -52,8 +53,93 @@ func (f *FlatFile) SetFilePath(filePath string) {
 	f.filePath = filePath
 }
 
+// AuthRequest attempts to authenticate the passed in data against the password store.
+// Returns err != nil on error.
+//
+// Note that it is the caller's responsibility to handle safely erasing passwd on exit.
+// All internally allocated memory is properly sanitized to avoid leaking the passwd.
 func (f *FlatFile) AuthRequest(passwd []byte, userName string, hosts []string) (err error) {
-	return fmt.Errorf("FlatFile: not yet implemented.")
+	file, err := os.OpenFile(f.filePath, os.O_RDONLY, 0640)
+	if err != nil {
+		return fmt.Errorf("AuthRequest: %v", err)
+	}
+	defer file.Close()
+
+	return f.authRequest(passwd, userName, hosts, file)
+}
+
+func (f *FlatFile) authRequest(passwd []byte, userName string, hosts []string, file io.ReadWriter) (err error) {
+	fileBuf, err := ioutil.ReadAll(file)
+	if err != nil {
+		return fmt.Errorf("AuthRequest: %v", err)
+	}
+	defer EraseBuf(fileBuf)
+
+	ok := userExists(userName, fileBuf)
+	if !ok {
+		return fmt.Errorf("AuthRequest: user account does not exist with name: %v", userName)
+	}
+
+	storedHash, storedHosts, err := getHashAndHosts(userName, fileBuf)
+	defer EraseBuf(storedHash)
+	if err != nil {
+		return fmt.Errorf("AuthRequest: failed to retrieve account information for: %v", userName)
+	}
+	err = bcrypt.CompareHashAndPassword(storedHash, passwd)
+	if err != nil {
+		// don't be deceaved, this could be a bad password or a more general fault
+		return fmt.Errorf("AuthRequest: %v", err)
+	}
+
+	ok = hostsMatch(storedHosts, hosts)
+	if !ok {
+		return fmt.Errorf("AuthRequest: failed to match requested hosts for : %v", userName)
+	}
+
+	err = nil
+	return
+}
+
+// Retreives the stored password hash and permitted hosts for the given user or err != nil.
+func getHashAndHosts(userName string, fileBuf []byte) (storedHash []byte, storedHosts []string, err error) {
+	lines := bytes.Split([]byte("\n"), fileBuf)
+	for _, line := range lines {
+		field := bytes.Split([]byte(":"), line)
+		if bytes.Equal(field[0], []byte(userName)) {
+			storedHash = field[1]
+			storedHosts = strings.Split(",", string(field[3]))
+			err = nil
+			return
+		}
+	}
+	storedHash = nil
+	storedHosts = nil
+	err = fmt.Errorf("getHashAndHosts: failed to find account information for: %v", userName)
+	return
+}
+
+// Confirms that the requested host updates are contained in the stored hosts on the passwd file.
+func hostsMatch(storedHosts []string, hosts []string) (ok bool) {
+	ok = false
+
+	// This has a somewhat ugly time complexity but host lists should be small and besides this way
+	// we can allow partial requests. Shouldn't be a problem.
+	for _, rhost := range hosts {
+		thisHostMatched := false
+		for _, shost := range storedHosts {
+			if shost == rhost {
+				thisHostMatched = true
+			}
+		}
+		if !thisHostMatched {
+			// first mis-match fails
+			return
+		}
+	}
+
+	// if we made it this far, we are ok
+	ok = true
+	return
 }
 
 // AddUser attempts to add the given user account information to the password store.
