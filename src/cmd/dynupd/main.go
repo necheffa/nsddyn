@@ -21,6 +21,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 
@@ -78,10 +79,24 @@ func main() {
 		fmt.Fprintf(os.Stderr, msg)
 	}
 
+	nsddynHome, ok := os.LookupEnv("NSDDYN_HOME")
+
+	if !ok {
+		nsddynHome = "/usr/local"
+	}
+
+	fi, err := os.Stat(nsddynHome)
+	if os.IsNotExist(err) {
+		log.Fatal("dynupd: Error: $NSDDYN_HOME set to non-existent location.")
+	}
+	if !fi.IsDir() {
+		log.Fatal("dynupd: Error: $NSDDYN_HOME is not set to a directory.")
+	}
+
 	d := new(DynUpd)
 	// TODO: support multiple auth mechanisms here...
 	passwdDb := new(auth.FlatFile)
-	passwdDb.SetFilePath("passwdFile") // TODO: see issue #20
+	passwdDb.SetFilePath(nsddynHome + "/etc/nsddynpasswd")
 	d.NewDynUpd(passwdDb, zoneFile)
 
 	http.HandleFunc(uri, d.DynUpdHandler)
