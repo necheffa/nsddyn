@@ -93,7 +93,7 @@ func (f *FlatFile) authRequest(passwd []byte, userName string, hosts []string, f
 
 	ok = hostsMatch(storedHosts, hosts)
 	if !ok {
-		return fmt.Errorf("AuthRequest: failed to match requested hosts for : %v", userName)
+		return fmt.Errorf("AuthRequest: failed to match requested hosts for: %v", userName)
 	}
 
 	err = nil
