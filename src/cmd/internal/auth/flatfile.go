@@ -68,7 +68,7 @@ func (f *FlatFile) AuthRequest(passwd []byte, userName string, hosts []string) (
 	return f.authRequest(passwd, userName, hosts, file)
 }
 
-func (f *FlatFile) authRequest(passwd []byte, userName string, hosts []string, file io.ReadWriter) (err error) {
+func (f *FlatFile) authRequest(passwd []byte, userName string, hosts []string, file io.Reader) (err error) {
 	fileBuf, err := ioutil.ReadAll(file)
 	if err != nil {
 		return fmt.Errorf("AuthRequest: %v", err)
@@ -183,7 +183,7 @@ func (f *FlatFile) addUser(passwd []byte, userName string, hosts []string, file 
 	defer EraseBuf(hashedPasswd)
 
 	size := len(userName+":") + len(hashedPasswd) + hostSize(hosts) + len("\n")
-	lineBuf := make([]byte, size)
+	lineBuf := make([]byte, 0, size)
 	defer EraseBuf(lineBuf)
 
 	// because we manually calculated enough storage for the lineBuf byte slice, we can
