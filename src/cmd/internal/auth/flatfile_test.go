@@ -21,6 +21,7 @@ package auth
 import (
 	"bytes"
 	"io"
+	"io/ioutil"
 	"testing"
 
 	"golang.org/x/crypto/bcrypt"
@@ -192,4 +193,33 @@ func TestAuthRequest(t *testing.T) {
 	}
 
 	// TODO: test with two entry passwd file
+}
+
+func TestGetHashAndHosts(t *testing.T) {
+	passwd := new(FlatFile)
+	buf := bytes.NewBufferString("")
+
+	err := passwd.addUser([]byte("password"), "alex", []string{"host1", "host2", "host3"}, buf)
+	if err != nil {
+		t.Error(err)
+	}
+
+	bufReader := bytes.NewReader(buf.Bytes())
+	fileBuf, err := ioutil.ReadAll(bufReader)
+	if err != nil {
+		t.Error(err)
+	}
+
+	// test user account doesn't exist
+	hash, host, err := getHashAndHosts("joe", fileBuf)
+	expected := "getHashAndHosts: failed to find account information for: joe"
+	if err.Error() != expected {
+		t.Errorf("Expected [%s], but got: [%v]", expected, err)
+	}
+	if hash != nil {
+		t.Errorf("Expected hash to be nil but got: %v", hash)
+	}
+	if host != nil {
+		t.Errorf("Expected host to be nil but got: %v", host)
+	}
 }
