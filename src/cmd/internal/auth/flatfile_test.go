@@ -21,6 +21,8 @@ package auth
 import (
 	"bytes"
 	"testing"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 // TestUserExists() mocks a nsddynpasswd file to isolate testing to the userExists() function.
@@ -128,4 +130,51 @@ func TestAddUser(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+}
+
+// TestAuthRequest mocks a nsddynpasswd file to test the flatfile.AuthRequest method.
+func TestAuthRequest(t *testing.T) {
+	passwd := new(FlatFile)
+	buf := bytes.NewBufferString("")
+
+	// test with empty passwd file
+	err := passwd.authRequest([]byte("password"), "alex", []string{"host1"}, buf)
+	expected := "AuthRequest: user account does not exist with name: alex"
+	if err.Error() != expected {
+		t.Errorf("Expected: [%s], but got: [%v]", expected, err)
+	}
+
+	// test with single entry passwd file
+	err = passwd.addUser([]byte("password"), "alex", []string{"host1", "host2"}, buf)
+	if err != nil {
+		t.Error(err)
+	}
+	// account exists, password matches, host good
+	err = passwd.authRequest([]byte("password"), "alex", []string{"host1"}, buf)
+	if err != nil {
+		t.Error(err)
+	}
+
+	// account exists, password bad, host good
+	err = passwd.authRequest([]byte("badpassword"), "alex", []string{"host1"}, buf)
+	expected = "AuthRequest: " + bcrypt.ErrMismatchedHashAndPassword.Error()
+	if err.Error() != expected {
+		t.Errorf("Expected: [%s], but got: [%v]", expected, err)
+	}
+
+	// account exists, password good, host bad
+	err = passwd.authRequest([]byte("password"), "alex", []string{"badhost1"}, buf)
+	expected = "AuthRequest: failed to match requested hosts for: alex"
+	if err.Error() != expected {
+		t.Errorf("Expected: [%s], but got: [%v]", expected, err)
+	}
+
+	// account does not exist
+	err = passwd.authRequest([]byte("password"), "baduser", []string{"host1"}, buf)
+	expected = "AuthRequest: user account does not exist with name: baduser"
+	if err.Error() != expected {
+		t.Errorf("Expected: [%s], but got: [%v]", expected, err)
+	}
+
+	// TODO: test with two entry passwd file
 }
