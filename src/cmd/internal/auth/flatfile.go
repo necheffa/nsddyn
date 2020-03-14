@@ -102,12 +102,12 @@ func (f *FlatFile) authRequest(passwd []byte, userName string, hosts []string, f
 
 // Retreives the stored password hash and permitted hosts for the given user or err != nil.
 func getHashAndHosts(userName string, fileBuf []byte) (storedHash []byte, storedHosts []string, err error) {
-	lines := bytes.Split([]byte("\n"), fileBuf)
+	lines := bytes.Split(fileBuf, []byte("\n"))
 	for _, line := range lines {
-		field := bytes.Split([]byte(":"), line)
+		field := bytes.Split(line, []byte(":"))
 		if bytes.Equal(field[0], []byte(userName)) {
 			storedHash = field[1]
-			storedHosts = strings.Split(",", string(field[3]))
+			storedHosts = strings.Split(string(field[3]), ",")
 			err = nil
 			return
 		}
