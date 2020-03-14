@@ -20,6 +20,7 @@ package auth
 
 import (
 	"bytes"
+	"io"
 	"testing"
 
 	"golang.org/x/crypto/bcrypt"
@@ -137,8 +138,12 @@ func TestAuthRequest(t *testing.T) {
 	passwd := new(FlatFile)
 	buf := bytes.NewBufferString("")
 
+	// need to use bytes.Reader to get a Seekable type, otherwise if buf is left as
+	// just a bytes.Buffer we can only read from it once.
+	bufReader := bytes.NewReader(buf.Bytes())
+
 	// test with empty passwd file
-	err := passwd.authRequest([]byte("password"), "alex", []string{"host1"}, buf)
+	err := passwd.authRequest([]byte("password"), "alex", []string{"host1"}, bufReader)
 	expected := "AuthRequest: user account does not exist with name: alex"
 	if err.Error() != expected {
 		t.Errorf("Expected: [%s], but got: [%v]", expected, err)
@@ -149,28 +154,38 @@ func TestAuthRequest(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+
+	bufReader = bytes.NewReader(buf.Bytes())
+	bufReader.Seek(io.SeekStart, 0)
+
 	// account exists, password matches, host good
-	err = passwd.authRequest([]byte("password"), "alex", []string{"host1"}, buf)
+	err = passwd.authRequest([]byte("password"), "alex", []string{"host1"}, bufReader)
 	if err != nil {
 		t.Error(err)
 	}
 
+	bufReader.Seek(io.SeekStart, 0)
+
 	// account exists, password bad, host good
-	err = passwd.authRequest([]byte("badpassword"), "alex", []string{"host1"}, buf)
+	err = passwd.authRequest([]byte("badpassword"), "alex", []string{"host1"}, bufReader)
 	expected = "AuthRequest: " + bcrypt.ErrMismatchedHashAndPassword.Error()
 	if err.Error() != expected {
 		t.Errorf("Expected: [%s], but got: [%v]", expected, err)
 	}
 
+	bufReader.Seek(io.SeekStart, 0)
+
 	// account exists, password good, host bad
-	err = passwd.authRequest([]byte("password"), "alex", []string{"badhost1"}, buf)
+	err = passwd.authRequest([]byte("password"), "alex", []string{"badhost1"}, bufReader)
 	expected = "AuthRequest: failed to match requested hosts for: alex"
 	if err.Error() != expected {
 		t.Errorf("Expected: [%s], but got: [%v]", expected, err)
 	}
 
+	bufReader.Seek(io.SeekStart, 0)
+
 	// account does not exist
-	err = passwd.authRequest([]byte("password"), "baduser", []string{"host1"}, buf)
+	err = passwd.authRequest([]byte("password"), "baduser", []string{"host1"}, bufReader)
 	expected = "AuthRequest: user account does not exist with name: baduser"
 	if err.Error() != expected {
 		t.Errorf("Expected: [%s], but got: [%v]", expected, err)
