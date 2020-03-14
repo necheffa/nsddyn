@@ -185,7 +185,7 @@ func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 		err = d.passwdDb.AuthRequest([]byte(msg.Password), msg.Username, msg.Hostnames)
 		if err != nil {
 			// TODO: parse out err and return a specific error code
-			fmt.Fprintf(w, "authentication failure")
+			fmt.Fprintf(w, err.Error())
 			return
 		}
 
