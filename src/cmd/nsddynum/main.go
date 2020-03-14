@@ -39,6 +39,9 @@ func main() {
 		log.Fatal("nsddynum: Error: unknown sub-command.")
 	case "version":
 		version.PrintVersion()
+	case "removeuser":
+		passwdDb := new(auth.FlatFile)
+		log.Fatal(passwdDb.RemoveUser("user"))
 	case "adduser":
 		addUserCmd := flag.NewFlagSet("adduser", flag.ExitOnError)
 
