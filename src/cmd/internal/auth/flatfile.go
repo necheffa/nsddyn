@@ -107,7 +107,7 @@ func getHashAndHosts(userName string, fileBuf []byte) (storedHash []byte, stored
 		field := bytes.Split(line, []byte(":"))
 		if bytes.Equal(field[0], []byte(userName)) {
 			storedHash = field[1]
-			storedHosts = strings.Split(string(field[3]), ",")
+			storedHosts = strings.Split(string(field[2]), ",")
 			err = nil
 			return
 		}
