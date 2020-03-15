@@ -30,6 +30,7 @@ func PrintUsage() {
 		"  -v,--version\t\tPrint version information and exit successfully.\n" +
 		"  -h,--help\t\tPrint usage message and exit successfully.\n" +
 		"  -d,--debug\t\tActivate verbose messaging.\n" +
-		"  -f,--zone-file\tSpecify the zonefile to manage.\n"
+		"  -f,--zone-file\tSpecify the zonefile to manage.\n" +
+		"  -p,--passwd-file\tOverride the location of the password store.\n"
 	fmt.Fprintf(os.Stderr, msg)
 }

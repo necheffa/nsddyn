@@ -42,6 +42,7 @@ func main() {
 	var printVersion bool
 	var debugFlag bool
 	var zoneFile string
+	var passwdFile string
 
 	dynupdCmd.BoolVar(&printHelp, "help", false, "Print usage message and exit successfully.")
 	dynupdCmd.BoolVar(&printHelp, "h", false, "Print usage message and exit successfully.")
@@ -51,6 +52,8 @@ func main() {
 	dynupdCmd.BoolVar(&debugFlag, "debug", false, "Activate verbose messaging.")
 	dynupdCmd.StringVar(&zoneFile, "f", "", "Specify the zonefile to manage.")
 	dynupdCmd.StringVar(&zoneFile, "zone-file", "", "Specify the zonefile to manage.")
+	dynupdCmd.StringVar(&passwdFile, "p", "", "Override the location of the passwd store.")
+	dynupdCmd.StringVar(&passwdFile, "passwd-file", "", "Override the location of the passwd store.")
 
 	dynupdCmd.Parse(os.Args[1:])
 
@@ -85,18 +88,32 @@ func main() {
 		nsddynHome = "/usr/local"
 	}
 
-	fi, err := os.Stat(nsddynHome)
-	if os.IsNotExist(err) {
-		log.Fatal("dynupd: Error: $NSDDYN_HOME set to non-existent location.")
-	}
-	if !fi.IsDir() {
-		log.Fatal("dynupd: Error: $NSDDYN_HOME is not set to a directory.")
+	if passwdFile == "" {
+		fi, err := os.Stat(nsddynHome)
+		if os.IsNotExist(err) {
+			log.Fatal("dynupd: Error: $NSDDYN_HOME set to non-existent location.")
+		}
+		if !fi.IsDir() {
+			log.Fatal("dynupd: Error: $NSDDYN_HOME is not set to a directory.")
+		}
+	} else {
+		fi, err := os.Stat(passwdFile)
+		if os.IsNotExist(err) {
+			log.Fatal("dynupd: Error: file specified by -p does not exist.")
+		}
+		if !fi.Mode().IsRegular() {
+			log.Fatal("dynupd: Error: file specified by -p is not a regular file.")
+		}
 	}
 
 	d := new(DynUpd)
 	// TODO: support multiple auth mechanisms here...
 	passwdDb := new(auth.FlatFile)
-	passwdDb.SetFilePath(nsddynHome + "/etc/nsddynpasswd")
+	if passwdFile == "" {
+		passwdDb.SetFilePath(nsddynHome + "/etc/nsddynpasswd")
+	} else {
+		passwdDb.SetFilePath(passwdFile)
+	}
 	d.NewDynUpd(passwdDb, zoneFile)
 
 	http.HandleFunc(uri, d.DynUpdHandler)
