@@ -165,6 +165,7 @@ func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "Unknown parse error")
 			return
 		}
+		defer auth.EraseBuf(msg.Password)
 
 		if config.Debug {
 			fmt.Fprintf(os.Stderr, "Receaved request:\n")
@@ -186,7 +187,6 @@ func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "Unknown parser error")
 			return
 		}
-		defer auth.EraseBuf(msg.Password)
 		if config.Debug {
 			fmt.Fprintf(os.Stderr, "Parsed Password: %v\n", string(passwd))
 		}
