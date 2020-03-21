@@ -38,8 +38,11 @@ import (
 // DynUpd status codes - similar to HTTP status codes,
 // but not exactly the same.
 const (
-	zoneUpdateFail    = "500"
-	zoneUpdateSuccess = "200"
+	zoneUpdateFail     = "500"
+	zoneUpdateSuccess  = "200"
+	malformedRequest   = "400"
+	authenticationFail = "403"
+	hostsFail          = "418" // it's tea time
 )
 
 type DynUpd struct {

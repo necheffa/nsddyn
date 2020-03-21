@@ -79,11 +79,11 @@ nsddyn will always return a status as a JSON object with the following form:
 ```
 
 The following status codes may be returned:
-* XXX - Success. The request was authenticated and applied.
-* XXX - The request was malformed, dynupd rejected it.
-* XXX - Authentication failed, nsddynd didn't agree with your provided username or password.
-* XXX - Account authentication succeeded, but permitted hosts authentication failed.
-* XXX - Account and permitted hosts authentication succeeded, but something failed when updating the zone. Probably not the client's fault.
+* 200 - Success. The request was authenticated and applied.
+* 400 - The request was malformed, dynupd rejected it.
+* 403 - Authentication failed, nsddynd didn't agree with your provided username or password.
+* 418 - Account authentication succeeded, but permitted hosts authentication failed.
+* 500 - Account and permitted hosts authentication succeeded, but something failed when updating the zone. Probably not the client's fault.
 
 Notice that the nsddyn server will always return its version number in the responce, this is so the protocol may be versioned.
 
