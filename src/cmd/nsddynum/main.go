@@ -19,7 +19,6 @@
 package main
 
 import (
-	"bytes"
 	"flag"
 	"fmt"
 	"log"
@@ -27,6 +26,8 @@ import (
 
 	"cmd/internal/auth"
 	"cmd/internal/version"
+
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 func main() {
@@ -72,23 +73,19 @@ func main() {
 
 		hostNames = addUserCmd.Args()
 
-		// we are intentionally using lower level, unbuffered routines for reading the new password.
-		// this way, we control the buffer and can wipe it when we are done.
-		// also, we need to read the password as a []byte not a string to make the wipe effective.
-		// we allocate +1 to detect if the entered password was too big/store \n if auth.MaxPasswd is entered.
-		passwd := make([]byte, auth.MaxPasswd+1)
-		defer auth.EraseBuf(passwd)
 		fmt.Fprintf(os.Stderr, "new password: ")
-		_, err = os.Stdin.Read(passwd)
+		passwd, err := terminal.ReadPassword(int(os.Stdin.Fd()))
 		if err != nil {
 			log.Fatal(fmt.Errorf("nsddynum: Error reading password: %v", err))
 		}
+		defer auth.EraseBuf(passwd)
 
-		newLine := bytes.IndexRune(passwd, '\n')
-		if newLine < 0 {
-			log.Fatal(fmt.Errorf("nsddynum: Error: password length exceeds max password length of %d", auth.MaxPasswd))
-		} else if newLine < auth.MinPasswd {
-			log.Fatal("nsddynum: Error: password length too short.")
+		// TODO: there has to be a better way to handle this since the whole point is to avoid filling memory
+		// with a maliciously crafted password...
+		if len(passwd) > auth.MaxPasswd {
+			log.Fatal("nsddynum: Error: password length exceeds max password length of ", auth.MaxPasswd)
+		} else if len(passwd) < auth.MinPasswd {
+			log.Fatal("nsddynum: Error: password length less than minimum length of ", auth.MinPasswd)
 		} else {
 			// we need to advance the prompt because we successfully consumed the \n
 			fmt.Fprintf(os.Stderr, "\n")
@@ -97,7 +94,7 @@ func main() {
 		// TODO: support multiple auth methods here...
 		passwdDb := new(auth.FlatFile)
 		passwdDb.SetFilePath(fileName)
-		err = passwdDb.AddUser(passwd[:newLine], userName, hostNames)
+		err = passwdDb.AddUser(passwd, userName, hostNames)
 		if err != nil {
 			log.Fatal(fmt.Errorf("nsddynum: %v", err))
 		}
