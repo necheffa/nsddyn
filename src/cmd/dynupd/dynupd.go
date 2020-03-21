@@ -191,10 +191,7 @@ func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(os.Stderr, "Parsed Password: %v\n", string(passwd))
 		}
 
-		// sanitize input
-
 		// authenticate user
-		// TODO: see critical issue #19
 		err = d.passwdDb.AuthRequest(passwd, msg.Username, msg.Hostnames)
 		if err != nil {
 			// TODO: parse out err and return a specific error code
