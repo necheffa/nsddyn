@@ -19,10 +19,14 @@
 // Package dynreq provides the DynReq type.
 package dynreq
 
+import (
+	"encoding/json"
+)
+
 type DynReq struct {
 	Version   string
 	Username  string
-	Password  string
+	Password  json.RawMessage
 	Ipaddr    string
 	Hostnames []string
 }

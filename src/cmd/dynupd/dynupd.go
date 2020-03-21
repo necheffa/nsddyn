@@ -169,7 +169,7 @@ func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 		if config.Debug {
 			fmt.Fprintf(os.Stderr, "Receaved request:\n")
 			fmt.Fprintf(os.Stderr, "Posted username: %v\n", msg.Username)
-			fmt.Fprintf(os.Stderr, "Posted password: %v\n", msg.Password)
+			fmt.Fprintf(os.Stderr, "Posted password: %v\n", string(msg.Password))
 			fmt.Fprintf(os.Stderr, "Posted ipaddr: %v\n", msg.Ipaddr)
 			fmt.Fprintf(os.Stderr, "Posted client version: %v\n", msg.Version)
 			fmt.Fprintf(os.Stderr, "Posted hosts:\n")
@@ -178,11 +178,24 @@ func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
+		passwd, err := passwdParse([]byte(msg.Password))
+		if err != nil {
+			if config.Debug {
+				fmt.Fprintf(os.Stderr, "%s\n", err.Error())
+			}
+			fmt.Fprintf(w, "Unknown parser error")
+			return
+		}
+		defer auth.EraseBuf(msg.Password)
+		if config.Debug {
+			fmt.Fprintf(os.Stderr, "Parsed Password: %v\n", string(passwd))
+		}
+
 		// sanitize input
 
 		// authenticate user
 		// TODO: see critical issue #19
-		err = d.passwdDb.AuthRequest([]byte(msg.Password), msg.Username, msg.Hostnames)
+		err = d.passwdDb.AuthRequest(passwd, msg.Username, msg.Hostnames)
 		if err != nil {
 			// TODO: parse out err and return a specific error code
 			fmt.Fprintf(w, err.Error())
