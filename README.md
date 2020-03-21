@@ -120,6 +120,29 @@ Then, execute `make` to start the compilation.
 Once the compilation is complete, the binaries will be placed under bin/ and you will need to manually copy them to your desired destination. \
 Currently there is no install target for make but one is planned for the future.
 
+On new installs the nsddynpasswd file will need to be created manually. First touch the file and then chmod and chown it so that root owns the file with
+read-write permissions and the group which the dynupd daemon will run under has read-only permissions, but world has no permissions.
+
+## Getting Started
+
+Fundamentally you only need dynupd started and users in the nsddynpasswd file to start accepting requests.
+
+Both nsddynum and dynupd will look for the nsddynpasswd in the following locations in the following order: \
+* Path specified by the --passwd-file option
+* $NSDDYN_HOME/etc/nsddynpasswd
+* /usr/local/etc/nsddynpasswd
+
+So be sure your nsddynpasswd file is in an appropriate place. It is recommended to favor the $NSDDYN_HOME method.
+
+To create a new user account use nsddynum's adduser sub-command.
+
+To start dynupd, issue the dynupd --zone-file /path/to/zonefile command.
+
+Currently, dynupd does not provide a mechanism for changing the default listen IP and port. dynupd will listen on localhost:8080. A future update will
+provide override mechanisms to promote interoperability with other programs.
+
+We recommend using an nginx proxy to connect dynupd to the outside world.
+
 ## Licensing and Copyright
 
 nsddyn is released under the terms of the GPLv3 license, a copy of the GPL is provided in the COPYING file located in the root of this repo.
