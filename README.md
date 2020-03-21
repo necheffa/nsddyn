@@ -106,6 +106,7 @@ nsddyn is currently a source only distribution. A Unix-like system is required t
 In addition to the standard Google Go distribution, the following additional libraries should appear in the $GOPATH:
 * golang.org/x/crypto/bcrypt
 * github.com/bwesterb/go-zonefile
+* golang.org/x/crypto/ssh/terminal
 
 And remember, if these libraries are already installed, update them before compiling nsddyn.
 
