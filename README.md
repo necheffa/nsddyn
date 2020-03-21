@@ -82,6 +82,7 @@ The following status codes may be returned:
 * 200 - Success. The request was authenticated and applied.
 * 400 - The request was malformed, dynupd rejected it.
 * 403 - Authentication failed, nsddynd didn't agree with your provided username or password.
+* 405 - A bad method was used to connect to the server, we only accept HTTP POSTs.
 * 418 - Account authentication succeeded, but permitted hosts authentication failed.
 * 500 - Account and permitted hosts authentication succeeded, but something failed when updating the zone. Probably not the client's fault.
 
