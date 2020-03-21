@@ -67,7 +67,7 @@ func main() {
 		addUserCmd.StringVar(&userName, "user-name", "", "Username to add.")
 		addUserCmd.StringVar(&userName, "u", "", "Username to add.")
 		addUserCmd.StringVar(&fileName, "passwd-file", nsddynHome+"/etc/nsddynpasswd", "Path to nsddyn passwd file.")
-		addUserCmd.StringVar(&fileName, "f", nsddynHome+"/etc/nsddynpasswd", "Path to nsddyn passwd file.")
+		addUserCmd.StringVar(&fileName, "p", nsddynHome+"/etc/nsddynpasswd", "Path to nsddyn passwd file.")
 
 		addUserCmd.Parse(os.Args[2:])
 
@@ -106,7 +106,7 @@ func main() {
 			"Available SUB-COMMANDs:\n" +
 			"help [SUB-COMMAND]\t\t\t\t\tPrints this message if no argument is given, otherwise prints help text for specified SUB-COMMAND.\n" +
 			"version\t\t\t\t\t\t\tPrints version information and exits.\n" +
-			"adduser [-f PASSWD_FILE ] -u USER HOST1 HOST2\t\tAdds a user to the passwd file.\n"
+			"adduser [-p PASSWD_FILE ] -u USER HOST1 HOST2\t\tAdds a user to the passwd file.\n"
 
 		fmt.Fprintf(os.Stderr, msg)
 	}
