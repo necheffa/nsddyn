@@ -26,6 +26,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 
 	"cmd/internal/auth"
 	"cmd/internal/config"
@@ -42,6 +43,7 @@ const (
 	zoneUpdateSuccess  = "200"
 	malformedRequest   = "400"
 	authenticationFail = "403"
+	badMethod          = "405"
 	hostsFail          = "418" // it's tea time
 )
 
@@ -153,19 +155,30 @@ func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	default:
-		fmt.Fprintf(w, "Bad method: only POST is allowed.")
+		if config.Debug {
+			fmt.Fprintf(os.Stderr, "Bad method requested.\n")
+		}
+		fmt.Fprintf(w, craftResponse(badMethod))
 		return
 	case "POST":
 		var msg dynreq.DynReq
 		// parse the reqest
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			fmt.Fprintf(w, "Unknown read error")
+			if config.Debug {
+				fmt.Fprintf(os.Stderr, "Failed to read request: %v\n", err)
+			}
+			// we don't acutally know if the request was well formed or not, failing here
+			// is likely an internal server error...
+			fmt.Fprintf(w, craftResponse(zoneUpdateFail))
 			return
 		}
 		err = json.Unmarshal(body, &msg)
 		if err != nil {
-			fmt.Fprintf(w, "Unknown parse error")
+			if config.Debug {
+				fmt.Fprintf(os.Stderr, "Failed to unmarshal JSON request: %v\n", err)
+			}
+			fmt.Fprintf(w, craftResponse(malformedRequest))
 			return
 		}
 		defer auth.EraseBuf(msg.Password)
@@ -187,18 +200,26 @@ func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 			if config.Debug {
 				fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 			}
-			fmt.Fprintf(w, "Unknown parser error")
+			fmt.Fprintf(w, craftResponse(malformedRequest))
 			return
 		}
 		if config.Debug {
 			fmt.Fprintf(os.Stderr, "Parsed Password: %v\n", string(passwd))
 		}
 
-		// authenticate user
 		err = d.passwdDb.AuthRequest(passwd, msg.Username, msg.Hostnames)
 		if err != nil {
-			// TODO: parse out err and return a specific error code
-			fmt.Fprintf(w, err.Error())
+			if strings.HasPrefix(err.Error(), "AuthRequest: failed to match requested hosts for:") {
+				fmt.Fprintf(w, craftResponse(hostsFail))
+			} else if strings.HasPrefix(err.Error(), "AuthRequest: user account does not exist with name:") ||
+				strings.HasPrefix(err.Error(), "AuthRequest: crypto/bcrypt: hashedPassword is not the hash of the given password") {
+				fmt.Fprintf(w, craftResponse(authenticationFail))
+			} else {
+				fmt.Fprintf(w, craftResponse(zoneUpdateFail))
+			}
+			if config.Debug {
+				fmt.Fprintf(os.Stderr, "Authentication failed: %v\n", err)
+			}
 			return
 		}
 
@@ -208,7 +229,12 @@ func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		status := d.UpdateZone(msg)
-		retObj := "{ \"version\": " + version.Version + ", \"code\": " + status + " }"
-		fmt.Fprintf(w, retObj)
+		fmt.Fprintf(w, craftResponse(status))
 	}
+}
+
+// craftResponse crafts a JSON responce object conforming to the nsddyn protocol using
+// the given status code as a string.
+func craftResponse(status string) string {
+	return "{ \"version\": " + version.Version + ", \"code:\": " + status + " }"
 }
