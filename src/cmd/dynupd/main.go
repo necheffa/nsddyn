@@ -31,11 +31,15 @@ import (
 )
 
 const (
-	uri  = "/api/dynupd"
-	host = "localhost:8080"
+	defaultUri  = "/api/dynupd"
+	defaultHost = "localhost:8080"
 )
 
 func main() {
+
+	var host string
+	var uri string
+
 	dynupdCmd := flag.NewFlagSet("dynupd", flag.ExitOnError)
 
 	var printHelp bool
@@ -43,6 +47,8 @@ func main() {
 	var debugFlag bool
 	var zoneFile string
 	var passwdFile string
+	var listenAddr string
+	var listenUri string
 
 	dynupdCmd.BoolVar(&printHelp, "help", false, "Print usage message and exit successfully.")
 	dynupdCmd.BoolVar(&printHelp, "h", false, "Print usage message and exit successfully.")
@@ -54,6 +60,10 @@ func main() {
 	dynupdCmd.StringVar(&zoneFile, "zone-file", "", "Specify the zonefile to manage.")
 	dynupdCmd.StringVar(&passwdFile, "p", "", "Override the location of the passwd store.")
 	dynupdCmd.StringVar(&passwdFile, "passwd-file", "", "Override the location of the passwd store.")
+	dynupdCmd.StringVar(&listenAddr, "a", "", "Override the default listen address and optionally port.")
+	dynupdCmd.StringVar(&listenAddr, "addr", "", "Override the default listen address and optionally port.")
+	dynupdCmd.StringVar(&listenUri, "u", "", "Override the ddefault listen URI.")
+	dynupdCmd.StringVar(&listenUri, "uri", "", "Override the ddefault listen URI.")
 
 	dynupdCmd.Parse(os.Args[1:])
 
@@ -75,6 +85,18 @@ func main() {
 		PrintUsage()
 		fmt.Fprintf(os.Stderr, "dynupd: error: missing required argument, --zone-file\n")
 		return
+	}
+
+	if listenAddr == "" {
+		host = defaultHost
+	} else {
+		host = listenAddr
+	}
+
+	if listenUri == "" {
+		uri = defaultUri
+	} else {
+		uri = listenUri
 	}
 
 	if config.Debug {
