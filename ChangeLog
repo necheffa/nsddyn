@@ -1,19 +1,26 @@
+2020-07-01 Alexander Necheff <alex@necheff.net>
+    * Set version to 0.2.1-dev.
+    * Partially automated integration testing by providing a Dockerfile and run scripts. Fixed issue #3.
+    * Provided an --addr and --uri option on dynupd to allow the override of default listen address/port and/or URI. Fixed issue #13.
+    * Fixed unreported bugs in dynupd which had resulted in an invalid return JSON message.
+    * Started developing with 1.14.4 toolchain.
+
 2020-03-21 Alexander Necheff <alex@necheff.net>
-    * Set version to 0.2.0-dev
+    * Set version to 0.2.0-dev.
     * Refactored and overhauled authenticaion system to use erasable byte slices for passwords. Fixed issue #7, #17, and #24.
     * Modified dynupd to partially manually parse the password field of a request using json.RawMessage. Fixed issue #19.
     * Added option to dynupd to override default nsddynpasswd file location. Fixed issue #20.
     * Confirmed that json.Unmarshal returns an error when malformed requests are received. Fixed issue #21.
     * Replaced generic error messages in dynupd with return status codes. Fixed issue #22.
-    * Changed nsddynum to treat nsddynpasswd file non-existance as an error, added installation instructions
+    * Changed nsddynum to treat nsddynpasswd file non-existance as an error, added installation instructions.
         covering the creation of the nsddynpasswd on new installs. Fixed issue #28.
     * Changed nsddynum to use the s/crypto/ssh/terminal package for reading passwords. Fixed issue #29.
     * Fixed a bug where the nsddynum adduser sub-command did not add authorized hosts to the nsddynpasswd file. Fixed issue #30.
 
 2020-02-29 Alexander Necheff <alex@necheff.net>
-    * Set version to 0.1.2-dev
-    * Changed API handler internals to support instance state instead of using global variables
-    * Added capability to update zonefile, without authentication
+    * Set version to 0.1.2-dev.
+    * Changed API handler internals to support instance state instead of using global variables.
+    * Added capability to update zonefile, without authentication.
 
 2020-02-09 Alexander Necheff <alex@necheff.net>
     * Set version to 0.1.1-dev.
