@@ -145,6 +145,20 @@ we highly recommend listening to a port on a local loopback address and using a 
 
 We recommend using an nginx proxy, configured with TLS, to connect dynupd to the outside world.
 
+## Contributing
+
+### Running Tests
+
+The Makefile containes `test` and `testresults` targets for executing the unit tests and reviewing the results.
+Where possible, contributions should come with unit tests.
+
+Integration testing is somewhat more difficult since most people don't want to install and configure a name server on their laptop.
+Once nsddyn is compiled, set the working directory to the root of the distribution. Then execute `docker build -f test/dynupd.Dockerfile .` to build a Docker image
+that contains a preconfigured NSD daemon and dynupd.
+Use `docker run -d -t --name $YOUR_CONTAINER $YOUR_IMAGE` to get a container instance spun up.
+Then, execute the `src/scripts/test/automated_integration.sh` script to run the integration tests.
+The integration tests assume that you are running a standard GNU userspace and have `curl` and `jq` in your `$PATH`.
+
 ## Licensing and Copyright
 
 nsddyn is released under the terms of the GPLv3 license, a copy of the GPL is provided in the COPYING file located in the root of this repo.
