@@ -16,6 +16,12 @@ nsdyn aims to provide a secure alternative.
 Currently the project is under heavy development. As the project evolves, look here for a more detailed list \
 of what is and is not working.
 
+| Feature | Status |
+| User Management | Partial |
+| Server | Partial |
+| Client | Partial |
+| Protocol | Complete |
+
 ## Development Model
 
 nsddyn uses a relaxed Gitflow strategy. That is, `master` should always be buildable, stable, and only contain tagged releases.
