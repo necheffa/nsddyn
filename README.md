@@ -48,6 +48,7 @@ nsddyn is a secure protocol for the following reasons:
 ### Protocol Description
 
 Clients will initiate an update by sending an HTTP POST with the content type set to `application/json` to `https://www.example.com/api/dynupd`.
+Note that the URI (e.g. /api/dynupd) may be overriden with the --uri flag, /api/dynupd is just the default if --uri is not specified.
 The data sent will be of a JSON object taking the following form:
 ```
 {
