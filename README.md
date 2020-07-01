@@ -17,6 +17,7 @@ Currently the project is under heavy development. As the project evolves, look h
 of what is and is not working.
 
 | Feature | Status |
+| ------- | ------ |
 | User Management | Partial |
 | Server | Partial |
 | Client | Partial |
