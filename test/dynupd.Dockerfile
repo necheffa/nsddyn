@@ -18,6 +18,7 @@ RUN apt-get install nsd -y
 RUN useradd nsddyn
 RUN mkdir -p /nsddyn/bin
 RUN mkdir -p /nsddyn/etc
+COPY test/nsddynpasswd /nsddyn/etc/
 RUN chown -R nsddyn /nsddyn
 
 #
@@ -34,9 +35,10 @@ COPY test/nsd.conf /etc/nsd/
 #
 #USER nsddyn
 #WORKDIR /nsddyn
-#ENV NSDDYN_HOME="/nsddyn"
-#ENV PATH="/$NSDDYN_HOME/bin:$PATH"
+ENV NSDDYN_HOME="/nsddyn"
+ENV PATH="$NSDDYN_HOME/bin:$PATH"
 COPY src/bin/dynupd /nsddyn/bin/
+COPY src/bin/nsddynum /nsddyn/bin/
 #CMD ["dynupd", "--debug", "--addr", "0.0.0.0:8080"]
 
 COPY test/dynupd_test_deploy /
