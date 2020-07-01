@@ -138,10 +138,11 @@ To create a new user account use nsddynum's adduser sub-command.
 
 To start dynupd, issue the dynupd --zone-file /path/to/zonefile command.
 
-Currently, dynupd does not provide a mechanism for changing the default listen IP and port. dynupd will listen on localhost:8080. A future update will
-provide override mechanisms to promote interoperability with other programs.
+By default, dynupd will listen on localhost:8080. The --addr option is provided to override the default listen address and port (e.g. dynupd --addr 192.0.2.2:1337).
+While you can set any valid address:port combination to support interoperability with other programs,
+we highly recommend listening to a port on a local loopback address and using a proxy to route public traffic to dynupd since dynupd relies on the proxy for tunneling.
 
-We recommend using an nginx proxy to connect dynupd to the outside world.
+We recommend using an nginx proxy, configured with TLS, to connect dynupd to the outside world.
 
 ## Licensing and Copyright
 
