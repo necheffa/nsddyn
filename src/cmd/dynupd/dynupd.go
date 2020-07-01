@@ -236,5 +236,5 @@ func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 // craftResponse crafts a JSON responce object conforming to the nsddyn protocol using
 // the given status code as a string.
 func craftResponse(status string) string {
-	return "{ \"version\": " + version.Version + ", \"code:\": " + status + " }"
+	return "{ \"version\": " + version.Version + ", \"code\": " + status + " }"
 }
