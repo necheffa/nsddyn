@@ -149,6 +149,7 @@ func (d *DynUpd) UpdateZone(r dynreq.DynReq) string {
 		fmt.Fprintf(os.Stderr, "dynupd: info: updating zonefile with: %s\n", newZoneFile)
 	}
 	//TODO: handle possible write error getting returned here...
+	file.Seek(0, os.SEEK_SET)
 	file.Write(newZoneFile)
 
 	// TODO: there has to be a better way to ask NSD to reload the zone...
