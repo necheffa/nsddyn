@@ -151,6 +151,10 @@ func (d *DynUpd) UpdateZone(r dynreq.DynReq) string {
 	//TODO: handle possible write error getting returned here...
 	file.Seek(0, os.SEEK_SET)
 	file.Write(newZoneFile)
+	if newZoneFile[len(newZoneFile)-3] != '\n' {
+		// make sure we always have a new-line after the final A record, otherwise NSD doesn't like zonefile
+		file.Write([]byte("\n"))
+	}
 
 	// TODO: there has to be a better way to ask NSD to reload the zone...
 	cmd := exec.Command("nsd-control", "reload", d.domainName)
