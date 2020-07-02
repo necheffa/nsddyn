@@ -24,13 +24,14 @@ import (
 )
 
 func PrintUsage() {
-	msg := "Usage: dynupd [-vhd] [-z ZONE_FILE] [-p PASSWD_FILE] [-a ADDRESS[:PORT]] [-u URI]\n" +
+	msg := "Usage: dynupd [-vhd] [-p PASSWD_FILE] [-a ADDRESS[:PORT]] [-u URI] -z ZONE_FILE -n DOMAIN_NAME\n" +
 		"  dynupd is the HTTP API host component of nsddyn.\n" +
 		"\n" +
 		"  -v,--version\t\tPrint version information and exit successfully.\n" +
 		"  -h,--help\t\tPrint usage message and exit successfully.\n" +
 		"  -d,--debug\t\tActivate verbose messaging.\n" +
 		"  -z,--zone-file\tSpecify the zonefile to manage.\n" +
+		"  -n,--name\t\tSpecify the domain name associated with the zonefile.\n" +
 		"  -p,--passwd-file\tOverride the location of the password store.\n" +
 		"  -a,--addr\t\tOverride the default listen host.\n" +
 		"  -u,--uri\t\tOverride the default listen URI.\n"
