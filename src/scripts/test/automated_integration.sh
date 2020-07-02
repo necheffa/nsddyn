@@ -14,7 +14,7 @@ if [ "$RET1CODE" != "200" ]; then
     echo "Expected code 200 but got: $RET1CODE"
     FAILED_TEST="yes"
 else
-    RETADDR=$(host host1.example.com $IP | head -1 | awk '{print $4}')
+    RETADDR=$(host host1.example.com $IP | grep host1 | head -1 | awk '{print $4}')
     if [ "$RETADDR" != "192.0.2.4" ]; then
         FAILED_TEST="yes"
         echo "Test of host lookup on good request failed"
