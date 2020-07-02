@@ -25,6 +25,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 
@@ -48,13 +49,15 @@ const (
 )
 
 type DynUpd struct {
-	passwdDb auth.AuthReader
-	zoneFile string
+	passwdDb   auth.AuthReader
+	zoneFile   string
+	domainName string
 }
 
-func (d *DynUpd) NewDynUpd(passwdDb auth.AuthReader, zoneFile string) {
+func (d *DynUpd) NewDynUpd(passwdDb auth.AuthReader, zoneFile string, domainName string) {
 	d.passwdDb = passwdDb
 	d.zoneFile = zoneFile
+	d.domainName = domainName
 }
 
 // UpdateZone updates the zonefile with the specified request.
@@ -142,11 +145,19 @@ func (d *DynUpd) UpdateZone(r dynreq.DynReq) string {
 	// if we made it this far...things have gone well.
 
 	newZoneFile := zf.Save()
+	if config.Debug {
+		fmt.Fprintf(os.Stderr, "dynupd: info: updating zonefile with: %s\n", newZoneFile)
+	}
 	//TODO: handle possible write error getting returned here...
 	file.Write(newZoneFile)
 
-	//TODO: actually reload the zone here
-	fmt.Fprintf(os.Stderr, "dynupd: info: need to ask NSD to reload the zone here...\n")
+	// TODO: there has to be a better way to ask NSD to reload the zone...
+	cmd := exec.Command("nsd-control", "reload", d.domainName)
+	err = cmd.Run()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "dynupd: error: failed to reload zone for "+d.domainName+" error was %v\n", err)
+		return zoneUpdateFail
+	}
 
 	return zoneUpdateSuccess
 }

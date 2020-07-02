@@ -49,6 +49,7 @@ func main() {
 	var passwdFile string
 	var listenAddr string
 	var listenUri string
+	var domainName string
 
 	dynupdCmd.BoolVar(&printHelp, "help", false, "Print usage message and exit successfully.")
 	dynupdCmd.BoolVar(&printHelp, "h", false, "Print usage message and exit successfully.")
@@ -64,6 +65,8 @@ func main() {
 	dynupdCmd.StringVar(&listenAddr, "addr", "", "Override the default listen address and optionally port.")
 	dynupdCmd.StringVar(&listenUri, "u", "", "Override the ddefault listen URI.")
 	dynupdCmd.StringVar(&listenUri, "uri", "", "Override the ddefault listen URI.")
+	dynupdCmd.StringVar(&domainName, "n", "", "Specify the domain name associated with the zonefile.")
+	dynupdCmd.StringVar(&domainName, "name", "", "Specify the domain name associated with the zonefile.")
 
 	dynupdCmd.Parse(os.Args[1:])
 
@@ -84,6 +87,13 @@ func main() {
 	if zoneFile == "" {
 		PrintUsage()
 		fmt.Fprintf(os.Stderr, "dynupd: error: missing required argument, --zone-file\n")
+		return
+	}
+
+	if domainName == "" {
+		// A future enhancement might just default to using the domain name of the host system.
+		PrintUsage()
+		fmt.Fprintf(os.Stderr, "dynupd: error: missing required argument, --name\n")
 		return
 	}
 
@@ -136,7 +146,7 @@ func main() {
 	} else {
 		passwdDb.SetFilePath(passwdFile)
 	}
-	d.NewDynUpd(passwdDb, zoneFile)
+	d.NewDynUpd(passwdDb, zoneFile, domainName)
 
 	http.HandleFunc(uri, d.DynUpdHandler)
 	http.ListenAndServe(host, nil)
