@@ -10,7 +10,7 @@ DYNUPD=$(command -v dynupd)
 NSDDYNUM=$(command -v nsddynum)
 
 $NSD -4 -a 0.0.0.0 > nsd.log 2>&1 &
-$DYNUPD -d -a 0.0.0.0:8080 -f /etc/nsd/zones/example.com.zone > dynupd.log 2>&1 &
+$DYNUPD -d -a 0.0.0.0:8080 -z /etc/nsd/zones/example.com.zone > dynupd.log 2>&1 &
 
 # print the IP addr assigned to the container so I know where to point clients
 awk '/32 host/ { print f } {f=$2}' <<< "$(</proc/net/fib_trie)" | egrep -v "127." | sort | uniq

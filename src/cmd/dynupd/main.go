@@ -56,7 +56,7 @@ func main() {
 	dynupdCmd.BoolVar(&printVersion, "v", false, "Print version information and exit successfully.")
 	dynupdCmd.BoolVar(&debugFlag, "d", false, "Activate verbose messaging.")
 	dynupdCmd.BoolVar(&debugFlag, "debug", false, "Activate verbose messaging.")
-	dynupdCmd.StringVar(&zoneFile, "f", "", "Specify the zonefile to manage.")
+	dynupdCmd.StringVar(&zoneFile, "z", "", "Specify the zonefile to manage.")
 	dynupdCmd.StringVar(&zoneFile, "zone-file", "", "Specify the zonefile to manage.")
 	dynupdCmd.StringVar(&passwdFile, "p", "", "Override the location of the passwd store.")
 	dynupdCmd.StringVar(&passwdFile, "passwd-file", "", "Override the location of the passwd store.")
