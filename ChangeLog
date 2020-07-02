@@ -1,3 +1,12 @@
+2020-07-02 Alexander Necheff <alex@necheff.net>
+    * Set version to 0.2.2-dev.
+    * Changed dynupd to use -z instead of -f as the short option for specifying a zonefile to manage. Fixed issue #32.
+    * Corrected an issue with the use of output from the host command in the integration test script. Fixed issue #49.
+    * Corrected an issue with dynupd where the last A record would end with EOF instead of a new-line. Fixed issue #48.
+    * Corrected an issue with the integration test Docker image preventing zone reloads on successful dynupd requests. Fixed issue #47 and #45.
+    * Corrected an issue this dynupd where successful update requests would corrupt the zonefile. Fixed issue #44.
+    * Completed base implementation of dynupd; dynupd is now able to ask NSD to reload zones on successful update requests. Fixed issue #25.
+
 2020-07-01 Alexander Necheff <alex@necheff.net>
     * Set version to 0.2.1-dev.
     * Partially automated integration testing by providing a Dockerfile and run scripts. Fixed issue #3.
