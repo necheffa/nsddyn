@@ -8,7 +8,7 @@
 #
 
 # NOTE: I tried using alpine linux but ran into trouble because it links against muslc not glibc
-FROM ubuntu:20.10
+FROM debian:10-slim
 USER root
 
 # bash is a little heavy but it will make scripting easier for me
