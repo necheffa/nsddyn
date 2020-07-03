@@ -19,7 +19,7 @@ of what is and is not working.
 | Feature | Status |
 | ------- | ------ |
 | User Management | Partial |
-| Server | Partial |
+| Server | Complete |
 | Client | Partial |
 | Protocol | Complete |
 
