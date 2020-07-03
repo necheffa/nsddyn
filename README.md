@@ -160,11 +160,16 @@ The Makefile containes `test` and `testresults` targets for executing the unit t
 Where possible, contributions should come with unit tests.
 
 Integration testing is somewhat more difficult since most people don't want to install and configure a name server on their laptop.
-Once nsddyn is compiled, set the working directory to the root of the distribution. Then execute `docker build -f test/dynupd.Dockerfile .` to build a Docker image
-that contains a preconfigured NSD daemon and dynupd.
-Use `docker run -d -t --name $YOUR_CONTAINER $YOUR_IMAGE` to get a container instance spun up.
-Then, execute the `src/scripts/test/automated_integration.sh` script to run the integration tests.
-The integration tests assume that you are running a standard GNU userspace and have `curl` and `jq` in your `$PATH`.
+To execute the integration tests, follow these steps:
+
+* Compile nsddyn
+* `cd` to the root of the distribution
+* Execute `docker build -t nsddyntest -f test/dynupd.Dockerfile .` to build an image containing a preconfigured NSD daemon and dynupd listener
+* Execute `docker run -d -t --name mytest nsddyntest` to instantiate a container based on the nsddyntest image
+* Then, on the host system, execute `src/scripts/test/automated_integration.sh` to execute the tests against the running container
+* Use `docker stop mytest` to shutdown the container, if changes are made to the dynupd binary, the image will need to be rebuilt
+
+The `automated_integration.sh` script assumes you are running with a standard GNU userspace and have both `curl` and `jq` in your `$PATH`.
 
 ## Licensing and Copyright
 
