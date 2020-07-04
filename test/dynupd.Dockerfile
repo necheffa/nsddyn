@@ -13,8 +13,7 @@ USER root
 
 # bash is a little heavy but it will make scripting easier for me
 #RUN /sbin/apk add --no-cache nsd bash
-RUN apt-get update && apt-get upgrade -y
-RUN apt-get install nsd -y
+RUN apt-get update && apt-get -y upgrade && apt-get install -y nsd
 RUN useradd nsddyn
 RUN mkdir -p /nsddyn/bin
 RUN mkdir -p /nsddyn/etc
