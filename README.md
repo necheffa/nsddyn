@@ -23,6 +23,15 @@ of what is and is not working.
 | Client | Partial |
 | Protocol | Complete |
 
+* Currently nsddynum only has the capability to add new users to the password store. Since the only supported password store is a flatfile,
+removing users is as easy as opening the file with your favorite text editor, searching for the username, and deleting that line.
+Modifying usernames and authorized host lists is also easy to do with a text editor, changing passwords will require creating a seporate password file,
+adding an account with the desired plaintext password, and copying the generated hash into the original password store. A future release will add
+the capability to manage account removal and modification from nsddynum.
+
+* The nsddyncc client works but assumes you are running a GNU userspace with curl and jq installed and in your `$PATH`. A future release will add a
+RouterOS client for installation in Mikrotik devices.
+
 ## Development Model
 
 nsddyn uses a relaxed Gitflow strategy. That is, `master` should always be buildable, stable, and only contain tagged releases.
