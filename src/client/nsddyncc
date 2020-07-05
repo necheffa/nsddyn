@@ -163,6 +163,6 @@ if [ "$DRY_RUN" == "true" ]; then
     exit 0
 fi
 
-RESPONCE=$($CURL -s -X POST -H "Content-Type: application/json" -d "REQUEST" "$URI_PREFIX://$SERVER:$PORT/api/dynupd")
+RESPONCE=$($CURL -s -X POST -H "Content-Type: application/json" -d "$REQUEST" "$URI_PREFIX://$SERVER:$PORT/api/dynupd")
 func_eprintf "$PROGNAME: info: got responce: $RESPONCE"
 
