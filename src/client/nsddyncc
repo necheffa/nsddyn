@@ -135,18 +135,18 @@ if [ "$DEBUG" == "true" ]; then
     func_eprintf "Using jq: $JQ"
 fi
 
-if ! [ -r $CONFIG_FILE ]; then
+if ! [ -r "$CONFIG_FILE" ]; then
     # unable to read the file
     func_eprintf "$PROGNAME: error: unable to open $CONFIG_FILE for reading"
     exit 1
 fi
 
 # TODO: need to handle malformed config files
-PASSWD=$($JQ -r .password < $CONFIG_FILE)
-USERNAME=$($JQ -r .username < $CONFIG_FILE)
-SERVER=$($JQ -r .server < $CONFIG_FILE)
-PORT=$($JQ -r .port < $CONFIG_FILE)
-HOSTS=$($JQ -r .hostnames < $CONFIG_FILE | tr '\n' ' ')
+PASSWD=$($JQ -r .password < "$CONFIG_FILE")
+USERNAME=$($JQ -r .username < "$CONFIG_FILE")
+SERVER=$($JQ -r .server < "$CONFIG_FILE")
+PORT=$($JQ -r .port < "$CONFIG_FILE")
+HOSTS=$($JQ -r .hostnames < "$CONFIG_FILE" | tr '\n' ' ')
 
 # there is an https://api6.ipify.org specifically for IPv6 address, that might come in handy later.
 PUBIP="$($CURL -s https://api.ipify.org)"
@@ -159,7 +159,7 @@ fi
 
 if [ "$DRY_RUN" == "true" ]; then
     # write to STDOUT so we can pipe to other programs
-    echo $REQUEST
+    echo "$REQUEST"
     exit 0
 fi
 
