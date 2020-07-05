@@ -1,0 +1,157 @@
+#!/usr/bin/env bash
+
+# 2020-07-04 - Alexander Necheff
+# nsddyncc - the nsddyn curl client
+
+#    Copyright (C) 2020 Alexander Necheff
+#
+#    nsddyn is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, version 3 of the License.
+#
+#    nsddyn is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# set options to make troubleshooting easier
+# -e -> exit immediately if a pipeline exits with non-zero status
+# -u -> treat unset variables during expansion as an error
+# -o pipefail -> force intermediate non-zero values in a pipeline to be returned even if the last command in a pipline succeeds
+set -eu -o pipefail
+
+PROGNAME="nsddyncc"
+
+CPYEAR="2020"
+# NOTE: the version is a combination of protocol version and script version.
+# given 0.2.2-p01-dev:
+#   0.2.2 is the protocol version and is reflective of the minimum compatable dynupd version.
+#   p01 is the "patch" number, this is the second (zero inclusive) patch to this script since the last protocol update.
+#   dev indicates this is a development version, when nsddyn is stable this will either be "stable" or will be truncated entirely.
+#   each segment is delimited by a - which can be relied on for parsing.
+VERSION="0.2.2-p00-dev"
+
+# the debug flag is used to print verbose messages.
+# use the -d switch on the command-line to toggle it on.
+DEBUG="false"
+
+# the dry run flag will do everything up to but _not_ including sending a request.
+# instead, the contents of the request will be echoed to STDERR.
+# WARNING: this will dump the password to STDERR too.
+# use the -n swtich on the command-line to toggle it on.
+DRY_RUN="false"
+
+# if the user didn't export NSDDYN_HOME, default to /usr/local
+NSDDYN_HOME="${NSDDYN_HOME:-/usr/local}"
+
+# if the user specifies a config file on the command-line, that takes precidence.
+# otherwise, we look in $NSDDYN_HOME and if that isn't set, /usr/local
+#
+# use the config file to specify; username, password, hostlist, server IP, and server port.
+# this avoids the old "leak the password via `ps aux`" trick that can happen on multi user systems.
+CONFIG_FILE="$NSDDYN_HOME/etc/nsddynccrc"
+
+# print to STDERR
+function func_eprintf {
+    printf '%s\n' "$1" 1>&2
+}
+
+function func_print_usage {
+    printf '%s\n' "Usage: $PROGNAME [-v] [-d] [-n] [-h] [-f CONFIG_FILE]"
+    printf '%s\n' "A curl based client for nsddyn."
+    printf '\n'
+    printf '%s\t\t%s\n' "  -f, --file" "Optionally, override the location of the CONFIG_FILE to use."
+    printf '%s\t\t%s\n' "  -d, --debug" "Toggle on verbose messages and other developer friendly features."
+    printf '%s\t\t%s\n' "  -n, --dry-run" "Do everything up to, but not including, sending a request to dynupd."
+    printf '%s\t\t%s\n' "            " "  WARNING: this will display your password on the console."
+    printf '%s\t\t%s\n' "  -h, --help" "Print this usage message and exit successfully."
+    printf '%s\t\t%s\n' "  -v, --version" "Print the version string and exit successfully."
+    printf '\n'
+    printf '%s\n' "When searching for a CONFIG_FILE to use, $PROGNAME will always place precidence on the file specified with -f."
+    printf '%s\n' "If the user does not specify a file with -f, $PROGNAME will first try \$NSDDYN_HOME/etc/${PROGNAME}rc."
+    printf '%s\n' "However, if \$NSDDYN_HOME is not set then /usr/local/etc/${PROGNAME}rc is attempted."
+    printf '%s\n' "After exhausting these options, an error will be reported."
+    printf '\n'
+    printf '%s\n' "CONFIG_FILE is a JSON file structured as follows:"
+    printf '%s\n' "{"
+    printf '%s\n' "  \"username\": \"yourusername\""
+    printf '%s\n' "  \"password\": \"secret\""
+    printf '%s\n' "  \"hostnames\": [ \"host1\", \"host2\" ]"
+    printf '%s\n' "  \"server\": \"192.0.2.4\""
+    printf '%s\n' "  \"port\": \"8080\""
+    printf '%s\n' "}"
+    printf '%s\n' "NOTE: the hostnames entry is always given as a list, even if there is only a single hostname to update."
+}
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -f | --file)
+            CONFIG_FILE="$2"
+            shift 2
+            ;;
+        -d | --debug)
+            DEBUG="true"
+            shift 1
+            ;;
+        -n | --dry-run)
+            DRY_RUN="true"
+            shift 1
+            ;;
+        -h | --help)
+            func_print_usage
+            exit 0
+            ;;
+        -v | --version)
+            func_eprintf "$PROGNAME v$VERSION"
+            func_eprintf "Copyright (C) $CPYEAR Alexander Necheff"
+            func_eprintf "This program is licensed under the terms of the GPLv3."
+            exit 0
+            ;;
+        *)
+            func_eprintf "$PROGNAME: error: unrecognized argument: $1"
+            exit 1
+            ;;
+    esac
+done
+
+CURL=$(command -v curl)
+JQ=$(command -v jq)
+if [ "$DEBUG" == "true" ]; then
+    func_eprintf "Using curl: $CURL"
+    func_eprintf "Using jq: $JQ"
+fi
+
+if ! [ -r $CONFIG_FILE ]; then
+    # unable to read the file
+    func_eprintf "$PROGNAME: error: unable to open $CONFIG_FILE for reading"
+    exit 1
+fi
+
+# TODO: need to handle malformed config files
+PASSWD=$($JQ -r .password < $CONFIG_FILE)
+USERNAME=$($JQ -r .username < $CONFIG_FILE)
+SERVER=$($JQ -r .server < $CONFIG_FILE)
+PORT=$($JQ -r .port < $CONFIG_FILE)
+HOSTS=$($JQ -r .hostnames < $CONFIG_FILE | tr '\n' ' ')
+
+# there is an https://api6.ipify.org specifically for IPv6 address, that might come in handy later.
+PUBIP="$($CURL -s https://api.ipify.org)"
+
+REQUEST="{ \"password\": \"$PASSWD\", \"username\": \"$USERNAME\", \"hostnames\":$HOSTS,\"version\":\"$VERSION\",\"ipaddr\":\"$PUBIP\" }"
+
+if [ "$DEBUG" == "true" ]; then
+    func_eprintf "Using request: $REQUEST"
+fi
+
+if [ "$DRY_RUN" == "true" ]; then
+    # write to STDOUT so we can pipe to other programs
+    echo $REQUEST
+    exit 0
+fi
+
+# TODO: need to support TLS
+$CURL -s -X POST -H "Content-Type: application/json" -d "REQUEST" "http://$SERVER:$PORT/api/dynupd"
+
