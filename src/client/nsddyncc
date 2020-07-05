@@ -32,7 +32,7 @@ CPYEAR="2020"
 #   p01 is the "patch" number, this is the second (zero inclusive) patch to this script since the last protocol update.
 #   dev indicates this is a development version, when nsddyn is stable this will either be "stable" or will be truncated entirely.
 #   each segment is delimited by a - which can be relied on for parsing.
-VERSION="0.2.2-p00-dev"
+VERSION="0.2.2-p01-dev"
 
 # the debug flag is used to print verbose messages.
 # use the -d switch on the command-line to toggle it on.
@@ -54,13 +54,16 @@ NSDDYN_HOME="${NSDDYN_HOME:-/usr/local}"
 # this avoids the old "leak the password via `ps aux`" trick that can happen on multi user systems.
 CONFIG_FILE="$NSDDYN_HOME/etc/nsddynccrc"
 
+# default to using TLS for dynupd connections
+URI_PREFIX="https"
+
 # print to STDERR
 function func_eprintf {
     printf '%s\n' "$1" 1>&2
 }
 
 function func_print_usage {
-    printf '%s\n' "Usage: $PROGNAME [-v] [-d] [-n] [-h] [-f CONFIG_FILE]"
+    printf '%s\n' "Usage: $PROGNAME [-v] [-d] [-n] [-h] [-i] [-f CONFIG_FILE]"
     printf '%s\n' "A curl based client for nsddyn."
     printf '\n'
     printf '%s\t\t%s\n' "  -f, --file" "Optionally, override the location of the CONFIG_FILE to use."
@@ -68,6 +71,8 @@ function func_print_usage {
     printf '%s\t\t%s\n' "  -n, --dry-run" "Do everything up to, but not including, sending a request to dynupd."
     printf '%s\t\t%s\n' "            " "  WARNING: this will display your password on the console."
     printf '%s\t\t%s\n' "  -h, --help" "Print this usage message and exit successfully."
+    printf '%s\t%s\n'   "  -i, --insecure" "Disable the use of TLS when sending a request to dynupd."
+    printf '%s\t\t%s\n' "            " "  WARNING: this option will leak passwords and is provided only for testing, it may be removed in a future release."
     printf '%s\t\t%s\n' "  -v, --version" "Print the version string and exit successfully."
     printf '\n'
     printf '%s\n' "When searching for a CONFIG_FILE to use, $PROGNAME will always place precidence on the file specified with -f."
@@ -98,6 +103,10 @@ while [ $# -gt 0 ]; do
             ;;
         -n | --dry-run)
             DRY_RUN="true"
+            shift 1
+            ;;
+        -i | --insecure)
+            URI_PREFIX="http"
             shift 1
             ;;
         -h | --help)
@@ -152,6 +161,5 @@ if [ "$DRY_RUN" == "true" ]; then
     exit 0
 fi
 
-# TODO: need to support TLS
-$CURL -s -X POST -H "Content-Type: application/json" -d "REQUEST" "http://$SERVER:$PORT/api/dynupd"
+$CURL -s -X POST -H "Content-Type: application/json" -d "REQUEST" "$URI_PREFIX://$SERVER:$PORT/api/dynupd"
 
