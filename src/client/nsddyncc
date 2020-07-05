@@ -34,7 +34,7 @@ CPYEAR="2020"
 #   p01 is the "patch" number, this is the second (zero inclusive) patch to this script since the last protocol update.
 #   dev indicates this is a development version, when nsddyn is stable this will either be "stable" or will be truncated entirely.
 #   each segment is delimited by a - which can be relied on for parsing.
-VERSION="0.2.2-p01-dev"
+VERSION="0.2.2-p02-dev"
 
 # the debug flag is used to print verbose messages.
 # use the -d switch on the command-line to toggle it on.
@@ -163,5 +163,6 @@ if [ "$DRY_RUN" == "true" ]; then
     exit 0
 fi
 
-$CURL -s -X POST -H "Content-Type: application/json" -d "REQUEST" "$URI_PREFIX://$SERVER:$PORT/api/dynupd"
+RESPONCE=$($CURL -s -X POST -H "Content-Type: application/json" -d "REQUEST" "$URI_PREFIX://$SERVER:$PORT/api/dynupd")
+func_eprintf "$PROGNAME: info: got responce: $RESPONCE"
 
