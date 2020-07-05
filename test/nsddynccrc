@@ -1,0 +1,7 @@
+{
+    "username": "alex",
+    "password": "password",
+    "hostnames": [ "host1", "host2" ],
+    "server": "172.17.0.2",
+    "port": "8080"
+}
