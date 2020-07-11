@@ -14,6 +14,10 @@ bin: ## build the standard distribution
 vet:
 	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) GOPATH=$(GOPATH) -C $(CMD_DIR) vet
 
+.PHONY: golangci-lint
+golangci-lint:
+	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) GOPATH=$(GOPATH) -C $(CMD_DIR) golangci-lint
+
 .PHONY: shellcheck
 shellcheck:
 	@scripts/build/shellcheck client/nsddyncc
@@ -24,7 +28,7 @@ gosec:
 	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) GOPATH=$(GOPATH) -C $(CMD_DIR) gosec
 
 .PHONY: quality
-quality: vet shellcheck gosec
+quality: vet shellcheck gosec golangci-lint
 
 .PHONY: fmt
 fmt: ## run `go fmt` on all source files
