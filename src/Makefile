@@ -10,6 +10,22 @@ GOPATH="$(shell dirname $(CURDIR)):$(HOME)/go:$(OLD_GOPATH)"
 bin: ## build the standard distribution
 	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) GOPATH=$(GOPATH) -C $(CMD_DIR) bin
 
+.PHONY: vet
+vet:
+	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) GOPATH=$(GOPATH) -C $(CMD_DIR) vet
+
+.PHONY: shellcheck
+shellcheck:
+	@scripts/build/shellcheck client/nsddyncc
+	@scripts/build/shellcheck scripts/test/automated_integration.sh
+
+.PHONY: gosec
+gosec:
+	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) GOPATH=$(GOPATH) -C $(CMD_DIR) gosec
+
+.PHONY: quality
+quality: vet shellcheck gosec
+
 .PHONY: fmt
 fmt: ## run `go fmt` on all source files
 	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) GOPATH=$(GOPATH) -C $(CMD_DIR) fmt
@@ -30,4 +46,4 @@ linecount:
 
 .PHONY: clean
 clean: ## remove old binaries
-	rm -rf $(BUILD_ROOT)/bin coverage.out
+	rm -rf $(BUILD_ROOT)/bin coverage.out quality.log

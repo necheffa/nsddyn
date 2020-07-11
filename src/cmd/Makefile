@@ -15,3 +15,14 @@ unittest:
 .PHONY: fmt
 fmt: ## run `go fmt` on all source files
 	@go list -f {{.Dir}} ./... | xargs gofmt -w -s -d
+
+.PHONY: vet
+vet:
+	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) GOPATH=$(GOPATH) -C $(NSDDYNUM_DIR) vet
+	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) GOPATH=$(GOPATH) -C $(DYNUPD_DIR) vet
+
+.PHONY: gosec
+gosec:
+	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) GOPATH=$(GOPATH) -C $(NSDDYNUM_DIR) gosec
+	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) GOPATH=$(GOPATH) -C $(DYNUPD_DIR) gosec
+
