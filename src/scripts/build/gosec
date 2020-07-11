@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+gosec -tests -no-fail "$1"
+
