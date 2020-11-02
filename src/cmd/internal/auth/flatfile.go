@@ -217,8 +217,62 @@ func (f *FlatFile) addUser(passwd []byte, userName string, hosts []string, file 
 	return nil
 }
 
+// DelUser attempts to remove the given user account information from the password store.
+// Returns err != nil on err, this includes the case where userName does not exist in the store.
 func (f *FlatFile) DelUser(userName string) (err error) {
-	return fmt.Errorf("FlatFile: not yet implemented.")
+	file, err := os.OpenFile(f.filePath, os.O_RDWR, 0640)
+	if err != nil {
+		return fmt.Errorf("DelUser: %v", err)
+	}
+	defer file.Close()
+
+	size, err := f.delUser(userName, file)
+	if err == nil {
+		file.Truncate(size)
+		file.Sync()
+	}
+
+	return err
+}
+
+// delUser is a private helper function which allows the mocking of the passwd file for unit testing.
+func (f *FlatFile) delUser(userName string, file io.ReadWriteSeeker) (newSize int64, err error) {
+	fileBuf, err := ioutil.ReadAll(file)
+	if err != nil {
+		return 0, fmt.Errorf("DelUser: %v", err)
+	}
+	defer EraseBuf(fileBuf)
+
+	ok := userExists(userName, fileBuf)
+	if !ok {
+		return 0, fmt.Errorf("DelUser: user account with name %v does not exist", userName)
+	}
+
+	// note that userExists() already validated if we have an empty password store or not
+	lines := bytes.Split(fileBuf, []byte("\n"))
+	runningSize := 0
+	removeSize := 0
+	for _, line := range lines {
+		fields := bytes.Split(line, []byte(":"))
+		if bytes.Equal([]byte(userName), fields[0]) {
+			// found the match, now remove
+			removeSize = len(line) + 1 // plus one for '\n'
+			break
+		}
+		runningSize += runningSize + 1 // plus one for '\n'
+	}
+
+	size := len(fileBuf) - removeSize
+	newFileBuf := make([]byte, 0, size)
+	defer EraseBuf(newFileBuf)
+
+	newFileBuf = append(newFileBuf, fileBuf[:runningSize]...)
+	newFileBuf = append(newFileBuf, fileBuf[runningSize+removeSize:]...)
+
+	file.Seek(0, io.SeekStart)
+	file.Write(newFileBuf)
+
+	return int64(len(newFileBuf)), nil
 }
 
 func (f *FlatFile) ModUser(userName string) (err error) {

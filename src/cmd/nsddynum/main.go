@@ -40,8 +40,30 @@ func main() {
 	case "version":
 		version.PrintVersion()
 	case "deluser":
+		delUserCmd := flag.NewFlagSet("deluser", flag.ExitOnError)
+
+		var userName string
+		var fileName string
+
+		nsddynHome, err := util.FindHome()
+		if err != nil {
+			log.Fatal(fmt.Errorf("nsddynum: %v", err))
+		}
+
+		delUserCmd.StringVar(&userName, "user-name", "", "Username to delete.")
+		delUserCmd.StringVar(&userName, "u", "", "Username to delete.")
+		delUserCmd.StringVar(&fileName, "passwd-file", nsddynHome+"/etc/nsddynpasswd", "Path to nsddyn passwd file.")
+		delUserCmd.StringVar(&fileName, "p", nsddynHome+"/etc/nsddynpasswd", "Path to nsddyn passwd file.")
+
+		delUserCmd.Parse(os.Args[2:])
+
+		// TODO: support multiple auth methods here...
 		passwdDb := new(auth.FlatFile)
-		log.Fatal(passwdDb.DelUser("user"))
+		passwdDb.SetFilePath(fileName)
+		err = passwdDb.DelUser(userName)
+		if err != nil {
+			log.Fatal(fmt.Errorf("nsddynum: %v", err))
+		}
 	case "moduser":
 		passwdDb := new(auth.FlatFile)
 		log.Fatal(passwdDb.ModUser("user"))
