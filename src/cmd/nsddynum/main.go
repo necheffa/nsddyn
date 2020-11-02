@@ -25,6 +25,7 @@ import (
 	"os"
 
 	"cmd/internal/auth"
+	"cmd/internal/util"
 	"cmd/internal/version"
 )
 
@@ -51,18 +52,9 @@ func main() {
 		var fileName string
 		var hostNames []string
 
-		nsddynHome, ok := os.LookupEnv("NSDDYN_HOME")
-
-		if !ok {
-			nsddynHome = "/usr/local"
-		}
-
-		fi, err := os.Stat(nsddynHome)
-		if os.IsNotExist(err) {
-			log.Fatal("nsddynum: Error: $NSDDYN_HOME set to non-existent location.")
-		}
-		if !fi.IsDir() {
-			log.Fatal("nsddynum: Error: $NSDDYN_HOME is not set to a directory.")
+		nsddynHome, err := util.FindHome()
+		if err != nil {
+			log.Fatal(fmt.Errorf("nsddynum: %v", err))
 		}
 
 		addUserCmd.StringVar(&userName, "user-name", "", "Username to add.")
