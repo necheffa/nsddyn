@@ -221,6 +221,10 @@ func (f *FlatFile) RemoveUser(userName string) (err error) {
 	return fmt.Errorf("FlatFile: not yet implemented.")
 }
 
+func (f *FlatFile) ModUser(userName string) (err error) {
+	return fmt.Errorf("FlatFile: not yet implemented.")
+}
+
 // userExists returns ok == true if the user exists in the passwd store buffer,
 // otherwise, false.
 // Note that userExists assumes it is already working with a validated buffer,

@@ -41,6 +41,9 @@ func main() {
 	case "removeuser":
 		passwdDb := new(auth.FlatFile)
 		log.Fatal(passwdDb.RemoveUser("user"))
+	case "moduser":
+		passwdDb := new(auth.FlatFile)
+		log.Fatal(passwdDb.ModUser("user"))
 	case "adduser":
 		addUserCmd := flag.NewFlagSet("adduser", flag.ExitOnError)
 
@@ -92,7 +95,9 @@ func main() {
 			"Available SUB-COMMANDs:\n" +
 			"help [SUB-COMMAND]\t\t\t\t\tPrints this message if no argument is given, otherwise prints help text for specified SUB-COMMAND.\n" +
 			"version\t\t\t\t\t\t\tPrints version information and exits.\n" +
-			"adduser [-p PASSWD_FILE ] -u USER HOST1 HOST2\t\tAdds a user to the passwd file.\n"
+			"adduser [-p PASSWD_FILE ] -u USER HOST1 HOST2\t\tAdds a user to the passwd file.\n" +
+			"moduser [-p PASSWD_FILE ] -u USER\t\t\tModifies the password or authorized hostnames for a user account.\n" +
+			"removeuser [ -p PASSWD_FILE ] -u USER\t\t\tRemoves the specified user account from the passwd file.\n"
 
 		fmt.Fprintf(os.Stderr, msg)
 	}
