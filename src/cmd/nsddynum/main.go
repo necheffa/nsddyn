@@ -26,8 +26,6 @@ import (
 
 	"cmd/internal/auth"
 	"cmd/internal/version"
-
-	"golang.org/x/crypto/ssh/terminal"
 )
 
 func main() {
@@ -73,23 +71,11 @@ func main() {
 
 		hostNames = addUserCmd.Args()
 
-		fmt.Fprintf(os.Stderr, "new password: ")
-		passwd, err := terminal.ReadPassword(int(os.Stdin.Fd()))
+		passwd, err := promptForPasswd()
 		if err != nil {
-			log.Fatal(fmt.Errorf("nsddynum: Error reading password: %v", err))
+			log.Fatal(fmt.Errorf("nsddynum: %v", err))
 		}
 		defer auth.EraseBuf(passwd)
-
-		// TODO: there has to be a better way to handle this since the whole point is to avoid filling memory
-		// with a maliciously crafted password...
-		if len(passwd) > auth.MaxPasswd {
-			log.Fatal("nsddynum: Error: password length exceeds max password length of ", auth.MaxPasswd)
-		} else if len(passwd) < auth.MinPasswd {
-			log.Fatal("nsddynum: Error: password length less than minimum length of ", auth.MinPasswd)
-		} else {
-			// we need to advance the prompt because we successfully consumed the \n
-			fmt.Fprintf(os.Stderr, "\n")
-		}
 
 		// TODO: support multiple auth methods here...
 		passwdDb := new(auth.FlatFile)
