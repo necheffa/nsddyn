@@ -38,9 +38,9 @@ func main() {
 		log.Fatal("nsddynum: Error: unknown sub-command.")
 	case "version":
 		version.PrintVersion()
-	case "removeuser":
+	case "deluser":
 		passwdDb := new(auth.FlatFile)
-		log.Fatal(passwdDb.RemoveUser("user"))
+		log.Fatal(passwdDb.DelUser("user"))
 	case "moduser":
 		passwdDb := new(auth.FlatFile)
 		log.Fatal(passwdDb.ModUser("user"))
@@ -97,7 +97,7 @@ func main() {
 			"version\t\t\t\t\t\t\tPrints version information and exits.\n" +
 			"adduser [-p PASSWD_FILE ] -u USER HOST1 HOST2\t\tAdds a user to the passwd file.\n" +
 			"moduser [-p PASSWD_FILE ] -u USER\t\t\tModifies the password or authorized hostnames for a user account.\n" +
-			"removeuser [ -p PASSWD_FILE ] -u USER\t\t\tRemoves the specified user account from the passwd file.\n"
+			"deluser [ -p PASSWD_FILE ] -u USER\t\t\tRemoves the specified user account from the passwd file.\n"
 
 		fmt.Fprintf(os.Stderr, msg)
 	}

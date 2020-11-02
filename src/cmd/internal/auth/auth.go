@@ -51,13 +51,13 @@ type AuthWriter interface {
 	// does not already exist. On success err == nil otherwise err != nil.
 	AddUser(passwd []byte, userName string, hosts []string) (err error)
 
-	// RemoveUser removes the specified user from the password store provided the
+	// DelUser removes the specified user from the password store provided the
 	// user account exists already. On success err == nil otherwise err != nil.
-	RemoveUser(userName string) (err error)
+	DelUser(userName string) (err error)
 
-	// ModifyUser will likely need to be made up of 3 seporate functions,
-	// one to update the name, one to update the password, and one to update the allowed hosts.
-	//ModifyUser()
+	// ModUser modifies the password or authorized hosts lists for the specified
+	// user account. On success err == nil otherwise err != nil.
+	ModUser(userName string) (err error)
 }
 
 // AuthReadWriter combines the AuthReader and AuthWriter interfaces to

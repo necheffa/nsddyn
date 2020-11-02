@@ -217,7 +217,7 @@ func (f *FlatFile) addUser(passwd []byte, userName string, hosts []string, file 
 	return nil
 }
 
-func (f *FlatFile) RemoveUser(userName string) (err error) {
+func (f *FlatFile) DelUser(userName string) (err error) {
 	return fmt.Errorf("FlatFile: not yet implemented.")
 }
 
