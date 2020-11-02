@@ -255,19 +255,23 @@ func (f *FlatFile) delUser(userName string, file io.ReadWriteSeeker) (newSize in
 	for _, line := range lines {
 		fields := bytes.Split(line, []byte(":"))
 		if bytes.Equal([]byte(userName), fields[0]) {
-			// found the match, now remove
-			removeSize = len(line) + 1 // plus one for '\n'
+			removeSize = len(line)
 			break
 		}
-		runningSize += runningSize + 1 // plus one for '\n'
+		runningSize += len(line)
 	}
 
 	size := len(fileBuf) - removeSize
 	newFileBuf := make([]byte, 0, size)
 	defer EraseBuf(newFileBuf)
 
-	newFileBuf = append(newFileBuf, fileBuf[:runningSize]...)
-	newFileBuf = append(newFileBuf, fileBuf[runningSize+removeSize:]...)
+	// this check prevents removing the very first user account from leaving a \n in the file
+	if runningSize > 0 {
+		newFileBuf = append(newFileBuf, fileBuf[:runningSize]...)
+		newFileBuf = append(newFileBuf, fileBuf[runningSize+removeSize:]...)
+	} else {
+		newFileBuf = append(newFileBuf, fileBuf[removeSize+1:]...)
+	}
 
 	file.Seek(0, io.SeekStart)
 	file.Write(newFileBuf)
