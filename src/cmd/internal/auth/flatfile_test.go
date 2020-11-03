@@ -35,6 +35,12 @@ type MockFile struct {
 	curPos int    // current position into slice b, effectively a file offset
 }
 
+// Returns the contents of the MockFile as a []byte.
+// Similar to bytes.Buffer.Bytes() for bytes.Buffer
+func (mf *MockFile) Bytes() []byte {
+	return mf.buf
+}
+
 func (mf *MockFile) Seek(offset int64, whence int) (int64, error) {
 	// not yet implemeneted
 	switch whence {
@@ -99,9 +105,26 @@ func (mf *MockFile) Read(p []byte) (n int, err error) {
 func (mf *MockFile) Write(p []byte) (n int, err error) {
 	// TODO: technically, Write() should return a non-nil err when n != len(p)
 	// but for now that is above and beyond what MockFile needs to do.
+
+	/*
+		if mf.curPos+len(p) > len(mf.buf) {
+			// need to allocate a larger mf.buf, this will have a weird growth rate, deal with it
+			newBuf := make([]byte, 0, (cap(p) + cap(mf.buf))*2)
+			copy(newBuf, mf.buf)
+			mf.buf = newBuf
+		}
+		n = copy(mf.buf[mf.curPos:], p)
+		mf.curPos += len(p)
+		return n, nil
+	*/
 	mf.buf = append(mf.buf, p...)
 	mf.curPos += len(p)
 	return len(p), nil
+}
+
+func (mf *MockFile) Rewind() {
+	// ultra cheap mf.Seek(0, io.SeekStart) :-D
+	mf.curPos = 0
 }
 
 // TestUserExists() mocks a nsddynpasswd file to isolate testing to the userExists() function.
@@ -193,9 +216,57 @@ func TestDelUser(t *testing.T) {
 		t.Errorf("Expected: [%v] but got: [%v]", 0, emptySize)
 	}
 
+	ok := userExists("username", emptyBuf.Bytes())
+	if ok {
+		t.Errorf("Expected: false but got: true")
+	}
+
 	// test deleting the only user in a passwd file
+	oneBuf := new(MockFile)
+	oneBuf.buf = make([]byte, 0, 8)
+	passwd.addUser([]byte("password"), "alex", []string{"host1"}, oneBuf)
+	oneBuf.Rewind()
+	ok = userExists("alex", oneBuf.Bytes())
+	if !ok {
+		t.Errorf("Expected: true but got: false")
+	}
+	oneSize, err := passwd.delUser("alex", oneBuf)
+	if err != nil {
+		t.Error(err)
+	}
+	if oneSize != 0 {
+		t.Errorf("Expected: [%v] but got: [%v]", 0, oneSize)
+	}
+	ok = userExists("alex", oneBuf.Bytes())
+	if !ok {
+		t.Errorf("Expected: false but got: true")
+	}
 
 	// test deleting the user from a passwd file with more than one account in it
+	twoBuf := new(MockFile)
+	twoBuf.buf = make([]byte, 0, 8)
+	passwd.addUser([]byte("password"), "alex", []string{"host1"}, twoBuf)
+	passwd.addUser([]byte("password"), "yolo", []string{"host1"}, twoBuf)
+	twoBuf.Rewind()
+	ok = userExists("alex", twoBuf.Bytes())
+	if !ok {
+		t.Errorf("Expected: true but got: false")
+	}
+	twoSize, err := passwd.delUser("alex", twoBuf)
+	if err != nil {
+		t.Error(err)
+	}
+	if twoSize != 1 {
+		t.Errorf("Expected: [%v] but got: [%v]", 1, twoSize)
+	}
+	ok = userExists("alex", twoBuf.Bytes())
+	if !ok {
+		t.Errorf("Expected: false but got: true")
+	}
+	ok = userExists("yolo", twoBuf.Bytes())
+	if ok {
+		t.Errorf("Expected: true but got: false")
+	}
 
 	// test deleting the last user from a passwd file with more than one account in it
 
