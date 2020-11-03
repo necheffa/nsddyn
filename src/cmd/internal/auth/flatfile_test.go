@@ -20,6 +20,7 @@ package auth
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"testing"
@@ -36,15 +37,68 @@ type MockFile struct {
 
 func (mf *MockFile) Seek(offset int64, whence int) (int64, error) {
 	// not yet implemeneted
+	switch whence {
+	default:
+		err := fmt.Errorf("MockFile: invalid whence mode specified: %v", whence)
+		return int64(mf.curPos), err
+	case io.SeekStart:
+		// from start of file
+		if offset < 0 {
+			err := fmt.Errorf("MockFile: can't seek backwards beyond start of file, offset was: %v", offset)
+			return int64(mf.curPos), err
+		}
+
+		// any positive offset is valid, but beyond the end of the file is implementation defined.
+		// so, we won't stop callers from causing a segmentation fault, that is just "implementation defined behavior" ;-)
+		mf.curPos = int(offset)
+		return int64(mf.curPos), nil
+	case io.SeekCurrent:
+		// from current mf.curPos offset
+
+		if mf.curPos+int(offset) < 0 {
+			err := fmt.Errorf("MockFile: can't seek backwards beyond start of file, offset was: %v", offset)
+			return int64(mf.curPos), err
+		}
+		// any positive offset is valid, but beyond the end of the file is implementation defined.
+		// so, we won't stop callers from causing a segmentation fault, that is just "implementation defined behavior" ;-)
+		mf.curPos += int(offset)
+		return int64(mf.curPos), nil
+	case io.SeekEnd:
+		// from end of file
+		if len(mf.buf)+int(offset) < 0 {
+			err := fmt.Errorf("MockFile: can't seek backwards beyond start of file, offset was: %v", offset)
+			return int64(mf.curPos), err
+		}
+		// any positive offset is valid, but beyond the end of the file is implementation defined.
+		// so, we won't stop callers from causing a segmentation fault, that is just "implementation defined behavior" ;-)
+		mf.curPos = len(mf.buf) + int(offset)
+		return int64(mf.curPos), nil
+	}
+	// default case above handles return "here"
 }
 
 func (mf *MockFile) Read(p []byte) (n int, err error) {
 	if len(p)+mf.curPos > len(mf.buf) {
 		// only read what is left in mf.buf
+		n = copy(p, mf.buf[mf.curPos:])
+		mf.curPos = len(mf.buf)
+		return n, io.EOF
 	}
+
+	if mf.curPos >= len(mf.buf) {
+		// we are already at EOF, can't read any more
+		return 0, io.EOF
+	}
+
+	// just do the read then, assume len(p) < len(mf.buf) and mf.curPos
+	n = copy(p, mf.buf[mf.curPos:])
+	mf.curPos += n
+	return n, nil
 }
 
 func (mf *MockFile) Write(p []byte) (n int, err error) {
+	// TODO: technically, Write() should return a non-nil err when n != len(p)
+	// but for now that is above and beyond what MockFile needs to do.
 	mf.buf = append(mf.buf, p...)
 	mf.curPos += len(p)
 	return len(p), nil
@@ -124,15 +178,14 @@ func TestHostsToBytes(t *testing.T) {
 // We can't test DelUser directly, but we can test the internal delUser Method.
 func TestDelUser(t *testing.T) {
 	passwd := new(FlatFile)
-	emptyBuf := bytes.NewBufferString("")
-	//emptyBufReader := bytes.NewReader(emptyBuf.Bytes())
+	emptyBuf := new(MockFile)
 
 	// test deleting a user from an empty passwd file
 	emptySize, err := passwd.delUser("username", emptyBuf)
 	if err == nil {
 		t.Error(err)
 	}
-	expected1 := "YOLO"
+	expected1 := "DelUser: user account with name username does not exist"
 	if err.Error() != expected1 {
 		t.Errorf("Expected: [%s] but got: [%v]", expected1, err)
 	}
