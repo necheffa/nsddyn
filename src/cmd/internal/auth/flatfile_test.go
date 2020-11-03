@@ -27,6 +27,29 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// MockFile wraps a byte slice and implements the Seeker, Reader, and Writer interfaces.
+// This allows it to MockFiles for unit testing without acutally invoking the filesystem.
+type MockFile struct {
+	buf    []byte // slice backing the MockFile
+	curPos int    // current position into slice b, effectively a file offset
+}
+
+func (mf *MockFile) Seek(offset int64, whence int) (int64, error) {
+	// not yet implemeneted
+}
+
+func (mf *MockFile) Read(p []byte) (n int, err error) {
+	if len(p)+mf.curPos > len(mf.buf) {
+		// only read what is left in mf.buf
+	}
+}
+
+func (mf *MockFile) Write(p []byte) (n int, err error) {
+	mf.buf = append(mf.buf, p...)
+	mf.curPos += len(p)
+	return len(p), nil
+}
+
 // TestUserExists() mocks a nsddynpasswd file to isolate testing to the userExists() function.
 func TestUserExists(t *testing.T) {
 	var emptyBuf []byte
@@ -95,6 +118,35 @@ func TestHostsToBytes(t *testing.T) {
 	if !bytes.Equal(buf, []byte("host1,host2")) {
 		t.Errorf("Expected: %v but got: %v", "host1,host2", string(buf))
 	}
+}
+
+// TestDelUser mocks a nsddynpasswd file in order to test the flatfile.DelUser method.
+// We can't test DelUser directly, but we can test the internal delUser Method.
+func TestDelUser(t *testing.T) {
+	passwd := new(FlatFile)
+	emptyBuf := bytes.NewBufferString("")
+	//emptyBufReader := bytes.NewReader(emptyBuf.Bytes())
+
+	// test deleting a user from an empty passwd file
+	emptySize, err := passwd.delUser("username", emptyBuf)
+	if err == nil {
+		t.Error(err)
+	}
+	expected1 := "YOLO"
+	if err.Error() != expected1 {
+		t.Errorf("Expected: [%s] but got: [%v]", expected1, err)
+	}
+	if emptySize != 0 {
+		t.Errorf("Expected: [%v] but got: [%v]", 0, emptySize)
+	}
+
+	// test deleting the only user in a passwd file
+
+	// test deleting the user from a passwd file with more than one account in it
+
+	// test deleting the last user from a passwd file with more than one account in it
+
+	// test deleting a middle user from a passwd file with more than two accounts in it
 }
 
 // TestAddUser mocks a nsddynpasswd file in order to test the flatfile.AddUser method.
