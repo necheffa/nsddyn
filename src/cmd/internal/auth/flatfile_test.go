@@ -41,6 +41,12 @@ func (mf *MockFile) Bytes() []byte {
 	return mf.buf
 }
 
+// Truncate changes the size of the file. It does not change the I/O offset.
+func (mf *MockFile) Truncate(size int64) error {
+	mf.buf = mf.buf[:int(size)]
+	return nil
+}
+
 func (mf *MockFile) Seek(offset int64, whence int) (int64, error) {
 	switch whence {
 	default:
@@ -249,12 +255,14 @@ func TestDelUser(t *testing.T) {
 	if twoSize != 72 {
 		t.Errorf("Expected: [%v] but got: [%v]", 72, twoSize)
 	}
+	twoBuf.Truncate(twoSize)
 	ok = userExists("alex", twoBuf.Bytes())
-	if !ok {
+	if ok {
 		t.Errorf("Expected: false but got: true")
+		t.Errorf("\n%s", string(twoBuf.Bytes()))
 	}
 	ok = userExists("yolo", twoBuf.Bytes())
-	if ok {
+	if !ok {
 		t.Errorf("Expected: true but got: false")
 	}
 
