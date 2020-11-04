@@ -244,8 +244,10 @@ func TestDelUser(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if twoSize != 1 {
-		t.Errorf("Expected: [%v] but got: [%v]", 1, twoSize)
+
+	// TODO: programmatically determine expected size
+	if twoSize != 72 {
+		t.Errorf("Expected: [%v] but got: [%v]", 72, twoSize)
 	}
 	ok = userExists("alex", twoBuf.Bytes())
 	if !ok {
