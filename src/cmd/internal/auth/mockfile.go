@@ -92,16 +92,16 @@ func (mf *MockFile) Seek(offset int64, whence int) (int64, error) {
 }
 
 func (mf *MockFile) Read(p []byte) (n int, err error) {
+	if mf.curPos >= len(mf.buf) {
+		// we are already at EOF, can't read any more
+		return 0, io.EOF
+	}
+
 	if len(p)+mf.curPos > len(mf.buf) {
 		// only read what is left in mf.buf
 		n = copy(p, mf.buf[mf.curPos:])
 		mf.curPos = len(mf.buf)
 		return n, io.EOF
-	}
-
-	if mf.curPos >= len(mf.buf) {
-		// we are already at EOF, can't read any more
-		return 0, io.EOF
 	}
 
 	// just do the read then, assume len(p) < len(mf.buf) and mf.curPos
