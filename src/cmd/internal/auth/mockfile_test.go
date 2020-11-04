@@ -25,10 +25,66 @@ import (
 )
 
 const (
-	Hello      = "Hello World!"
-	HelloHello = "Hello World!Hello World!"
-	Spaces12   = "            "
+	Hello           = "Hello World!"
+	HelloHello      = "Hello World!Hello World!"
+	HelloHelloHello = "Hello World!Hello World!Hello World!"
+	Spaces12        = "            "
 )
+
+func TestMockSeek(t *testing.T) {
+	mf := NewMockFile()
+
+	buf12 := make([]byte, 12)
+	_, _ = mf.Write([]byte(HelloHello))
+	// HelloHello
+	mf.Seek(0, io.SeekStart)
+	_, _ = mf.Read(buf12)
+	mf.Seek(0, io.SeekEnd)
+	_, _ = mf.Write([]byte(Hello))
+	// HelloHelloHello
+	mf.Seek(-12, io.SeekCurrent)
+	_, _ = mf.Write([]byte(HelloHelloHello))
+	// HelloHelloHelloHelloHello
+	_, _ = mf.Write([]byte(Hello))
+	// HelloHelloHelloHelloHelloHello
+	mf.Seek(0, io.SeekStart)
+	buf24 := make([]byte, 24)
+	_, _ = mf.Read(buf24)
+	mf.Seek(12, io.SeekCurrent)
+	_, _ = mf.Write([]byte(Spaces12))
+	// HelloHelloHello     HelloHello
+
+	expected := []byte("Hello World!Hello World!Hello World!            Hello World!Hello World!")
+	if !bytes.Equal(expected, mf.Bytes()) {
+		t.Errorf("After MockFile.Seek(), expected \"%v\" but got \"%v\"", string(expected), string(mf.Bytes()))
+	}
+
+	_, err := mf.Seek(0, 99)
+	if err == nil {
+		t.Error("Expected non-nill error for invalid whence during MockFile.Seek()")
+	}
+	_, err = mf.Seek(0, -99)
+	if err == nil {
+		t.Error("Expected non-nill error for invalid whence during MockFile.Seek()")
+	}
+
+	_, err = mf.Seek(-99, io.SeekEnd)
+	if err == nil {
+		t.Errorf("Expected error to be raised when attempting to MockFile.Seek() backwards past the start of the MockFile.")
+	}
+	_, err = mf.Seek(-99, io.SeekStart)
+	if err == nil {
+		t.Errorf("Expected error to be raised when attempting to MockFile.Seek() backwards past the start of the MockFile.")
+	}
+	_, err = mf.Seek(-99, io.SeekCurrent)
+	if err == nil {
+		t.Errorf("Expected error to be raised when attempting to MockFile.Seek() backwards past the start of the MockFile.")
+	}
+	_, err = mf.Seek(99, io.SeekEnd)
+	if err != nil {
+		t.Errorf("Expected to be permitted to MockFile.Seek() past the end of the MockFile without raising an error.")
+	}
+}
 
 func TestMockRead(t *testing.T) {
 	mf := NewMockFile()
