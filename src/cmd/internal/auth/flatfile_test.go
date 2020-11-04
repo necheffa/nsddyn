@@ -42,7 +42,6 @@ func (mf *MockFile) Bytes() []byte {
 }
 
 func (mf *MockFile) Seek(offset int64, whence int) (int64, error) {
-	// not yet implemeneted
 	switch whence {
 	default:
 		err := fmt.Errorf("MockFile: invalid whence mode specified: %v", whence)
@@ -106,17 +105,6 @@ func (mf *MockFile) Write(p []byte) (n int, err error) {
 	// TODO: technically, Write() should return a non-nil err when n != len(p)
 	// but for now that is above and beyond what MockFile needs to do.
 
-	/*
-		if mf.curPos+len(p) > len(mf.buf) {
-			// need to allocate a larger mf.buf, this will have a weird growth rate, deal with it
-			newBuf := make([]byte, 0, (cap(p) + cap(mf.buf))*2)
-			copy(newBuf, mf.buf)
-			mf.buf = newBuf
-		}
-		n = copy(mf.buf[mf.curPos:], p)
-		mf.curPos += len(p)
-		return n, nil
-	*/
 	mf.buf = append(mf.buf, p...)
 	mf.curPos += len(p)
 	return len(p), nil
