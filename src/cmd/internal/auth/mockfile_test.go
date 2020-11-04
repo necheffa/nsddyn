@@ -24,7 +24,8 @@ import (
 )
 
 const (
-	Hello = "Hello World!"
+	Hello      = "Hello World!"
+	HelloHello = "Hello World!Hello World!"
 )
 
 func TestMockWrite(t *testing.T) {
@@ -42,5 +43,19 @@ func TestMockWrite(t *testing.T) {
 	}
 	if !bytes.Equal(mf.Bytes(), []byte(Hello)) {
 		t.Errorf("Not all bytes for string \"%s\" found in MockFile buffer.", Hello)
+	}
+
+	n, err = mf.Write([]byte(Hello))
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	if n != len([]byte(Hello)) {
+		t.Errorf("Expected write length of \"%s\" to be %v but got %v", Hello, len([]byte(Hello)), n)
+	}
+	if mf.curPos != len([]byte(HelloHello)) {
+		t.Errorf("Expected current offset to be %v after writing \"%s\" but got %v", len([]byte(HelloHello)), HelloHello, mf.curPos)
+	}
+	if !bytes.Equal(mf.Bytes(), []byte(HelloHello)) {
+		t.Errorf("Not all bytes for string \"%s\" found in MockFile buffer.", HelloHello)
 	}
 }
