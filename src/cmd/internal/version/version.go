@@ -37,7 +37,7 @@ var (
 func PrintVersion() {
 	fmt.Fprintf(os.Stderr, filepath.Base(os.Args[0])+" v"+Version+"\n")
 	fmt.Fprintf(os.Stderr, "Copyright (C) 2019, 2020\n")
-	fmt.Fprintf(os.Stderr, "Alexander Necheff\nnsddynum is licensed under the terms of the GPLv3.\n")
+	fmt.Fprintf(os.Stderr, "Alexander Necheff\nnsddyn is licensed under the terms of the GPLv3.\n")
 	fmt.Fprintf(os.Stderr, "Git Commit: "+GitCommit+"\n")
 	fmt.Fprintf(os.Stderr, "Built on: "+BuildTime+" by Go toolchain version: "+GoVersion+"\n")
 }
