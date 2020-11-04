@@ -30,6 +30,14 @@ type MockFile struct {
 	curPos int    // current position into slice b, effectively a file offset
 }
 
+func NewMockFile() *MockFile {
+	mf := new(MockFile)
+	mf.buf = make([]byte, 0, 8)
+	mf.curPos = 0
+
+	return mf
+}
+
 // Returns the contents of the MockFile as a []byte.
 // Similar to bytes.Buffer.Bytes() for bytes.Buffer
 func (mf *MockFile) Bytes() []byte {
@@ -106,10 +114,11 @@ func (mf *MockFile) Write(p []byte) (n int, err error) {
 	// TODO: technically, Write() should return a non-nil err when n != len(p)
 	// but for now that is above and beyond what MockFile needs to do.
 
-	if len(p)+mf.curPos > cap(mf.buf) {
+	if len(p)+mf.curPos > len(mf.buf) {
 		// we need to reallocate mf.buf before doing the write.
-		newSize := (cap(mf.buf) + len(p)) * 2 // weird growth rate, but it works...
-		newFileBuf := make([]byte, 0, newSize)
+		// because copy() is based on len(), not cap(), this will get messy
+		newSize := (len(mf.buf) + len(p))
+		newFileBuf := make([]byte, newSize)
 		_ = copy(newFileBuf, mf.buf)
 		mf.buf = newFileBuf
 	}
