@@ -111,9 +111,17 @@ func (mf *MockFile) Write(p []byte) (n int, err error) {
 	// TODO: technically, Write() should return a non-nil err when n != len(p)
 	// but for now that is above and beyond what MockFile needs to do.
 
-	mf.buf = append(mf.buf, p...)
-	mf.curPos += len(p)
-	return len(p), nil
+	if len(p)+mf.curPos > cap(mf.buf) {
+		// we need to reallocate mf.buf before doing the write.
+		newSize := (cap(mf.buf) + len(p)) * 2 // weird growth rate, but it works...
+		newFileBuf := make([]byte, 0, newSize)
+		_ = copy(newFileBuf, mf.buf)
+		mf.buf = newFileBuf
+	}
+
+	n = copy(mf.buf[mf.curPos:], p)
+	mf.curPos += n
+	return n, nil
 }
 
 func (mf *MockFile) Rewind() {
@@ -231,8 +239,9 @@ func TestDelUser(t *testing.T) {
 	if oneSize != 0 {
 		t.Errorf("Expected: [%v] but got: [%v]", 0, oneSize)
 	}
+	oneBuf.Truncate(oneSize)
 	ok = userExists("alex", oneBuf.Bytes())
-	if !ok {
+	if ok {
 		t.Errorf("Expected: false but got: true")
 	}
 
