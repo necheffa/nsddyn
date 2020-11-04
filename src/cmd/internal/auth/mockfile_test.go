@@ -20,13 +20,57 @@ package auth
 
 import (
 	"bytes"
+	"io"
 	"testing"
 )
 
 const (
 	Hello      = "Hello World!"
 	HelloHello = "Hello World!Hello World!"
+	Spaces12   = "            "
 )
+
+func TestMockRead(t *testing.T) {
+	mf := NewMockFile()
+
+	_, _ = mf.Write([]byte(HelloHello))
+
+	buf := make([]byte, 12)
+	n, err := mf.Read(buf)
+	if err == nil {
+		t.Errorf("Expected io.EOF error but got nil")
+	}
+	if err != io.EOF {
+		t.Errorf("Expected io.EOF error but got %v", err)
+	}
+	if n != 0 {
+		t.Errorf("Expected to read 0 bytes but return value indicated %v", n)
+	}
+
+	// intentional duplication of above code to handle reading again once we are already at EOF
+	n, err = mf.Read(buf)
+	if err == nil {
+		t.Errorf("Expected io.EOF error but got nil")
+	}
+	if err != io.EOF {
+		t.Errorf("Expected io.EOF error but got %v", err)
+	}
+	if n != 0 {
+		t.Errorf("Expected to read 0 bytes but return value indicated %v", n)
+	}
+
+	mf.Seek(0, io.SeekStart)
+	n, err = mf.Read(buf)
+	if err != nil {
+		t.Errorf("Expected success but got non-nil err %v", err)
+	}
+	if n != 12 {
+		t.Errorf("Expected to read 12 bytes but return value indicated %v", n)
+	}
+	if !bytes.Equal(buf, []byte(Hello)) {
+		t.Errorf("Expected to read \"%v\" but got \"%v\"", Hello, string(buf))
+	}
+}
 
 func TestMockWrite(t *testing.T) {
 	mf := NewMockFile()
