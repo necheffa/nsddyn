@@ -18,7 +18,7 @@
 #    along with nsddyn.  If not, see <https://www.gnu.org/licenses/>.
 
 {
-    :local VERSION "0.2.2-dev"
+    :local VERSION "0.2.2-p00-dev"
     :local IPADDR [ :put ([/tool fetch url="https://api.ipify.org/" output=user as-value ]->"data") ]
     :local PASSWD secret
     :local USERNAME username
