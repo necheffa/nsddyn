@@ -19,10 +19,12 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"cmd/internal/auth"
 	"cmd/internal/util"
@@ -65,8 +67,47 @@ func main() {
 			log.Fatal(fmt.Errorf("nsddynum: %v", err))
 		}
 	case "moduser":
-		passwdDb := new(auth.FlatFile)
-		log.Fatal(passwdDb.ModUser("user"))
+		modUserCmd := flag.NewFlagSet("moduser", flag.ExitOnError)
+
+		var userName string
+		var fileName string
+
+		nsddynHome, err := util.FindHome()
+		if err != nil {
+			log.Fatal(fmt.Errorf("nsddynum: %v", err))
+		}
+
+		modUserCmd.StringVar(&userName, "user-name", "", "Username to modify.")
+		modUserCmd.StringVar(&userName, "u", "", "Username to modify.")
+		modUserCmd.StringVar(&fileName, "passwd-file", nsddynHome+"/etc/nsddynpasswd", "Path to nsddyn passwd file.")
+		modUserCmd.StringVar(&fileName, "p", nsddynHome+"/etc/nsddynpasswd", "Path to nsddyn passwd file.")
+
+		modUserCmd.Parse(os.Args[2:])
+
+		reader := bufio.NewReader(os.Stdin)
+
+		fmt.Fprintf(os.Stderr, "Update password? [y/N]: ")
+		upPassAns, _ := reader.ReadString('\n')
+		upPassAns = strings.Trim(upPassAns, "\n")
+		if upPassAns == "y" || upPassAns == "Y" {
+			passwd, err := promptForPasswd()
+			if err != nil {
+				log.Fatal(fmt.Errorf("nsddynum: %v", err))
+			}
+			defer auth.EraseBuf(passwd)
+			fmt.Println("updating password")
+		} else {
+			fmt.Fprintf(os.Stderr, "Not updating password.\n")
+		}
+
+		fmt.Fprintf(os.Stderr, "Update authorized hosts? [y/N] ")
+		upHostsAns, _ := reader.ReadString('\n')
+		upHostsAns = strings.Trim(upHostsAns, "\n")
+		if upHostsAns == "y" || upHostsAns == "Y" {
+			fmt.Println("updating authorized hosts")
+		} else {
+			fmt.Fprintf(os.Stderr, "Not updating authorized hosts.\n")
+		}
 	case "adduser":
 		addUserCmd := flag.NewFlagSet("adduser", flag.ExitOnError)
 
