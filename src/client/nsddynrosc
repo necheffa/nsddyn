@@ -17,14 +17,17 @@
 #    You should have received a copy of the GNU General Public License
 #    along with nsddyn.  If not, see <https://www.gnu.org/licenses/>.
 
-/system script add name=nsddynrosc comment="RouterOS client for nsddyn" policy="test" source={
+/system script add name=nsddynrosc comment="RouterOS client for nsddyn" policy="test,read" source={
     :local VERSION "0.2.2-p00-dev"
     :local SERVER "www.example.com:8080"
     :local IPADDR [ :put ([/tool fetch url="https://api.ipify.org/" output=user as-value ]->"data") ]
-    :local PASSWD password
-    :local USERNAME alex
+    :local PASSWD yourpassword
+    :local USERNAME yourusername
     :local HOSTS "[ \"host1\", \"host2\" ]"
     :local REQUEST "{ \"password\": \"$PASSWD\", \"username\": \"$USERNAME\", \"hostnames\": $HOSTS, \"version\": \"$VERSION\", \"ipaddr\": \"$IPADDR\" }"
 
     /tool fetch url="https://$SERVER/api/dynupd" http-method=post http-header-field="content-type: application/json" http-data="$REQUEST" output=user as-value
 }
+
+# default interval is every 4 hours (specified in seconds)
+/system scheduler add name=nsddynrosc comment="RouterOS client for nsddyn" disabled=no start-time=startup interval=14400 on-event=nsddynrosc
