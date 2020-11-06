@@ -371,7 +371,7 @@ func removeUserRecord(userName string, fileBuf []byte) (newFileBuf []byte) {
 	// this check prevents removing the very first user account from leaving a \n in the file
 	if runningSize > 0 {
 		newFileBuf = append(newFileBuf, fileBuf[:runningSize]...)
-		newFileBuf = append(newFileBuf, fileBuf[runningSize+removeSize:]...)
+		newFileBuf = append(newFileBuf, fileBuf[runningSize+removeSize+1:]...)
 	} else {
 		newFileBuf = append(newFileBuf, fileBuf[removeSize+1:]...)
 	}
