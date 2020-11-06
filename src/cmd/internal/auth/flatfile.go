@@ -336,7 +336,7 @@ func (f *FlatFile) modUser(userName string, passwd []byte, modPasswd bool, hostN
 	newUserRecord = append(newUserRecord, hostList...)
 	newUserRecord = append(newUserRecord, []byte("\n")...)
 
-	finalFileBuf := make([]byte, len(removedAccountFileBuf)+newRecordSize)
+	finalFileBuf := make([]byte, 0, len(removedAccountFileBuf)+newRecordSize)
 	defer EraseBuf(finalFileBuf)
 	n = copy(finalFileBuf, removedAccountFileBuf)
 	if n != len(removedAccountFileBuf) {
