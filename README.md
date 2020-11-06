@@ -13,24 +13,24 @@ nsdyn aims to provide a secure alternative.
 
 ## Project Status
 
-Currently the project is under heavy development. As the project evolves, look here for a more detailed list \
-of what is and is not working.
+After much development, the project has finally entered its first beta. Although not ready for a v1.0.0 release, \
+all the major functionality is in place, including RouterOS and GNU/Linux clients. Major milestones targeted before the \
+first stable release include:
+
+* v0.4.0 - Improve developer documentation, improve user documentation, transition from `$GOPATH` to use Go modules, and add vendoring for all Go dependencies.
+* v0.5.0 - Improve the end user experiance by providing installation scripts, buttoning up installation documentation, and addressing some outstanding issues 
+related to usability.
+* v0.6.0 - Improve robustness of test suite by increasing the coverage of unit and integration tests.
 
 | Feature | Status |
 | ------- | ------ |
-| User Management | Partial |
+| User Management | Complete |
 | Server | Complete |
-| Client | Partial |
+| Client | Complete |
 | Protocol | Complete |
 
-* Currently nsddynum only has the capability to add new users to the password store. Since the only supported password store is a flatfile,
-removing users is as easy as opening the file with your favorite text editor, searching for the username, and deleting that line.
-Modifying usernames and authorized host lists is also easy to do with a text editor, changing passwords will require creating a seporate password file,
-adding an account with the desired plaintext password, and copying the generated hash into the original password store. A future release will add
-the capability to manage account removal and modification from nsddynum.
-
-* The nsddyncc client works but assumes you are running a GNU userspace with curl and jq installed and in your `$PATH`. A future release will add a
-RouterOS client for installation in Mikrotik devices.
+* The nsddyncc client works but assumes you are running a GNU userspace with curl and jq installed and in your `$PATH`. \
+A future release may include a client written purely in Go.
 
 ## Development Model
 
