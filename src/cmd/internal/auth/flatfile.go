@@ -182,7 +182,7 @@ func (f *FlatFile) addUser(passwd []byte, userName string, hosts []string, file 
 	}
 	defer EraseBuf(hashedPasswd)
 
-    size := len(userName+":") + len(hashedPasswd) + len(":") + hostSize(hosts) + len("\n")
+	size := len(userName+":") + len(hashedPasswd) + len(":") + hostSize(hosts) + len("\n")
 	lineBuf := make([]byte, 0, size)
 	defer EraseBuf(lineBuf)
 
@@ -320,7 +320,7 @@ func (f *FlatFile) modUser(userName string, passwd []byte, modPasswd bool, hostN
 	defer EraseBuf(newFileBuf)
 	n := copy(newFileBuf, fileBuf)
 	if n != len(fileBuf) {
-		return -1, fmt.Errorf("ModUser: unable to atomically update password store.")
+		return -1, fmt.Errorf("ModUser: unable to atomically update password store before attempting removal of old user record.")
 	}
 
 	// getUserRecord() above already validated that userName exists
@@ -338,10 +338,8 @@ func (f *FlatFile) modUser(userName string, passwd []byte, modPasswd bool, hostN
 
 	finalFileBuf := make([]byte, 0, len(removedAccountFileBuf)+newRecordSize)
 	defer EraseBuf(finalFileBuf)
-	n = copy(finalFileBuf, removedAccountFileBuf)
-	if n != len(removedAccountFileBuf) {
-		return -1, fmt.Errorf("ModUser: unable to atomically update password store.")
-	}
+
+	finalFileBuf = append(finalFileBuf, removedAccountFileBuf...)
 	finalFileBuf = append(finalFileBuf, newUserRecord...)
 
 	file.Seek(0, io.SeekStart)
@@ -379,6 +377,22 @@ func removeUserRecord(userName string, fileBuf []byte) (newFileBuf []byte) {
 	}
 
 	return newFileBuf
+}
+
+// getNumRecords returns the number of records in the password file by
+// counting the number of lines since there is one record per line.
+func getNumRecords(fileBuf []byte) int {
+	if len(fileBuf) == 0 {
+		return 0
+	}
+
+	numLines := 0
+	lines := bytes.Split(fileBuf, []byte("\n"))
+	for n := range lines {
+		numLines = n
+	}
+
+	return (numLines + 1)
 }
 
 // getUserRecord attempts to return the password file record for the specified user as a byte slice.
