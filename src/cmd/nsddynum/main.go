@@ -88,17 +88,18 @@ func main() {
 		passwdDb := new(auth.FlatFile)
 		passwdDb.SetFilePath(fileName)
 
+		passwd := []byte{}
+		hostNames := []string{}
+		modPasswd := false
+		modHostNames := false
+		defer auth.EraseBuf(passwd)
+
 		fmt.Fprintf(os.Stderr, "Update password? [y/N]: ")
 		upPassAns, _ := reader.ReadString('\n')
 		upPassAns = strings.Trim(upPassAns, "\n")
 		if upPassAns == "y" || upPassAns == "Y" {
-			passwd, err := promptForPasswd()
-			hostNames := []string{}
-			if err != nil {
-				log.Fatal(fmt.Errorf("nsddynum: %v", err))
-			}
-			defer auth.EraseBuf(passwd)
-			err = passwdDb.ModUser(userName, passwd, true, hostNames, false)
+			modPasswd = true
+			passwd, err = promptForPasswd()
 			if err != nil {
 				log.Fatal(fmt.Errorf("nsddynum: %v", err))
 			}
@@ -110,18 +111,24 @@ func main() {
 		upHostsAns, _ := reader.ReadString('\n')
 		upHostsAns = strings.Trim(upHostsAns, "\n")
 		if upHostsAns == "y" || upHostsAns == "Y" {
-			hostNames, err := promptForHosts()
-			passwd := []byte{}
-			if err != nil {
-				log.Fatal(fmt.Errorf("nsddynum: %v", err))
-			}
-			err = passwdDb.ModUser(userName, passwd, false, hostNames, true)
+			hostNames, err = promptForHosts()
+			modHostNames = true
 			if err != nil {
 				log.Fatal(fmt.Errorf("nsddynum: %v", err))
 			}
 		} else {
 			fmt.Fprintf(os.Stderr, "Not updating authorized hosts.\n")
 		}
+
+		if modPasswd == false && modHostNames == false {
+			return
+		}
+
+		err = passwdDb.ModUser(userName, passwd, modPasswd, hostNames, modHostNames)
+		if err != nil {
+			log.Fatal(fmt.Errorf("nsddynum: %v", err))
+		}
+
 	case "adduser":
 		addUserCmd := flag.NewFlagSet("adduser", flag.ExitOnError)
 
