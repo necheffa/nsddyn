@@ -1,7 +1,22 @@
-XXXX-YY-ZZ Alexander Necheff <alex@necheff.net>
+2020-11-06 Alexander Necheff <alex@necheff.net>
+    * Set version to 0.3.0.
+    * Corrected issue where mis-calculating account buffer prior to disk write could lead to password leak via local side channel attack. Fixed issue #57.
+        Note that this issue is deemed low-risk.
     * Added static analysis targets to Makefile. Fixed issue #6.
+    * Added automated integration tests. Fixed issue #3.
     * Corrected issue where copyright/licensing statement reported `nsddynum` instead of `nsddyn` as program name. Fixed issue #36.
-    * Added support to nsddynum for `deluser` sub-command to remove user accounts. Partial fix to issue #31.
+    * Removed legacy debug feature printing passwords in dynupd log. Fixed issue #53.
+    * Corrected use of the `host` command in test scripts that only worked in certain senarios. Fixed issue #49.
+    * Corrected issue where dynupd could sometimes create a zonefile that NSD considered corrupt. Fixed issue #48.
+    * Updated integration tests to use reserved IPv4 addresses designated for examples and testing. Fixed issue #47.
+    * Corrected file buffer truncation issue when updating zonefile. Fixed issue #46.
+    * Added `control-enabled` option to nsd.conf supplied with integration tests. Fixed issue #45.
+    * Corrected issue when dynupd could append pieces of the old zonefile to the updated zonefile. Fixed issue #44.
+    * Changed dynupd short option for specifying a zonefile from `-f` to `-z` for consistency with other nsddyn components. Fixed issue #32.
+    * Added the `nsddyncc` cURL client and `nsddynrosc` RouterOS client. Fixed issue #26.
+    * Updated dynupd to reload the zonefile upon successful authentication of client request instead of the stubbed printout. Fixed issue #25.
+    * Added the `--addr` and `--uri` options to dynupd for overriding the default listen address and URI. Fixed issue #13.
+    * Added support to nsddynum for `deluser` and `moduser` sub-commands. Fixed issue #31.
 
 2020-07-05 Alexander Necheff <alex@necheff.net>
     * Set version to 0.2.3-dev.
