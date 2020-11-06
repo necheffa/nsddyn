@@ -85,17 +85,23 @@ func main() {
 		modUserCmd.Parse(os.Args[2:])
 
 		reader := bufio.NewReader(os.Stdin)
+		passwdDb := new(auth.FlatFile)
+		passwdDb.SetFilePath(fileName)
 
 		fmt.Fprintf(os.Stderr, "Update password? [y/N]: ")
 		upPassAns, _ := reader.ReadString('\n')
 		upPassAns = strings.Trim(upPassAns, "\n")
 		if upPassAns == "y" || upPassAns == "Y" {
 			passwd, err := promptForPasswd()
+			hostNames := []string{}
 			if err != nil {
 				log.Fatal(fmt.Errorf("nsddynum: %v", err))
 			}
 			defer auth.EraseBuf(passwd)
-			fmt.Println("updating password")
+			err = passwdDb.ModUser(userName, passwd, true, hostNames, false)
+			if err != nil {
+				log.Fatal(fmt.Errorf("nsddynum: %v", err))
+			}
 		} else {
 			fmt.Fprintf(os.Stderr, "Not updating password.\n")
 		}
@@ -104,7 +110,15 @@ func main() {
 		upHostsAns, _ := reader.ReadString('\n')
 		upHostsAns = strings.Trim(upHostsAns, "\n")
 		if upHostsAns == "y" || upHostsAns == "Y" {
-			fmt.Println("updating authorized hosts")
+			hostNames, err := promptForHosts()
+			passwd := []byte{}
+			if err != nil {
+				log.Fatal(fmt.Errorf("nsddynum: %v", err))
+			}
+			err = passwdDb.ModUser(userName, passwd, false, hostNames, true)
+			if err != nil {
+				log.Fatal(fmt.Errorf("nsddynum: %v", err))
+			}
 		} else {
 			fmt.Fprintf(os.Stderr, "Not updating authorized hosts.\n")
 		}

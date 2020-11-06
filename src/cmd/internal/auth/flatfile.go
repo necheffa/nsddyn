@@ -249,6 +249,112 @@ func (f *FlatFile) delUser(userName string, file io.ReadWriteSeeker) (newSize in
 	}
 
 	// note that userExists() already validated if we have an empty password store or not
+	newFileBuf := removeUserRecord(userName, fileBuf)
+	defer EraseBuf(newFileBuf)
+
+	file.Seek(0, io.SeekStart)
+	file.Write(newFileBuf)
+
+	return int64(len(newFileBuf)), nil
+}
+
+// ModUser attempts to modify the password or authorized hosts list for the desired user account.
+// Returns err != nil on error.
+func (f *FlatFile) ModUser(userName string, passwd []byte, modPasswd bool, hostNames []string, modHostNames bool) (err error) {
+	file, err := os.OpenFile(f.filePath, os.O_RDWR, 0640)
+	if err != nil {
+		return fmt.Errorf("ModUser: %v", err)
+	}
+	defer file.Close()
+
+	size, err := f.modUser(userName, passwd, modPasswd, hostNames, modHostNames, file)
+	if err == nil {
+		file.Truncate(size)
+		file.Sync()
+	}
+
+	return err
+}
+
+// modUser works by atomically deleting the existing user record and
+// adding a new one with the updated information or
+// fails and no file modifications are made.
+func (f *FlatFile) modUser(userName string, passwd []byte, modPasswd bool, hostNames []string, modHostNames bool, file io.ReadWriteSeeker) (newFileSize int64, err error) {
+	fileBuf, err := ioutil.ReadAll(file)
+	if err != nil {
+		return 0, fmt.Errorf("ModUser: %v", err)
+	}
+	defer EraseBuf(fileBuf)
+
+	userRecord, ok := getUserRecord(userName, fileBuf)
+	if !ok {
+		err = fmt.Errorf("ModUser: user account with name %v does not exist.", userName)
+		return -1, err
+	}
+
+	var hostList []byte
+	var passwdHash []byte
+	defer EraseBuf(passwdHash)
+
+	fields := bytes.Split(userRecord, []byte(":"))
+
+	// we are either generating a new password hash, or keeping the existing one.
+	if modPasswd {
+		passwdHash, err = bcrypt.GenerateFromPassword(passwd, 8)
+		if err != nil {
+			return -1, fmt.Errorf("ModUser: %v", err)
+		}
+	} else {
+		passwdHash = fields[1]
+	}
+
+	// we are either updating the authorized hosts list, or keeping the existing one.
+	if modHostNames {
+		hostList = hostsToBytes(hostNames)
+	} else {
+		hostList = fields[2]
+	}
+
+	// to ensure an atomic update, we'll work with a copy of the file buffer before updating the disk.
+	newFileBuf := make([]byte, len(fileBuf))
+	defer EraseBuf(newFileBuf)
+	n := copy(newFileBuf, fileBuf)
+	if n != len(fileBuf) {
+		return -1, fmt.Errorf("ModUser: unable to atomically update password store.")
+	}
+
+	// getUserRecord() above already validated that userName exists
+	removedAccountFileBuf := removeUserRecord(userName, newFileBuf)
+	defer EraseBuf(removedAccountFileBuf)
+
+	newRecordSize := len(userName) + len(":") + len(passwdHash) + len(":") + hostSize(hostNames) + len("\n")
+	newUserRecord := make([]byte, 0, newRecordSize)
+	defer EraseBuf(newUserRecord)
+	newUserRecord = append(newUserRecord, []byte(userName+":")...)
+	newUserRecord = append(newUserRecord, passwdHash...)
+	newUserRecord = append(newUserRecord, []byte(":")...)
+	newUserRecord = append(newUserRecord, hostList...)
+	newUserRecord = append(newUserRecord, []byte("\n")...)
+
+	finalFileBuf := make([]byte, len(removedAccountFileBuf)+newRecordSize)
+	defer EraseBuf(finalFileBuf)
+	n = copy(finalFileBuf, removedAccountFileBuf)
+	if n != len(removedAccountFileBuf) {
+		return -1, fmt.Errorf("ModUser: unable to atomically update password store.")
+	}
+	finalFileBuf = append(finalFileBuf, newUserRecord...)
+
+	file.Seek(0, io.SeekStart)
+	file.Write(finalFileBuf)
+
+	return int64(len(finalFileBuf)), nil
+}
+
+// removeUserRecord returns a copy of fileBuf with the account record for userName removed.
+// The caller is responsible for:
+//  1) validating that userName exists in the fileBuf before calling removeUserRecord.
+//  2) erasing the returned []byte which contains sensitive account material.
+func removeUserRecord(userName string, fileBuf []byte) (newFileBuf []byte) {
 	lines := bytes.Split(fileBuf, []byte("\n"))
 	runningSize := 0
 	removeSize := 0
@@ -262,8 +368,7 @@ func (f *FlatFile) delUser(userName string, file io.ReadWriteSeeker) (newSize in
 	}
 
 	size := len(fileBuf) - removeSize
-	newFileBuf := make([]byte, 0, size)
-	defer EraseBuf(newFileBuf)
+	newFileBuf = make([]byte, 0, size)
 
 	// this check prevents removing the very first user account from leaving a \n in the file
 	if runningSize > 0 {
@@ -273,27 +378,20 @@ func (f *FlatFile) delUser(userName string, file io.ReadWriteSeeker) (newSize in
 		newFileBuf = append(newFileBuf, fileBuf[removeSize+1:]...)
 	}
 
-	file.Seek(0, io.SeekStart)
-	file.Write(newFileBuf)
-
-	return int64(len(newFileBuf)), nil
+	return newFileBuf
 }
 
-func (f *FlatFile) ModUser(userName string) (err error) {
-	return fmt.Errorf("FlatFile: not yet implemented.")
-}
-
-// userExists returns ok == true if the user exists in the passwd store buffer,
-// otherwise, false.
-// Note that userExists assumes it is already working with a validated buffer,
-// to pass an un-validated buffer into userExists may result in grave errors.
-func userExists(userName string, fileBuf []byte) (ok bool) {
+// getUserRecord attempts to return the password file record for the specified user as a byte slice.
+// If getUserRecord is unable to locate a record, ok == false.
+func getUserRecord(userName string, fileBuf []byte) (userRecord []byte, ok bool) {
 	ok = false
+	userRecord = []byte{}
 
 	if len(fileBuf) == 0 {
 		// there are not any users in the password store yet.
 		ok = false
-		return ok
+		userRecord = []byte{}
+		return userRecord, ok
 	}
 
 	lines := bytes.Split(fileBuf, []byte("\n"))
@@ -301,10 +399,20 @@ func userExists(userName string, fileBuf []byte) (ok bool) {
 		fields := bytes.Split(line, []byte(":"))
 		if bytes.Equal([]byte(userName), fields[0]) {
 			ok = true
-			return ok
+			userRecord = line
+			return userRecord, ok
 		}
 	}
 
+	return userRecord, ok
+}
+
+// userExists returns ok == true if the user exists in the passwd store buffer,
+// otherwise, false.
+// Note that userExists assumes it is already working with a validated buffer,
+// to pass an un-validated buffer into userExists may result in grave errors.
+func userExists(userName string, fileBuf []byte) (ok bool) {
+	_, ok = getUserRecord(userName, fileBuf)
 	return ok
 }
 
