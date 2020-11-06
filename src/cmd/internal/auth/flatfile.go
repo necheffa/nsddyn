@@ -182,7 +182,7 @@ func (f *FlatFile) addUser(passwd []byte, userName string, hosts []string, file 
 	}
 	defer EraseBuf(hashedPasswd)
 
-	size := len(userName+":") + len(hashedPasswd) + hostSize(hosts) + len("\n")
+    size := len(userName+":") + len(hashedPasswd) + len(":") + hostSize(hosts) + len("\n")
 	lineBuf := make([]byte, 0, size)
 	defer EraseBuf(lineBuf)
 
