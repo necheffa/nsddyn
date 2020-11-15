@@ -22,7 +22,7 @@ import (
 	"fmt"
 	"os"
 
-	"cmd/internal/auth"
+	"necheff.net/nsddyn/cmd/internal/auth"
 
 	"golang.org/x/crypto/ssh/terminal"
 )

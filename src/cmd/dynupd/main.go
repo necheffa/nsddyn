@@ -25,9 +25,9 @@ import (
 	"net/http"
 	"os"
 
-	"cmd/internal/auth"
-	"cmd/internal/config"
-	"cmd/internal/version"
+	"necheff.net/nsddyn/cmd/internal/auth"
+	"necheff.net/nsddyn/cmd/internal/config"
+	"necheff.net/nsddyn/cmd/internal/version"
 )
 
 const (

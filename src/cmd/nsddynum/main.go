@@ -26,9 +26,9 @@ import (
 	"os"
 	"strings"
 
-	"cmd/internal/auth"
-	"cmd/internal/util"
-	"cmd/internal/version"
+	"necheff.net/nsddyn/cmd/internal/auth"
+	"necheff.net/nsddyn/cmd/internal/util"
+	"necheff.net/nsddyn/cmd/internal/version"
 )
 
 func main() {

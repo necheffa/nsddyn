@@ -29,10 +29,10 @@ import (
 	"strconv"
 	"strings"
 
-	"cmd/internal/auth"
-	"cmd/internal/config"
-	"cmd/internal/dynreq"
-	"cmd/internal/version"
+	"necheff.net/nsddyn/cmd/internal/auth"
+	"necheff.net/nsddyn/cmd/internal/config"
+	"necheff.net/nsddyn/cmd/internal/dynreq"
+	"necheff.net/nsddyn/cmd/internal/version"
 
 	"github.com/bwesterb/go-zonefile"
 )
