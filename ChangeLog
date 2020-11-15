@@ -1,3 +1,7 @@
+2020-11-15 Alexander Necheff <alex@necheff.net>
+    * Set version to 0.3.1.
+    * Modify src/ directory to be a Go module. Fixed issue #60.
+
 2020-11-06 Alexander Necheff <alex@necheff.net>
     * Set version to 0.3.0.
     * Corrected issue where mis-calculating account buffer prior to disk write could lead to password leak via local side channel attack. Fixed issue #57.
