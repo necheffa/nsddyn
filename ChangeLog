@@ -1,3 +1,10 @@
+2020-11-16 Alexander Necheff <alex@necheff.net>
+    * Set version to 0.3.2.
+    * Added vendor/ sub-directory so dependencies can be versioned with nsddyn. Fixed issue #11.
+    * Completely removed references to $GOPATH from Makefile and build system.
+    * Updated `linecount` recipe to ignore new vendor/ sub-directory.
+    * Removed pkg/ from .gitignore which now that $GOPATH is no longer a part of build system.
+
 2020-11-15 Alexander Necheff <alex@necheff.net>
     * Set version to 0.3.1.
     * Modify src/ directory to be a Go module. Fixed issue #60.
