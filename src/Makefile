@@ -3,20 +3,18 @@ VERSION=$(shell cat VERSION)
 BUILD_ROOT:=$(CURDIR)
 CMD_DIR:=$(CURDIR)/cmd
 BIN_DIR:=$(CURDIR)/bin
-OLD_GOPATH:=$(GOPATH)
-GOPATH="$(shell dirname $(CURDIR)):$(HOME)/go:$(OLD_GOPATH)"
 
 .PHONY: bin
 bin: ## build the standard distribution
-	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) GOPATH=$(GOPATH) -C $(CMD_DIR) bin
+	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) -C $(CMD_DIR) bin
 
 .PHONY: vet
 vet:
-	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) GOPATH=$(GOPATH) -C $(CMD_DIR) vet
+	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) -C $(CMD_DIR) vet
 
 .PHONY: golangci-lint
 golangci-lint:
-	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) GOPATH=$(GOPATH) -C $(CMD_DIR) golangci-lint
+	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) -C $(CMD_DIR) golangci-lint
 
 .PHONY: shellcheck
 shellcheck:
@@ -25,24 +23,24 @@ shellcheck:
 
 .PHONY: gosec
 gosec:
-	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) GOPATH=$(GOPATH) -C $(CMD_DIR) gosec
+	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) -C $(CMD_DIR) gosec
 
 .PHONY: quality
 quality: vet shellcheck gosec golangci-lint
 
 .PHONY: fmt
 fmt: ## run `go fmt` on all source files
-	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) GOPATH=$(GOPATH) -C $(CMD_DIR) fmt
+	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) -C $(CMD_DIR) fmt
 
 .PHONY: test
 test: coverage.out
 
 coverage.out: ## unit tests
-	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) GOPATH=$(GOPATH) -C $(CMD_DIR) unittest
+	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) -C $(CMD_DIR) unittest
 
 .PHONY: testresults
 testresults: coverage.out
-	@$(shell GOPATH=$(GOPATH) go tool cover -html=coverage.out)
+	@$(shell go tool cover -html=coverage.out)
 
 .PHONY: linecount
 linecount:
