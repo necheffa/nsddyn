@@ -44,7 +44,7 @@ testresults: coverage.out
 
 .PHONY: linecount
 linecount:
-	find . -type f -iname *.go | xargs wc -l
+	find . -not \( -path ./vendor -prune \) -type f -iname *.go | xargs wc -l
 
 .PHONY: clean
 clean: ## remove old binaries
