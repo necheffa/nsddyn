@@ -16,6 +16,7 @@
    along with nsddyn.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+// The util package contains miscellaneous utility functions.
 package util
 
 import (
@@ -27,6 +28,12 @@ const (
 	DefaultHome = "/usr/local"
 )
 
+// FindHome locates and returns the base configuration directory for nsddyn binaries.
+// This is the parent directory of configuration files and other resource files.
+// First FindHome will attempt to evaluate the environment variable $NSDDYN_HOME,
+// if this environment variable was not exported or FindHome otherwise was unable to
+// read it then FindHome will attempt to default to /usr/local/.
+// If basic directory existance and is-a-directory checks fail, err != nil is returned.
 func FindHome() (nsddynHome string, err error) {
 	nsddynHome, ok := os.LookupEnv("NSDDYN_HOME")
 
