@@ -34,6 +34,8 @@ var (
 	GoVersion    = "unknown-goversion"
 )
 
+// PrintVersion is used to display version, copyright, licensing, and build information
+// whenever an nsddyn binary is called with a version command-line flag.
 func PrintVersion() {
 	fmt.Fprintf(os.Stderr, filepath.Base(os.Args[0])+" v"+Version+"\n")
 	fmt.Fprintf(os.Stderr, "Copyright (C) 2019, 2020\n")
