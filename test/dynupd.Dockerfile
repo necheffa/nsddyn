@@ -36,8 +36,8 @@ COPY test/nsd.conf /etc/nsd/
 #WORKDIR /nsddyn
 ENV NSDDYN_HOME="/nsddyn"
 ENV PATH="$NSDDYN_HOME/bin:$PATH"
-COPY src/bin/dynupd /nsddyn/bin/
-COPY src/bin/nsddynum /nsddyn/bin/
+COPY bin/dynupd /nsddyn/bin/
+COPY bin/nsddynum /nsddyn/bin/
 #CMD ["dynupd", "--debug", "--addr", "0.0.0.0:8080"]
 
 COPY test/dynupd_test_deploy /
