@@ -1,3 +1,8 @@
+2020-11-22 Alexander Necheff <alex@necheff.net>
+    * Set version to 0.3.3.
+    * Moved files in src/ sub-directory up a level, removing src/, to make more `go get` friendly.
+    * Accounted for move to Go modules in linker scripts. Fixed issue #61.
+
 2020-11-16 Alexander Necheff <alex@necheff.net>
     * Set version to 0.3.2.
     * Added vendor/ sub-directory so dependencies can be versioned with nsddyn. Fixed issue #11.
