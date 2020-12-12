@@ -1,3 +1,7 @@
+2020-12-12 Alexander Necheff <alex@necheff.net>
+    * Set version to 0.3.4.
+    * Updated vendor directory due to upstream security fixes to crypto/ssh package.
+
 2020-11-22 Alexander Necheff <alex@necheff.net>
     * Set version to 0.3.3.
     * Moved files in src/ sub-directory up a level, removing src/, to make more `go get` friendly.
