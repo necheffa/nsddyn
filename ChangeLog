@@ -1,3 +1,9 @@
+2020-12-12 Alexander Necheff
+    * Set version to 0.4.0
+    * Corrected issue where dynupd and nsddynum failed to print version string. Fixed issue #61.
+    * Added detailed installation instructions to the README. Fixed issue #1.
+    * Corrected numerious issues with the README. Fixed issue #12 and #16.
+
 2020-12-12 Alexander Necheff <alex@necheff.net>
     * Set version to 0.3.4.
     * Updated vendor directory due to upstream security fixes to crypto/ssh package.

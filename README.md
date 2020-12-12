@@ -9,7 +9,7 @@ The NSD authoritative name server by NLlabs does not support RFC 2136 or RFC 300
 
 Several other third-party scripts can be found on the web for providing Dynamic DNS using NSD but \
 I found them all to lack security. \
-nsdyn aims to provide a secure alternative.
+nsddyn aims to provide a secure alternative.
 
 ## Project Status
 
@@ -18,7 +18,7 @@ all the major functionality is in place, including RouterOS and GNU/Linux client
 first stable release include:
 
 * v0.4.0 - Improve developer documentation, improve user documentation, transition from `$GOPATH` to use Go modules, and add vendoring for all Go dependencies.
-* v0.5.0 - Improve the end user experiance by providing installation scripts, buttoning up installation documentation, and addressing some outstanding issues 
+* v0.5.0 - Improve the end user experience by providing installation scripts, buttoning up installation documentation, and addressing some outstanding issues 
 related to usability.
 * v0.6.0 - Improve robustness of test suite by increasing the coverage of unit and integration tests.
 
@@ -29,24 +29,102 @@ related to usability.
 | Client | Complete |
 | Protocol | Complete |
 
-* The nsddyncc client works but assumes you are running a GNU userspace with curl and jq installed and in your `$PATH`. \
+* The nsddyncc client works but assumes you are running a GNU userspace with cURL and jq installed and in your `$PATH`. \
 A future release may include a client written purely in Go.
 
-## Development Model
+## Installing and Getting Started
 
-nsddyn uses a relaxed Gitflow strategy. That is, `master` should always be buildable, stable, and only contain tagged releases.
+nsddyn is currently a source only distribution. A Unix-like system is required to perform compilation. In particular, GNU Make and Google Go are required.
+
+Starting with v0.3.3 nsddyn uses Go modules and vendoring to handle dependencies and the minimum Go version.
+Earlier versions depended on the $GOPATH and should not be used.
+
+### Compilation
+
+Compiling nsddyn is fairly simple, just follow these steps:
+
+1. `git clone https://gitlab.com/necheffa/nsddyn.git`
+2. `cd nsddyn/`
+3. `make`
+
+This will result in a bin/ directory being created, located here will be the dynupd and nsddynum binaries.
+Until the Makefile can be updated with an install target, these will need to be manually copied to your primary NSD server.
+
+The client component of nsddyn can be found in the client/ directory. nsddyncc is the cURL client and is designed to be run from a typical GNU/Linux distro.
+A RouterOS client can be found in nsddynrosc. It is not required to use both, choose which one best fits your environment and manually copy it to the client.
+
+### Configuring the Install
+
+Most components of nsddyn are able to use the $NSDDYN\_HOME environment variable to locate resource files. Although other mechanisms exist, where possible,
+this environment variable should be the preferred way to specify file locations.
+
+#### Server
+
+On the server, nsddynum is used to manage the nsddynpasswd file. With new installs the administrator is required to manually create an empty nsddynpasswd file
+until issue #52 is resolved.
+
+By default, dynupd will listen on localhost:8080 for client requests. The --addr option is provided to override the listen address and port: `dynupd --addr 192.0.2.2:1337`.
+While any valid address:port combination may be specified, it is highly recommended to listen on a local loopback address and use a proxy to route public traffic to dynupd.
+Currently, dynupd relies on a proxy such as nginx to provide TLS tunneling and rate limiting functionality.
+When starting dynupd, only the --zone-file argument is required to specify the location of the forward-lookup zonefile dynupd should manage.
+Currently dynupd does not support reverse-lookup zonefile updates and likely never will as in most cases where ISPs issue dynamic IP addresses, the reverse-lookup zones
+are never delegated, so it would be meaningless to attempt to manage them with dynupd.
+
+Because dynupd requires Unix filesystem permissions for reading and writing to the zonefile, it is recommended to create a subdomain to segregate dynamic records from
+static records.
+
+On new installs the nsddynpasswd file will need to be created manually. First touch the file and then chmod and chown it so that root owns the file with
+read-write permissions and the group which the dynupd daemon will run under has read-only permissions, but world has no permissions.
+
+Both nsddynum and dynupd will look for the nsddynpasswd in the following locations in the following order: \
+* Path specified by the --passwd-file option
+* $NSDDYN\_HOME/etc/nsddynpasswd
+* /usr/local/etc/nsddynpasswd
+
+#### Client - nsddyncc
+
+nsddyncc is the cURL client and is meant for installation on Unix workstations and servers. It expects a typical Unix userspace and depends on cURL and jq.
+The --help option can be used to find argument details and configuration options.
+Copy the client/nsddyncc script to a sensible location, such as /usr/local/sbin/, and create a cronjob to execute the client as an unprivileged user.
+
+nsddyncc relies on a JSON formatted configuration file and will search in the following locations in order until nsddynccrc is found:
+* Path specified by the --file option
+* $NSDDYN\_HOME/etc/nsddynccrc
+* /usr/local/etc/nsddynccrc
+
+nsddynccrc should take the following form:
+```
+{
+"username": "yourusername"
+"password": "secret"
+"hostnames": [ "host1", "host2" ]
+"server": "dynupdhost"
+"port": "8080"
+}
+```
+Note that "hostnames" is always given as a list, even if only a single hostname will be updated.
+nsddynccrc should be owned by the unprivileged user it will run as in cron and be chmod 0400 so that group and world are unable to read it.
+
+#### Client - nsddynrosc
+
+The RouterOS client is built on the /tool fetch utility and has been tested on RouterOS 6.46, but any version of RouterOS supporting /tool fetch should be compatible.
+To install, copy the client/nsddynrosc script, edit the SERVER, PASSWD, USERNAME, and HOSTS fields. Optionally, the default polling interval of 4 hours may be changed.
+Use sftp to copy the client script up to the RouterOS device and then use the /import file-name command to import the copied script.
+
+## Contributing and Developer Information
+
+### Development Model
+
+nsddyn uses a relaxed Gitflow strategy. That is, `master` should always be buildable and stable.
 `devel` acts as an integration branch and serves as a parent to any number of feature branches.
 Given the size of the project, release branches are overkill.
 
-## Design
+### Design
 
 nsddyn is comprised of 3 components:
-* dynupd - A webapp that provides an HTTP API for accessing the name server.
-* nsddynd - A daemon used to perform forward zone updates. While dynupd could \
-        handle this itself, a concious design decision was made to seporate these tasks so \
-        that the HTTP API has limited control over zone updates.
+* dynupd - A web app that provides an HTTP API for accessing the name server. Upon successful authentication, dynupd updates the zonefile and reloads the zone.
 * A web client. While official clients will be provided, anyone can create their own. \
-        A minimal client might take the form of a shell script wrapped around curl. \
+        A minimal client might take the form of a shell script wrapped around cURL. \
         More interesting might be a RouterOS script wrapped around the `/tool fetch` client.
 * nsddynum - A command-line, swiss army knife style tool for managing the nsddynpasswd file.
 
@@ -55,16 +133,15 @@ nsddyn is a secure protocol for the following reasons:
 * Clients are authenticated with a username and password, not just anyone can initiate a zone update. \
         Further, nsddynd limits what A records a client is allowed to update. \
         Passwords are stored as salted hashes to buy more time in the event hashes are leaked.
-* The seporation of roles between dynupd and nsddynd makes it harder for abuse of the public facing API to \
-        manipulate the zone of your domain since an attacker cannot simply exploit a buffer overflow to get shell access \
-        and arbitrarily write to the zone files. Instead they must craft malicous messages to pass to nsddynd which has \
-        authority to edit a zone. This, I hope, is much harder to do.
 * Its about as simple as I could make it - less attack surface.
+
+An astute reader will notice that a number of features are missing like rate limiting and permitted client IP ranges. \
+nsddyn is intended to be run on the localloop interface while a battle tested server like Apache or Nginx acts as a proxy.
 
 ### Protocol Description
 
 Clients will initiate an update by sending an HTTP POST with the content type set to `application/json` to `https://www.example.com/api/dynupd`.
-Note that the URI (e.g. /api/dynupd) may be overriden with the --uri flag, /api/dynupd is just the default if --uri is not specified.
+Note that the URI (e.g. /api/dynupd) may be overridden with the --uri flag, /api/dynupd is just the default if --uri is not specified.
 The data sent will be of a JSON object taking the following form:
 ```
 {
@@ -76,16 +153,15 @@ The data sent will be of a JSON object taking the following form:
 }
 ```
 
-Note that `hosts` may simply be an array containing a single element but will always be an array and not a scalar. This provides maxium flexability while
+Note that `hosts` may simply be an array containing a single element but will always be an array and not a scalar. This provides maximum flexibility while
 limiting edge cases to be handled.
 One might find it odd to explicitly specify `ipaddr` as well as one could infer this from the HTTP session data.
-However, this limits client flexability, one might wish to use a proxy for updating for some bizzare reason.
+However, this limits client flexibility, one might wish to use a proxy for updating for some odd reason.
 The version of the nsddyn client is included in the request so that the protocol may be versioned.
 
-Once dynupd receaves the request it will perform some preliminary validation, ensuring the request is in the proper format. \
-With the data somewhat validated, a message is passed in a to-be-determined format to nsddynd which first authenticates both
-the user account and permitted hosts. Once successfully authenticated, nsdynd uses `nsd-control` to update the zone if it already
-exists and reload the zones. Finally, dynupd returns a status code and message to the client.
+Once dynupd receives the request it will attempt to authenticate the connected client.
+If successful, dynupd will update the zonefile and reload the zone.
+This is accomplished by calling `nsd-control`; finally, dynupd returns a status code to the client.
 
 nsddyn will always return a status as a JSON object with the following form:
 ```
@@ -103,69 +179,11 @@ The following status codes may be returned:
 * 418 - Account authentication succeeded, but permitted hosts authentication failed.
 * 500 - Account and permitted hosts authentication succeeded, but something failed when updating the zone. Probably not the client's fault.
 
-Notice that the nsddyn server will always return its version number in the responce, this is so the protocol may be versioned.
-
-### Further Design Discussion
-
-An astute reader will notice that a number of features are missing like rate limiting and permitted client IP ranges. \
-nsddyn is intended to be run on the localloop interface while a battle tested server like Apache or Nginx acts as a proxy.
-
-No tools are provided to manage the password store because nsddyn is not intended for large scale or enterprise installations. \
-Helper scripts may be provided which require shell access to the server nsddyn is running on. \
-However, the author may be open to providing these facilities in the future should available time and need arise.
-
-## Installation Instructions
-
-### Prereqs
-
-nsddyn is currently a source only distribution. A Unix-like system is required to perform compilation. In particular, GNU Make and Google Go are required.
-
-In addition to the standard Google Go distribution, the following additional libraries should appear in the $GOPATH:
-* golang.org/x/crypto/bcrypt
-* github.com/bwesterb/go-zonefile
-* golang.org/x/crypto/ssh/terminal
-
-And remember, if these libraries are already installed, update them before compiling nsddyn.
-
-### Compilation
-
-After the source distribution is unpacked (or the git-repo cloned!), cd into the top level of the project directory. \
-Then, execute `make` to start the compilation.
-
-### Finishing the Install
-
-Once the compilation is complete, the binaries will be placed under bin/ and you will need to manually copy them to your desired destination. \
-Currently there is no install target for make but one is planned for the future.
-
-On new installs the nsddynpasswd file will need to be created manually. First touch the file and then chmod and chown it so that root owns the file with
-read-write permissions and the group which the dynupd daemon will run under has read-only permissions, but world has no permissions.
-
-## Getting Started
-
-Fundamentally you only need dynupd started and users in the nsddynpasswd file to start accepting requests.
-
-Both nsddynum and dynupd will look for the nsddynpasswd in the following locations in the following order: \
-* Path specified by the --passwd-file option
-* $NSDDYN_HOME/etc/nsddynpasswd
-* /usr/local/etc/nsddynpasswd
-
-So be sure your nsddynpasswd file is in an appropriate place. It is recommended to favor the $NSDDYN_HOME method.
-
-To create a new user account use nsddynum's adduser sub-command.
-
-To start dynupd, issue the dynupd --zone-file /path/to/zonefile command.
-
-By default, dynupd will listen on localhost:8080. The --addr option is provided to override the default listen address and port (e.g. dynupd --addr 192.0.2.2:1337).
-While you can set any valid address:port combination to support interoperability with other programs,
-we highly recommend listening to a port on a local loopback address and using a proxy to route public traffic to dynupd since dynupd relies on the proxy for tunneling.
-
-We recommend using an nginx proxy, configured with TLS, to connect dynupd to the outside world.
-
-## Contributing
+Notice that the nsddyn server will always return its version number in the response, this is so the protocol may be versioned.
 
 ### Running Tests
 
-The Makefile containes `test` and `testresults` targets for executing the unit tests and reviewing the results.
+The Makefile contains `test` and `testresults` targets for executing the unit tests and reviewing the results.
 Where possible, contributions should come with unit tests.
 
 Integration testing is somewhat more difficult since most people don't want to install and configure a name server on their laptop.
@@ -178,8 +196,8 @@ To execute the integration tests, follow these steps:
 * Then, on the host system, execute `src/scripts/test/automated_integration.sh` to execute the tests against the running container
 * Use `docker stop mytest` to shutdown the container, if changes are made to the dynupd binary, the image will need to be rebuilt
 
-The `automated_integration.sh` script assumes you are running with a standard GNU userspace and have both `curl` and `jq` in your `$PATH`.
+The `automated_integration.sh` script assumes you are running with a standard GNU userspace and have both `cURL` and `jq` in your `$PATH`.
 
-## Licensing and Copyright
+## Licensing
 
 nsddyn is released under the terms of the GPLv3 license, a copy of the GPL is provided in the COPYING file located in the root of this repo.
