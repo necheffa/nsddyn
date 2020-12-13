@@ -27,6 +27,8 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
+// promptForPasswd reads a plaintext password from STDIN without echoing it on the terminal.
+// Either the password is returned as a []byte or err == nil.
 func promptForPasswd() (passwd []byte, err error) {
 	fmt.Fprintf(os.Stderr, "new password: ")
 	passwd, err = terminal.ReadPassword(int(os.Stdin.Fd()))

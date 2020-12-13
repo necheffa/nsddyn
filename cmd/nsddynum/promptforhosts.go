@@ -25,6 +25,8 @@ import (
 	"strings"
 )
 
+// promptForHosts prompts the user for a comma-seporated list of hostnames to be read on STDIN.
+// The hostnames are then returned or err == nil.
 func promptForHosts() (hostNames []string, err error) {
 	reader := bufio.NewReader(os.Stdin)
 

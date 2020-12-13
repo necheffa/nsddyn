@@ -68,6 +68,7 @@ func (f *FlatFile) AuthRequest(passwd []byte, userName string, hosts []string) (
 	return f.authRequest(passwd, userName, hosts, file)
 }
 
+// authRequest is a low-level call backing AuthRequest, allowing the file to be mocked for testing.
 func (f *FlatFile) authRequest(passwd []byte, userName string, hosts []string, file io.Reader) (err error) {
 	fileBuf, err := ioutil.ReadAll(file)
 	if err != nil {
@@ -157,7 +158,7 @@ func (f *FlatFile) AddUser(passwd []byte, userName string, hosts []string) (err 
 	return f.addUser(passwd, userName, hosts, file)
 }
 
-// addUser is a private helper funcion which allows the mocking of the passwd file for unit testing.
+// addUser is a low-level call backing AddUser, allowing the file to be mocked for testing.
 func (f *FlatFile) addUser(passwd []byte, userName string, hosts []string, file io.ReadWriter) (err error) {
 	fileBuf, err := ioutil.ReadAll(file)
 	if err != nil {
@@ -235,7 +236,7 @@ func (f *FlatFile) DelUser(userName string) (err error) {
 	return err
 }
 
-// delUser is a private helper function which allows the mocking of the passwd file for unit testing.
+// delUser is a low-level call backing DelUser, allowing the file to be mocked for testing.
 func (f *FlatFile) delUser(userName string, file io.ReadWriteSeeker) (newSize int64, err error) {
 	fileBuf, err := ioutil.ReadAll(file)
 	if err != nil {
@@ -276,9 +277,8 @@ func (f *FlatFile) ModUser(userName string, passwd []byte, modPasswd bool, hostN
 	return err
 }
 
-// modUser works by atomically deleting the existing user record and
-// adding a new one with the updated information or
-// fails and no file modifications are made.
+// modUser is a low-level call backing ModUser, allowing the file to be mocked for testing.
+// Either the file update is atomic or the changes are backed out and the call returns an error.
 func (f *FlatFile) modUser(userName string, passwd []byte, modPasswd bool, hostNames []string, modHostNames bool, file io.ReadWriteSeeker) (newFileSize int64, err error) {
 	fileBuf, err := ioutil.ReadAll(file)
 	if err != nil {

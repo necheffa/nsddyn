@@ -23,6 +23,8 @@ import (
 	"os"
 )
 
+// PrintUsage is called to display a useage message either when the user has explicitly requested one or
+// the user has not passed in sensable arguments.
 func PrintUsage() {
 	msg := "Usage: dynupd [-vhd] [-p PASSWD_FILE] [-a ADDRESS[:PORT]] [-u URI] -z ZONE_FILE -n DOMAIN_NAME\n" +
 		"  dynupd is the HTTP API host component of nsddyn.\n" +

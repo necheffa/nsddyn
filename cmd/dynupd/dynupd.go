@@ -54,6 +54,7 @@ type DynUpd struct {
 	domainName string
 }
 
+// NewDynUpd initalizes a new instance of DynUpd that has already been allocated.
 func (d *DynUpd) NewDynUpd(passwdDb auth.AuthReader, zoneFile string, domainName string) {
 	d.passwdDb = passwdDb
 	d.zoneFile = zoneFile
@@ -167,6 +168,8 @@ func (d *DynUpd) UpdateZone(r dynreq.DynReq) string {
 	return zoneUpdateSuccess
 }
 
+// DynUpdHandler is a handler for incomming zone update requests
+// and is meant to be registered with http.HandleFunc.
 func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {

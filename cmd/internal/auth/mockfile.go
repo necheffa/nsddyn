@@ -25,11 +25,14 @@ import (
 
 // MockFile wraps a byte slice and implements the Seeker, Reader, and Writer interfaces.
 // This allows it to MockFiles for unit testing without acutally invoking the filesystem.
+// MockFile is not a 100% parity fidelity implementation of a file-in-memory but implements
+// enough of the file interface to mock one in many cases.
 type MockFile struct {
 	buf    []byte // slice backing the MockFile
 	curPos int    // current position into slice b, effectively a file offset
 }
 
+// NewMockFile returns a new instance of MockFile with an initial buffer of 8 bytes.
 func NewMockFile() *MockFile {
 	mf := new(MockFile)
 	mf.buf = make([]byte, 0, 8)
@@ -50,6 +53,7 @@ func (mf *MockFile) Truncate(size int64) error {
 	return nil
 }
 
+// Seek to an arbitrary location in the file. Behavior is similar to os.File.Seek().
 func (mf *MockFile) Seek(offset int64, whence int) (int64, error) {
 	switch whence {
 	default:
@@ -91,6 +95,7 @@ func (mf *MockFile) Seek(offset int64, whence int) (int64, error) {
 	// default case above handles return "here"
 }
 
+// Read attempts to read upto (len p) bytes. See os.File.Read().
 func (mf *MockFile) Read(p []byte) (n int, err error) {
 	if mf.curPos >= len(mf.buf) {
 		// we are already at EOF, can't read any more
@@ -110,6 +115,7 @@ func (mf *MockFile) Read(p []byte) (n int, err error) {
 	return n, nil
 }
 
+// Write attempts to read up to len(p) bytes. See os.File.Write().
 func (mf *MockFile) Write(p []byte) (n int, err error) {
 	// TODO: technically, Write() should return a non-nil err when n != len(p)
 	// but for now that is above and beyond what MockFile needs to do.
@@ -128,6 +134,8 @@ func (mf *MockFile) Write(p []byte) (n int, err error) {
 	return n, nil
 }
 
+// Rewind sets the current buffer offset to 0.
+// Equivalent to MockFile.Seek(0, io.SeekStart).
 func (mf *MockFile) Rewind() {
 	// ultra cheap mf.Seek(0, io.SeekStart) :-D
 	mf.curPos = 0
