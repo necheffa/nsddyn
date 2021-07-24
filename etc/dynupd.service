@@ -1,0 +1,14 @@
+[Unit]
+Description=dynupd, the HTTP API component of nsddyn
+#After=nsd.service
+
+[Service]
+EnvironmentFile=/usr/local/etc/default/dynupd
+#ExecStart=$NSDDYN_HOME/bin/dynupd $DYNUPD_ARGS
+ExecStart=/opt/nsddyn/bin/dynupd $DYNUPD_ARGS
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+#PrivateNetwork=yes
+ProtectHome=yes
+ProtectSystem=strict

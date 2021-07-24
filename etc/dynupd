@@ -1,0 +1,2 @@
+NSDDYN_HOME=/opt/nsddyn
+DYNUPD_ARGS="--zone-file /opt/nsddyn/myzonefile.zone --name example.com --addr 127.0.0.1:8080 -d"
