@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2019, 2020 Alexander Necheff
+   Copyright (C) 2019, 2020, 2021 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -59,6 +59,14 @@ func main() {
 
 		delUserCmd.Parse(os.Args[2:])
 
+		ok, err := util.CheckFilePerms(fileName, util.NsddynpasswdPerms)
+		if err != nil {
+			log.Fatal(fmt.Errorf("nsddynum: %v", err))
+		}
+		if !ok {
+			log.Print(fmt.Errorf("nsddynum: permissions on nsddynpasswd too permissive, recommend chmod " + util.NsddynpasswdPermsStr + "."))
+		}
+
 		// TODO: support multiple auth methods here...
 		passwdDb := new(auth.FlatFile)
 		passwdDb.SetFilePath(fileName)
@@ -83,6 +91,14 @@ func main() {
 		modUserCmd.StringVar(&fileName, "p", nsddynHome+"/etc/nsddynpasswd", "Path to nsddyn passwd file.")
 
 		modUserCmd.Parse(os.Args[2:])
+
+		ok, err := util.CheckFilePerms(fileName, util.NsddynpasswdPerms)
+		if err != nil {
+			log.Fatal(fmt.Errorf("nsddynum: %v", err))
+		}
+		if !ok {
+			log.Print(fmt.Errorf("nsddynum: permissions on nsddynpasswd too permissive, recommend chmod " + util.NsddynpasswdPermsStr +"."))
+		}
 
 		reader := bufio.NewReader(os.Stdin)
 		passwdDb := new(auth.FlatFile)
@@ -155,6 +171,14 @@ func main() {
 			log.Fatal(fmt.Errorf("nsddynum: %v", err))
 		}
 		defer auth.EraseBuf(passwd)
+
+		ok, err := util.CheckFilePerms(fileName, util.NsddynpasswdPerms)
+		if err != nil {
+			log.Fatal(fmt.Errorf("nsddynum: %v", err))
+		}
+		if !ok {
+			log.Print(fmt.Errorf("nsddynum: permissions on nsddynpasswd too permissive, recommend chmod " + util.NsddynpasswdPermsStr + "."))
+		}
 
 		// TODO: support multiple auth methods here...
 		passwdDb := new(auth.FlatFile)

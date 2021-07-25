@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2019, 2020 Alexander Necheff
+   Copyright (C) 2019, 2020, 2021 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -27,6 +27,7 @@ import (
 
 	"necheff.net/nsddyn/cmd/internal/auth"
 	"necheff.net/nsddyn/cmd/internal/config"
+	"necheff.net/nsddyn/cmd/internal/util"
 	"necheff.net/nsddyn/cmd/internal/version"
 )
 
@@ -141,11 +142,21 @@ func main() {
 	d := new(DynUpd)
 	// TODO: support multiple auth mechanisms here...
 	passwdDb := new(auth.FlatFile)
+
+	fileName := passwdFile
 	if passwdFile == "" {
-		passwdDb.SetFilePath(nsddynHome + "/etc/nsddynpasswd")
-	} else {
-		passwdDb.SetFilePath(passwdFile)
+		fileName = nsddynHome + "/etc/nsddynpasswd"
 	}
+
+	ok, err := util.CheckFilePerms(fileName, util.NsddynpasswdPerms)
+	if err != nil {
+		log.Fatal(fmt.Errorf("dynupd: Error: $v", err))
+	}
+	if !ok {
+		log.Print("dynupd: Warn: permissions on nsddynpasswd too permissive, recommend chmod " + util.NsddynpasswdPermsStr + ".")
+	}
+
+	passwdDb.SetFilePath(fileName)
 	d.NewDynUpd(passwdDb, zoneFile, domainName)
 
 	http.HandleFunc(uri, d.DynUpdHandler)
