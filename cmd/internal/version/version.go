@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2019, 2020 Alexander Necheff
+   Copyright (C) 2019, 2020, 2021 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -38,7 +38,7 @@ var (
 // whenever an nsddyn binary is called with a version command-line flag.
 func PrintVersion() {
 	fmt.Fprintf(os.Stderr, filepath.Base(os.Args[0])+" v"+Version+"\n")
-	fmt.Fprintf(os.Stderr, "Copyright (C) 2019, 2020\n")
+	fmt.Fprintf(os.Stderr, "Copyright (C) 2019, 2020, 2021\n")
 	fmt.Fprintf(os.Stderr, "Alexander Necheff\nnsddyn is licensed under the terms of the GPLv3.\n")
 	fmt.Fprintf(os.Stderr, "Git Commit: "+GitCommit+"\n")
 	fmt.Fprintf(os.Stderr, "Built on: "+BuildTime+" by Go toolchain version: "+GoVersion+"\n")

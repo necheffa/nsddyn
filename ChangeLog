@@ -1,3 +1,6 @@
+XXXX-YY-XX Alexander Necheff
+    * Added warning to dynupd and nsddynum when the nsddynpasswd file permissions are too permissive. Fixed issue #35.
+
 2020-12-12 Alexander Necheff
     * Set version to 0.4.0
     * Corrected issue where dynupd and nsddynum failed to print version string. Fixed issue #61.
