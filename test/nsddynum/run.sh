@@ -54,7 +54,6 @@ VALID3="nsddynum: permissions on nsddynpasswd too permissive, recommend chmod 06
 
 if [ "$VALID3" != "$CMP3" ]; then
     echo "Failed permissive nsddynpasswd file perms test on moduser command."
-    echo $CMP3
     FAILED_TEST="yes"
 fi
 
