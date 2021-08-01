@@ -59,6 +59,10 @@ func main() {
 
 		delUserCmd.Parse(os.Args[2:])
 
+		if userName == "" {
+			log.Fatal(fmt.Errorf("nsddynum: required argument `-u` missing."))
+		}
+
 		ok, err := util.CheckFilePerms(fileName, util.NsddynpasswdPerms)
 		if err != nil {
 			log.Fatal(fmt.Errorf("nsddynum: %v", err))
@@ -92,12 +96,16 @@ func main() {
 
 		modUserCmd.Parse(os.Args[2:])
 
+		if userName == "" {
+			log.Fatal(fmt.Errorf("nsddynum: required argument `-u` missing."))
+		}
+
 		ok, err := util.CheckFilePerms(fileName, util.NsddynpasswdPerms)
 		if err != nil {
 			log.Fatal(fmt.Errorf("nsddynum: %v", err))
 		}
 		if !ok {
-			log.Print(fmt.Errorf("nsddynum: permissions on nsddynpasswd too permissive, recommend chmod " + util.NsddynpasswdPermsStr +"."))
+			log.Print(fmt.Errorf("nsddynum: permissions on nsddynpasswd too permissive, recommend chmod " + util.NsddynpasswdPermsStr + "."))
 		}
 
 		reader := bufio.NewReader(os.Stdin)
@@ -164,7 +172,15 @@ func main() {
 
 		addUserCmd.Parse(os.Args[2:])
 
+		if userName == "" {
+			log.Fatal(fmt.Errorf("nsddynum: required argument `-u` missing."))
+		}
+
 		hostNames = addUserCmd.Args()
+
+		if len(hostNames) < 1 {
+			log.Fatal(fmt.Errorf("nsddynum: hostname arugment required when adding user."))
+		}
 
 		passwd, err := promptForPasswd()
 		if err != nil {
