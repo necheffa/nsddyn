@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2020 Alexander Necheff
+   Copyright (C) 2020,2021 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -24,14 +24,14 @@ import (
 
 	"necheff.net/nsddyn/cmd/internal/auth"
 
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 )
 
 // promptForPasswd reads a plaintext password from STDIN without echoing it on the terminal.
 // Either the password is returned as a []byte or err == nil.
 func promptForPasswd() (passwd []byte, err error) {
 	fmt.Fprintf(os.Stderr, "new password: ")
-	passwd, err = terminal.ReadPassword(int(os.Stdin.Fd()))
+	passwd, err = term.ReadPassword(int(os.Stdin.Fd()))
 	if err != nil {
 		err = fmt.Errorf("promptForPasswd: Error reading password: %v", err)
 		return nil, err
