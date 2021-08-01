@@ -20,6 +20,7 @@ golangci-lint:
 shellcheck:
 	@scripts/build/shellcheck client/nsddyncc
 	@scripts/build/shellcheck scripts/test/automated_integration.sh
+	@scripts/build/shellcheck test/nsddynum/run.sh
 
 .PHONY: gosec
 gosec:
