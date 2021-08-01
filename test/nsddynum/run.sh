@@ -30,7 +30,7 @@ cp ./* $WORKDIR/
 # is a script not an interactive ptty, we end up with "bad ioctl" errors.
 # Instead of writing a "typescript" file, we write to /dev/null.
 # We need sed to help cleanup some ugly - for whatever reason GNU script uses DOS line terminators instead of Unix...
-RET1=$(printf "password\n" | script -q -c "$UM adduser -p $WORKDIR/badperms alex" /dev/null)
+RET1=$(printf "password\n" | script -q -c "$UM adduser -p $WORKDIR/badperms -u alex host1 host2" /dev/null)
 CMP1=$(echo "$RET1" | tail -1 | awk '{$1=$2=""; print $0}' | sed -e 's/^[ \t]*//' | sed -e 's/\r$//')
 VALID1="nsddynum: permissions on nsddynpasswd too permissive, recommend chmod 0600."
 
@@ -39,7 +39,7 @@ if [ "$VALID1" != "$CMP1" ]; then
     FAILED_TEST="yes"
 fi
 
-RET2=$(printf "password\n" | script -q -c "$UM deluser -p $WORKDIR/badperms alex" /dev/null)
+RET2=$(script -q -c "$UM deluser -p $WORKDIR/badperms -u alex" /dev/null)
 CMP2=$(echo "$RET2" | tail -1 | awk '{$1=$2=""; print $0}' | sed -e 's/^[ \t]*//' | sed -e 's/\r$//')
 VALID2="nsddynum: permissions on nsddynpasswd too permissive, recommend chmod 0600."
 
@@ -48,12 +48,13 @@ if [ "$VALID2" != "$CMP2" ]; then
     FAILED_TEST="yes"
 fi
 
-RET3=$(printf "password\n" | script -q -c "$UM moduser -p $WORKDIR/badperms alex" /dev/null)
-CMP3=$(echo "$RET3" | tail -1 | awk '{$1=$2=""; print $0}' | sed -e 's/^[ \t]*//' | sed -e 's/\r$//')
+RET3=$(printf "n\nn\n" | script -q -c "$UM moduser -p $WORKDIR/badperms -u alex" /dev/null)
+CMP3=$(echo "$RET3" | sed -n 3p | awk '{$1=$2=""; print $0}' | sed -e 's/^[ \t]*//' | sed -e 's/\r$//')
 VALID3="nsddynum: permissions on nsddynpasswd too permissive, recommend chmod 0600."
 
 if [ "$VALID3" != "$CMP3" ]; then
     echo "Failed permissive nsddynpasswd file perms test on moduser command."
+    echo $CMP3
     FAILED_TEST="yes"
 fi
 
