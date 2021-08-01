@@ -1,6 +1,9 @@
 XXXX-YY-XX Alexander Necheff
     * Added warning to dynupd and nsddynum when the nsddynpasswd file permissions are too permissive. Fixed issue #35.
     * Replaced x/crypto/ssh/terminal with x/term due to upstream migration. Fixed issue #69.
+    * Updated vendored dependency golang.org/x/crypto.
+    * Updated vendored dependency golang.org/x/sys.
+    * Updated vendored dependency golang.org/x/term.
 
 2020-12-12 Alexander Necheff
     * Set version to 0.4.0
