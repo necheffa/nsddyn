@@ -1,13 +1,15 @@
-XXXX-YY-XX Alexander Necheff
+XXXX-YY-XX Alexander Necheff <alex@necheff.net>
+    * Set version to 0.5.0.
     * Added warning to dynupd and nsddynum when the nsddynpasswd file permissions are too permissive. Fixed issue #35.
     * Replaced x/crypto/ssh/terminal with x/term due to upstream migration. Fixed issue #69.
     * Corrected issue where adduser, moduser, and deluser did not require -u argument; or where adduser did not require host list. Fixed issue #68.
+    * Modified nsddynum to attempt to create the nsddynpasswd file if it does not already exist when executing the adduser sub-command. Fixed issue #52.
     * Updated vendored dependency golang.org/x/crypto.
     * Updated vendored dependency golang.org/x/sys.
     * Updated vendored dependency golang.org/x/term.
 
-2020-12-12 Alexander Necheff
-    * Set version to 0.4.0
+2020-12-12 Alexander Necheff <alex@necheff.net>
+    * Set version to 0.4.0.
     * Corrected issue where dynupd and nsddynum failed to print version string. Fixed issue #61.
     * Added detailed installation instructions to the README. Fixed issue #1.
     * Corrected numerious issues with the README. Fixed issue #12 and #16.
