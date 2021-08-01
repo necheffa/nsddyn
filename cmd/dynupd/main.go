@@ -150,7 +150,7 @@ func main() {
 
 	ok, err := util.CheckFilePerms(fileName, util.NsddynpasswdPerms)
 	if err != nil {
-		log.Fatal(fmt.Errorf("dynupd: Error: $v", err))
+		log.Fatal(fmt.Errorf("dynupd: Error: %v", err))
 	}
 	if !ok {
 		log.Print("dynupd: Warn: permissions on nsddynpasswd too permissive, recommend chmod " + util.NsddynpasswdPermsStr + ".")
