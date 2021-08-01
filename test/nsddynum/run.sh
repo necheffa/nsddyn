@@ -57,6 +57,20 @@ if [ "$VALID3" != "$CMP3" ]; then
     FAILED_TEST="yes"
 fi
 
+RET4=$(printf "password\n" | script -q -c "$UM adduser -p $WORKDIR/nonexistent -u alex host1 host2" /dev/null)
+CMP4=$(echo "$RET4" | tail -1 | awk '{$1=$2=""; print $0}' | sed -e 's/^[ \t]*//' | sed -e 's/\r$//')
+VALID4="nsddynum: creating nsddynpasswd file at: $WORKDIR/nonexistent"
+
+if [ "$VALID4" != "$CMP4" ]; then
+    echo "Failed non-existent nsddynpasswd file test on adduser command: warning message."
+    FAILED_TEST="yes"
+fi
+
+if [ ! -f "$WORKDIR/nonexistent" ]; then
+    echo "Failed non-existent nsddynpasswd file test on adduser command: creating the file."
+    FAILED_TEST="yes"
+fi
+
 if [ "$FAILED_TEST" == "no" ]; then
     echo "All tests passed."
 fi

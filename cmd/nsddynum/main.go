@@ -20,6 +20,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -187,6 +188,21 @@ func main() {
 			log.Fatal(fmt.Errorf("nsddynum: %v", err))
 		}
 		defer auth.EraseBuf(passwd)
+
+		if _, err := os.Stat(fileName); errors.Is(err, os.ErrNotExist) {
+			log.Print(fmt.Errorf("nsddynum: creating nsddynpasswd file at: " + fileName))
+
+			f, err := os.Create(fileName)
+			if err != nil {
+				log.Fatal(fmt.Errorf("nsddynum: unable to create non-existant nsddynpasswd file. error was: %v", err))
+			}
+			f.Close()
+
+			err = os.Chmod(fileName, util.NsddynpasswdPerms)
+			if err != nil {
+				log.Print(fmt.Errorf("nsddynum: unable to modify nsddynpasswd permissions: %v", err))
+			}
+		}
 
 		ok, err := util.CheckFilePerms(fileName, util.NsddynpasswdPerms)
 		if err != nil {
