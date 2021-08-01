@@ -2,9 +2,11 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package term
+//go:build ios
+// +build ios
 
-import "golang.org/x/sys/unix"
+package unix
 
-const ioctlReadTermios = unix.TCGETS
-const ioctlWriteTermios = unix.TCSETS
+func ptrace(request int, pid int, addr uintptr, data uintptr) (err error) {
+	return ENOTSUP
+}
