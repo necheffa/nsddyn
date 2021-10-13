@@ -9,7 +9,6 @@ BUILDTIME=$(date -u +"%Y-%m-%d %H:%M:%SZ")
 GOVERSION=$(go version | awk '{print $3}' | sed 's/go//')
 
 export LDFLAGS="\
-    -w \
     -X \"necheff.net/nsddyn/cmd/internal/version.GitCommit=${GITCOMMIT}\" \
     -X \"necheff.net/nsddyn/cmd/internal/version.Version=${VERSION}\" \
     -X \"necheff.net/nsddyn/cmd/internal/version.BuildTime=${BUILDTIME}\" \
