@@ -7,6 +7,8 @@ XXXX-YY-XX Alexander Necheff <alex@necheff.net>
     * Updated vendored dependency golang.org/x/crypto.
     * Updated vendored dependency golang.org/x/sys.
     * Updated vendored dependency golang.org/x/term.
+    * Added install target to Makefile. Fixed issue #8 and #33.
+    * Added systemd integration through service unit. Fixed issue #34.
 
 2020-12-12 Alexander Necheff <alex@necheff.net>
     * Set version to 0.4.0.

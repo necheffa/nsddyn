@@ -1,14 +1,23 @@
 [Unit]
 Description=dynupd, the HTTP API component of nsddyn
-#After=nsd.service
+After=network.target
 
 [Service]
-EnvironmentFile=/usr/local/etc/default/dynupd
-#ExecStart=$NSDDYN_HOME/bin/dynupd $DYNUPD_ARGS
+EnvironmentFile=/opt/nsddyn/etc/dynupd
 ExecStart=/opt/nsddyn/bin/dynupd $DYNUPD_ARGS
 NoNewPrivileges=yes
 PrivateTmp=yes
 PrivateDevices=yes
-#PrivateNetwork=yes
 ProtectHome=yes
-ProtectSystem=strict
+User=nsddyn
+Group=nsddyn
+WorkingDirectory=/opt/nsddyn
+
+# can't use strict because we need to be able to write
+# to the zonefile.
+# full makes /usr, /boot, and /etc read-only so the zonefile
+# can't be in /etc/nsd/ either.
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

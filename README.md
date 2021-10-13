@@ -60,8 +60,17 @@ this environment variable should be the preferred way to specify file locations.
 
 #### Server
 
-On the server, nsddynum is used to manage the nsddynpasswd file. With new installs the administrator is required to manually create an empty nsddynpasswd file
-until issue #52 is resolved.
+An unprivileged user and group should be created, the installation scripts assume both are named `nsddyn` but motivated admins may manually change this.
+On Debian the recommended command to do this is: `adduser --disabled-password --group --system --no-create-home --home /opt/nsddyn nsddyn`
+
+Ensure nsddyn is compiled, see Compilation above. Then use the install target on make from the root of the cloned repo:
+
+`make install`
+
+This will create a directory hierarchy at `/opt/nsddyn/` along with symlinks to the dynupd.service unit and nsddynum binary into this hierarchy in system locations.
+The admin will need to manually enable and start the dynupd service with `systemctl`.
+
+The `$DYNUPD_ARGS` environment variable in /opt/nsddyn/etc/dynupd should at a minimum be modified to specify the zonefile and zone name to be managed by dynupd.
 
 By default, dynupd will listen on localhost:8080 for client requests. The --addr option is provided to override the listen address and port: `dynupd --addr 192.0.2.2:1337`.
 While any valid address:port combination may be specified, it is highly recommended to listen on a local loopback address and use a proxy to route public traffic to dynupd.
@@ -71,15 +80,14 @@ Currently dynupd does not support reverse-lookup zonefile updates and likely nev
 are never delegated, so it would be meaningless to attempt to manage them with dynupd.
 
 Because dynupd requires Unix filesystem permissions for reading and writing to the zonefile, it is recommended to create a subdomain to segregate dynamic records from
-static records.
-
-On new installs the nsddynpasswd file will need to be created manually. First touch the file and then chmod and chown it so that root owns the file with
-read-write permissions and the group which the dynupd daemon will run under has read-only permissions, but world has no permissions.
+static records. The zonefile should be owned by the nsddyn user and the group nsd is running as, both the user and group should have read-write permissions to the file.
 
 Both nsddynum and dynupd will look for the nsddynpasswd in the following locations in the following order: \
 * Path specified by the --passwd-file option
 * $NSDDYN\_HOME/etc/nsddynpasswd
 * /usr/local/etc/nsddynpasswd
+
+At this time, dynupd does not write to a specific log file, instead messages are logged to STDERR which are picked up by `journalctl`.
 
 #### Client - nsddyncc
 
@@ -115,9 +123,8 @@ Use sftp to copy the client script up to the RouterOS device and then use the /i
 
 ### Development Model
 
-nsddyn uses a relaxed Gitflow strategy. That is, `master` should always be buildable and stable.
-`devel` acts as an integration branch and serves as a parent to any number of feature branches.
-Given the size of the project, release branches are overkill.
+nsddyn uses a somewhat continuous strategy. Ideally, `master` should be kept clean with commit squashes and always buildable.
+The `devel` branch serves as an integration branch. Tags are used to track releases and points of interest.
 
 ### Design
 

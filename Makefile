@@ -47,6 +47,10 @@ testresults: coverage.out
 linecount:
 	find . -not \( -path ./vendor -prune \) -type f -iname *.go | xargs wc -l
 
+.PHONY: install
+install:
+	@scripts/install $(BUILD_ROOT)
+
 .PHONY: clean
 clean: ## remove old binaries
 	rm -rf $(BUILD_ROOT)/bin coverage.out quality.log

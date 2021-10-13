@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+
+set -eu -o pipefail
+
+PROGNAME="nsddyn installer"
+
+# TODO: make a command line option to set this...
+BUILD_ROOT="$1"
+
+function func_eprintf {
+    printf "%s\n" "$1" 1>&2
+}
+
+if ! [ -e "$BUILD_ROOT/bin" ]; then
+    func_eprintf "$PROGNAME: Error: is nsddyn built? $BUILD_ROOT/bin doesn't exist. Exiting."
+    exit 1
+fi
+
+# TODO: make a PREFIX option to override /opt/nsddyn/ as the default prefix.
+if [ -e /opt/nsddyn ]; then
+    func_eprintf "$PROGNAME: Warning: /opt/nsddyn/ exists. Are you sure you want to overwrite an existing install? [Y/n] "
+    read -r ANS
+
+    if [ "$ANS" == "Y" ] || [ "$ANS" == "y" ] || [ -z "$ANS" ]; then
+        func_eprintf "$PROGNAME: Info: will overwrite existing install. No attempt will be made to clean up orphaned files."
+    else
+        func_eprintf "$PROGNAME: Info: refusing to overwrite existing install. Exiting."
+        exit 0
+    fi
+fi
+
+mkdir -p /opt/nsddyn/bin
+mkdir -p /opt/nsddyn/etc
+
+# don't be silly and make nsddynum owned by the nsddyn user/group, otherwise a remote user could
+# potentially exploit dynupd to execute nsddynum and modify the nsddynpasswd file...
+install -g staff -o root -m 0750 $BUILD_ROOT/bin/nsddynum /opt/nsddyn/bin/nsddynum
+install -g nsddyn -o root -m 0750 $BUILD_ROOT/bin/dynupd /opt/nsddyn/bin/dynupd
+install -g root -o root -m 0660 $BUILD_ROOT/etc/dynupd /opt/nsddyn/etc/dynupd
+install -g root -o root -m 0660 $BUILD_ROOT/etc/dynupd.service /opt/nsddyn/etc/dynupd.service
+
+if [ -f /usr/local/bin/nsddynum ]; then
+    func_eprintf "$PROGNAME: Warning: overwriting /usr/local/bin/nsddynum"
+fi
+ln -sf /opt/nsddyn/bin/nsddynum /usr/local/sbin/nsddynum
+
+if [ -f /etc/systemd/system/dynupd.service ]; then
+    func_eprintf "$PROGNAME: Warning: overwriting /etc/systemd/system/dynupd.service"
+fi
+ln -sf /opt/nsddyn/etc/dynupd.service /etc/systemd/system/dynupd.service
+
+if ! [ -f /opt/nsddyn/etc/nsddynpasswd ]; then
+    touch /opt/nsddyn/etc/nsddynpasswd
+    chmod 0640 /opt/nsddyn/etc/nsddynpasswd
+    chown root:nsddyn /opt/nsddyn/etc/nsddynpasswd
+fi
+
+func_eprintf "$PROGNAME: Info: installation complete, sysadmin must manually enable dynupd service unit."
