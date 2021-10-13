@@ -1,4 +1,4 @@
-XXXX-YY-XX Alexander Necheff <alex@necheff.net>
+2021-10-13 Alexander Necheff <alex@necheff.net>
     * Set version to 0.5.0.
     * Added warning to dynupd and nsddynum when the nsddynpasswd file permissions are too permissive. Fixed issue #35.
     * Replaced x/crypto/ssh/terminal with x/term due to upstream migration. Fixed issue #69.
@@ -9,6 +9,7 @@ XXXX-YY-XX Alexander Necheff <alex@necheff.net>
     * Updated vendored dependency golang.org/x/term.
     * Added install target to Makefile. Fixed issue #8 and #33.
     * Added systemd integration through service unit. Fixed issue #34.
+    * Provided instructions on executing nsddynum behavioral tests in the README. Fixed issue #71.
 
 2020-12-12 Alexander Necheff <alex@necheff.net>
     * Set version to 0.4.0.
