@@ -1,4 +1,8 @@
 2021-10-13 Alexander Necheff <alex@necheff.net>
+    * Set version to 0.5.1.
+    * Include debug symbols in the default build. Fixes issue #58.
+
+2021-10-13 Alexander Necheff <alex@necheff.net>
     * Set version to 0.5.0.
     * Added warning to dynupd and nsddynum when the nsddynpasswd file permissions are too permissive. Fixed issue #35.
     * Replaced x/crypto/ssh/terminal with x/term due to upstream migration. Fixed issue #69.
