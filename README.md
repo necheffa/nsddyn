@@ -205,6 +205,8 @@ To execute the integration tests, follow these steps:
 
 The `automated_integration.sh` script assumes you are running with a standard GNU userspace and have both `cURL` and `jq` in your `$PATH`.
 
+The `test/nsddynum/run.sh` script assumes your current working directory is `test/nsddynum/` and performs behavioral tests on the nsddynum binary.
+
 ## Licensing
 
 nsddyn is released under the terms of the GPLv3 license, a copy of the GPL is provided in the COPYING file located in the root of this repo.
