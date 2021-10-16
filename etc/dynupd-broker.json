@@ -1,0 +1,7 @@
+{
+    "Address" : "localhost:8081",
+    "ReadTimeout" : 10,
+    "WriteTimeout" : 600,
+    "Uri" : "/api/dynupd-broker",
+    "ZoneName" : "dyn.example.com"
+}

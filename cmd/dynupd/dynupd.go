@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2020 Alexander Necheff
+   Copyright (C) 2020, 2021 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -25,13 +25,13 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"os/exec"
 	"strconv"
 	"strings"
 
 	"necheff.net/nsddyn/cmd/internal/auth"
 	"necheff.net/nsddyn/cmd/internal/config"
 	"necheff.net/nsddyn/cmd/internal/dynreq"
+	"necheff.net/nsddyn/cmd/internal/util"
 	"necheff.net/nsddyn/cmd/internal/version"
 
 	"github.com/bwesterb/go-zonefile"
@@ -157,13 +157,18 @@ func (d *DynUpd) UpdateZone(r dynreq.DynReq) string {
 		file.Write([]byte("\n"))
 	}
 
-	// TODO: there has to be a better way to ask NSD to reload the zone...
-	cmd := exec.Command("nsd-control", "reload", d.domainName)
-	err = cmd.Run()
+	nsddynHome, err := util.FindHome()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "dynupd: error: failed to reload zone for "+d.domainName+" error was %v\n", err)
+		fmt.Fprintf(os.Stderr, "dynupd: error: %v\n", err)
 		return zoneUpdateFail
 	}
+
+	_, err = http.Post("http://localhost:8081:/api/dynupd-broker", "text/plain", strings.NewReader(nsddynHome))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "dynupd: error: broker call failed, error was: "+err.Error())
+		return zoneUpdateFail
+	}
+	// TODO: look at response and see what happened.
 
 	return zoneUpdateSuccess
 }

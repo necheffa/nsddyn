@@ -1,3 +1,10 @@
+XXXX-YY-ZZ Alexander Necheff <alex@necheff.net>
+    * Set version to 0.6.0
+    * Added dynupd-broker to reload managed zone.
+    * Modified dynupd to request zone reloads through dynupd-broker rather than attempt to reload the zone itself.
+        Due to the way nsd-control works, dynupd would have required root permissions to reload the zone directly. Fixed issue #77.
+    * Corrected an untracked issue where the provided install script set executable permissions on the systemd service unit for dynupd.
+
 2021-10-13 Alexander Necheff <alex@necheff.net>
     * Set version to 0.5.1.
     * Include debug symbols in the default build. Fixes issue #58.
