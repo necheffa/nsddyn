@@ -4,6 +4,8 @@ XXXX-YY-ZZ Alexander Necheff <alex@necheff.net>
     * Modified dynupd to request zone reloads through dynupd-broker rather than attempt to reload the zone itself.
         Due to the way nsd-control works, dynupd would have required root permissions to reload the zone directly. Fixed issue #77.
     * Corrected an untracked issue where the provided install script set executable permissions on the systemd service unit for dynupd.
+    * Corrected untracked issue with README that referenced pre Go module path name for executing integration tests.
+    * Updated integration test Dockerfile to use Debian 11.
 
 2021-10-13 Alexander Necheff <alex@necheff.net>
     * Set version to 0.5.1.
