@@ -8,12 +8,12 @@
 #
 
 # NOTE: I tried using alpine linux but ran into trouble because it links against muslc not glibc
-FROM debian:10-slim
+FROM debian:11-slim
 USER root
 
 # bash is a little heavy but it will make scripting easier for me
 #RUN /sbin/apk add --no-cache nsd bash
-RUN apt-get update && apt-get -y upgrade && apt-get install -y nsd
+RUN apt-get update && apt-get -y upgrade && apt-get install -y nsd procps
 RUN useradd nsddyn
 RUN mkdir -p /nsddyn/bin
 RUN mkdir -p /nsddyn/etc
