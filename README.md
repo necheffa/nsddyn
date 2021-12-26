@@ -200,7 +200,7 @@ To execute the integration tests, follow these steps:
 * `cd` to the root of the distribution
 * Execute `docker build -t nsddyntest -f test/dynupd.Dockerfile .` to build an image containing a preconfigured NSD daemon and dynupd listener
 * Execute `docker run -d -t --name mytest nsddyntest` to instantiate a container based on the nsddyntest image
-* Then, on the host system, execute `src/scripts/test/automated_integration.sh` to execute the tests against the running container
+* Then, on the host system, execute `scripts/test/automated_integration.sh` to execute the tests against the running container
 * Use `docker stop mytest` to shutdown the container, if changes are made to the dynupd binary, the image will need to be rebuilt
 
 The `automated_integration.sh` script assumes you are running with a standard GNU userspace and have both `cURL` and `jq` in your `$PATH`.
