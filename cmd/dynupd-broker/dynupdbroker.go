@@ -24,10 +24,11 @@ import (
 	"os/exec"
 )
 
-func dynupdBroker(w http.ResponseWriter, r *http.Request) {
+func DynupdBroker(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	default:
 		log.Print("dynupd-broker: error: bad connect method: " + r.Method)
+		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	case "POST":
 		cmd := exec.Command("nsd-control", "reload", brokerConfig.ZoneName)

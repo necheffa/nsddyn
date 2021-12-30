@@ -34,7 +34,7 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
-	mux.HandleFunc(brokerConfig.Uri, dynupdBroker)
+	mux.HandleFunc(brokerConfig.Uri, DynupdBroker)
 
 	server := &http.Server{
 		Addr:    brokerConfig.Address,
