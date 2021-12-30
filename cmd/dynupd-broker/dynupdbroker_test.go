@@ -13,14 +13,19 @@ import (
 
 var _ = Describe("Dynupdbroker", func() {
 	var bc BrokerConfig
-	bc.Address = "localhost:8080"
-	bc.Uri = "/api/dynupdbroker"
-	bc.ZoneName = "dyn.example.com"
+	var mux *http.ServeMux
+	var writer *httptest.ResponseRecorder
 
-	mux := http.NewServeMux()
-	mux.HandleFunc(bc.Uri, DynupdBroker)
+	BeforeEach(func() {
+		bc.Address = "localhost:8080"
+		bc.Uri = "/api/dynupdbroker"
+		bc.ZoneName = "dyn.example.com"
 
-	writer := httptest.NewRecorder()
+		mux = http.NewServeMux()
+		mux.HandleFunc(bc.Uri, DynupdBroker)
+
+		writer = httptest.NewRecorder()
+	})
 
 	Describe("HTTP method response", func() {
 		Context("With an invalid GET", func() {
