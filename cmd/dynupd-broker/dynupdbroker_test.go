@@ -7,6 +7,7 @@ import (
 	. "necheff.net/nsddyn/cmd/dynupd-broker"
 	. "necheff.net/nsddyn/cmd/dynupd-broker/config"
 
+	"bytes"
 	"net/http"
 	"net/http/httptest"
 )
@@ -33,6 +34,21 @@ var _ = Describe("Dynupdbroker", func() {
 				request, _ := http.NewRequest("GET", bc.Uri, nil)
 				mux.ServeHTTP(writer, request)
 				Expect(writer.Code).To(Equal(http.StatusMethodNotAllowed))
+			})
+		})
+
+		Context("With POST and a valid URI", func() {
+
+			It("should return a 200", func() {
+				request, _ := http.NewRequest("POST", bc.Uri, bytes.NewReader([]byte("asdf")))
+				mux.ServeHTTP(writer, request)
+				Expect(writer.Code).To(Equal(http.StatusOK))
+			})
+
+			It("should return a zone reloaded message", func() {
+				request, _ := http.NewRequest("POST", bc.Uri, bytes.NewReader([]byte("asdf")))
+				mux.ServeHTTP(writer, request)
+				Expect(writer.Body).To(Equal("Zone Reloaded"))
 			})
 		})
 	})

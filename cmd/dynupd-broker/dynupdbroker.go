@@ -19,6 +19,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os/exec"
@@ -36,6 +37,11 @@ func DynupdBroker(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Print("dynupd-broker: error: unable to execute nsd-control, error was: " + err.Error())
 			log.Print("dynupd-broker: info: nsd-control output was: " + string(out))
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintf(w, "Zone Not Reloaded")
+			return
 		}
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, "Zone Reloaded")
 	}
 }
