@@ -6,6 +6,7 @@ XXXX-YY-ZZ Alexander Necheff <alex@necheff.net>
     * Corrected an untracked issue where the provided install script set executable permissions on the systemd service unit for dynupd.
     * Corrected untracked issue with README that referenced pre Go module path name for executing integration tests.
     * Updated integration test Dockerfile to use Debian 11.
+    * Added Ginkgo as a dependency for testing.
 
 2021-10-13 Alexander Necheff <alex@necheff.net>
     * Set version to 0.5.1.
