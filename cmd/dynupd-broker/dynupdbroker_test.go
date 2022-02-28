@@ -72,7 +72,7 @@ var _ = Describe("Dynupdbroker", func() {
 			It("should return a zone reloaded message", func() {
 				request, _ := http.NewRequest("POST", bc.Uri, bytes.NewReader([]byte("asdf")))
 				mux.ServeHTTP(writer, request)
-				Expect(writer.Body).To(Equal("Zone Reloaded"))
+				Expect(writer.Body).To(Equal(bytes.NewBufferString("Zone Reloaded")))
 			})
 		})
 	})
