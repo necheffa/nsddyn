@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2020, 2021 Alexander Necheff
+   Copyright (C) 2020, 2021, 2022 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -182,6 +182,7 @@ func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 		if config.Debug {
 			fmt.Fprintf(os.Stderr, "Bad method requested.\n")
 		}
+		w.WriteHeader(http.StatusMethodNotAllowed)
 		fmt.Fprintf(w, craftResponse(badMethod))
 		return
 	case "POST":
