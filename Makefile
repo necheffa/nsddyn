@@ -22,12 +22,8 @@ shellcheck:
 	@scripts/build/shellcheck scripts/test/automated_integration.sh
 	@scripts/build/shellcheck test/nsddynum/run.sh
 
-.PHONY: gosec
-gosec:
-	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) -C $(CMD_DIR) gosec
-
 .PHONY: quality
-quality: vet shellcheck gosec golangci-lint
+quality: vet shellcheck golangci-lint
 
 .PHONY: fmt
 fmt: ## run `go fmt` on all source files
