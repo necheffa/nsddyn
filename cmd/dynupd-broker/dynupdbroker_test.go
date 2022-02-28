@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2021 Alexander Necheff
+   Copyright (C) 2021, 2022 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -28,6 +28,7 @@ import (
 	"bytes"
 	"net/http"
 	"net/http/httptest"
+	"os"
 )
 
 var _ = Describe("Dynupdbroker", func() {
@@ -44,6 +45,11 @@ var _ = Describe("Dynupdbroker", func() {
 		mux.HandleFunc(bc.Uri, DynupdBroker)
 
 		writer = httptest.NewRecorder()
+
+		// pickup fake `nsd-control` and friends
+		buildRoot := os.Getenv("BUILD_ROOT")
+		path := os.Getenv("PATH")
+		os.Setenv("PATH", buildRoot+"/scripts/test:"+path)
 	})
 
 	Describe("HTTP method response", func() {

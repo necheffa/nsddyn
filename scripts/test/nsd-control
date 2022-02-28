@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+# a dumb script that makes dynupd-broker think nsd-control
+# executed successfully.
+
+exit 0
+
