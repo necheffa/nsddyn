@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2021 Alexander Necheff
+   Copyright (C) 2021, 2022 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -23,9 +23,13 @@ import (
 	. "github.com/onsi/gomega"
 
 	. "necheff.net/nsddyn/cmd/dynupd"
+	"necheff.net/nsddyn/cmd/internal/auth"
 
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"strings"
 )
 
 var _ = Describe("Dynupd", func() {
@@ -33,10 +37,26 @@ var _ = Describe("Dynupd", func() {
 	var writer *httptest.ResponseRecorder
 	var uri string
 	var dynupd *DynUpd
+	type nsddynbody struct {
+		Code string
+	}
+	var nb nsddynbody
+
+	passwd, _ := os.CreateTemp(os.TempDir(), "nsddynpasswd")
+	defer os.Remove(passwd.Name())
+
+	authFile := new(auth.FlatFile)
+	authFile.SetFilePath(passwd.Name())
+
+	_ = authFile.AddUser([]byte("password"), "alex", []string{"host1", "host2"})
+
+	zoneFile, _ := os.CreateTemp(os.TempDir(), "zonefile")
+	defer os.Remove(zoneFile.Name())
 
 	BeforeEach(func() {
 		uri = "/api/dynupd"
 		dynupd = new(DynUpd)
+		dynupd.NewDynUpd(authFile, zoneFile.Name(), "example.com")
 
 		mux = http.NewServeMux()
 		mux.HandleFunc(uri, dynupd.DynUpdHandler)
@@ -47,10 +67,22 @@ var _ = Describe("Dynupd", func() {
 
 	Describe("HTTP method response", func() {
 		Context("With an invalid GET", func() {
-			It("should return a 405", func() {
+			It("should return an HTTP 405", func() {
 				request, _ := http.NewRequest("GET", uri, nil)
 				mux.ServeHTTP(writer, request)
 				Expect(writer.Code).To(Equal(http.StatusMethodNotAllowed))
+			})
+		})
+
+		Context("With invalid POST", func() {
+			It("should return an HTTP 200 and nsddyn code 403", func() {
+				var sr = strings.NewReader(`'{"username": "alex", "password": "badpassword", "ipaddr": "192.0.2.4", "hostnames": [ "host1", "host2" ], "version": "0.1.0"}`)
+				request, _ := http.NewRequest("POST", uri, sr)
+				mux.ServeHTTP(writer, request)
+				Expect(writer.Code).To(Equal(http.StatusOK))
+
+				json.Unmarshal(writer.Body.Bytes(), &nb)
+				Expect(nb.Code).To(Equal("403"))
 			})
 		})
 	})
