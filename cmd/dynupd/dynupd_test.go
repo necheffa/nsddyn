@@ -32,31 +32,38 @@ import (
 	"strings"
 )
 
+var passwd *os.File
+var zonefile *os.File
+var dynupd *DynUpd
+var authFile *auth.FlatFile
+
+var _ = BeforeSuite(func() {
+	passwd, _ = os.CreateTemp(os.TempDir(), "nsddynpasswd")
+	zonefile, _ = os.CreateTemp(os.TempDir(), "zonefile")
+	authFile = new(auth.FlatFile)
+	authFile.SetFilePath(passwd.Name())
+
+	_ = authFile.AddUser([]byte("password"), "alex", []string{"host1", "host2"})
+})
+
+var _ = AfterSuite(func() {
+	os.Remove(passwd.Name())
+	os.Remove(zonefile.Name())
+})
+
 var _ = Describe("Dynupd", func() {
 	var mux *http.ServeMux
 	var writer *httptest.ResponseRecorder
 	var uri string
-	var dynupd *DynUpd
 	type nsddynbody struct {
 		Code string
 	}
 	var nb nsddynbody
 
-	passwd, _ := os.CreateTemp(os.TempDir(), "nsddynpasswd")
-	defer os.Remove(passwd.Name())
-
-	authFile := new(auth.FlatFile)
-	authFile.SetFilePath(passwd.Name())
-
-	_ = authFile.AddUser([]byte("password"), "alex", []string{"host1", "host2"})
-
-	zoneFile, _ := os.CreateTemp(os.TempDir(), "zonefile")
-	defer os.Remove(zoneFile.Name())
-
 	BeforeEach(func() {
 		uri = "/api/dynupd"
 		dynupd = new(DynUpd)
-		dynupd.NewDynUpd(authFile, zoneFile.Name(), "example.com")
+		dynupd.NewDynUpd(authFile, zonefile.Name(), "example.com")
 
 		mux = http.NewServeMux()
 		mux.HandleFunc(uri, dynupd.DynUpdHandler)
@@ -76,7 +83,7 @@ var _ = Describe("Dynupd", func() {
 
 		Context("With invalid POST", func() {
 			It("should return an HTTP 200 and nsddyn code 403", func() {
-				var sr = strings.NewReader(`'{"username": "alex", "password": "badpassword", "ipaddr": "192.0.2.4", "hostnames": [ "host1", "host2" ], "version": "0.1.0"}`)
+				var sr = strings.NewReader(`{"username": "alex", "password": "badpassword", "ipaddr": "192.0.2.4", "hostnames": [ "host1", "host2" ], "version": "0.1.0"}`)
 				request, _ := http.NewRequest("POST", uri, sr)
 				mux.ServeHTTP(writer, request)
 				Expect(writer.Code).To(Equal(http.StatusOK))
