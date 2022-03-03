@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2020,2021 Alexander Necheff
+   Copyright (C) 2020, 2021, 2022 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -27,11 +27,11 @@ import (
 	"golang.org/x/term"
 )
 
-// promptForPasswd reads a plaintext password from STDIN without echoing it on the terminal.
+// promptForPasswd reads a plaintext password from the specified file without echoing it on the terminal.
 // Either the password is returned as a []byte or err == nil.
-func promptForPasswd() (passwd []byte, err error) {
+func promptForPasswd(file *os.File) (passwd []byte, err error) {
 	fmt.Fprintf(os.Stderr, "new password: ")
-	passwd, err = term.ReadPassword(int(os.Stdin.Fd()))
+	passwd, err = term.ReadPassword(int(file.Fd()))
 	if err != nil {
 		err = fmt.Errorf("promptForPasswd: Error reading password: %v", err)
 		return nil, err

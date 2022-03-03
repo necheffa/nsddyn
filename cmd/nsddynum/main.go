@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2019, 2020, 2021 Alexander Necheff
+   Copyright (C) 2019, 2020, 2021, 2022 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -124,7 +124,7 @@ func main() {
 		upPassAns = strings.Trim(upPassAns, "\n")
 		if upPassAns == "y" || upPassAns == "Y" {
 			modPasswd = true
-			passwd, err = promptForPasswd()
+			passwd, err = promptForPasswd(os.Stdin)
 			if err != nil {
 				log.Fatal(fmt.Errorf("nsddynum: %v", err))
 			}
@@ -183,7 +183,7 @@ func main() {
 			log.Fatal(fmt.Errorf("nsddynum: hostname arugment required when adding user."))
 		}
 
-		passwd, err := promptForPasswd()
+		passwd, err := promptForPasswd(os.Stdin)
 		if err != nil {
 			log.Fatal(fmt.Errorf("nsddynum: %v", err))
 		}
