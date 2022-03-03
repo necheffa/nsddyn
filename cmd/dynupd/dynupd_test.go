@@ -125,5 +125,16 @@ var _ = Describe("Dynupd", func() {
 				Expect(nb.Code).To(Equal("400"))
 			})
 		})
+
+		Context("With a malformed request - totally bogus", func() {
+			It("should return nsddyn code 400", func() {
+				var sr = strings.NewReader(`{"username":ersio}`)
+				request, _ := http.NewRequest("POST", uri, sr)
+				mux.ServeHTTP(writer, request)
+
+				json.Unmarshal(writer.Body.Bytes(), &nb)
+				Expect(nb.Code).To(Equal("400"))
+			})
+		})
 	})
 })
