@@ -103,5 +103,16 @@ var _ = Describe("Dynupd", func() {
 				Expect(nb.Code).To(Equal("403"))
 			})
 		})
+
+		Context("With a bad host", func() {
+			It("should return nsddyn code 418", func() {
+				var sr = strings.NewReader(`{"username": "alex", "password": "password", "ipaddr": "192.0.2.4", "hostnames": [ "host1", "badhost" ], "version": "0.1.0"}`)
+				request, _ := http.NewRequest("POST", uri, sr)
+				mux.ServeHTTP(writer, request)
+
+				json.Unmarshal(writer.Body.Bytes(), &nb)
+				Expect(nb.Code).To(Equal("418"))
+			})
+		})
 	})
 })
