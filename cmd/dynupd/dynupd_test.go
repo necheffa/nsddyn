@@ -114,5 +114,16 @@ var _ = Describe("Dynupd", func() {
 				Expect(nb.Code).To(Equal("418"))
 			})
 		})
+
+		Context("With a malformed request - missing password", func() {
+			It("should return nsddyn code 400", func() {
+				var sr = strings.NewReader(`{"username": "alex", "ipaddr": "192.0.2.4", "hostnames": [ "host1", "badhost" ], "version": "0.1.0"}`)
+				request, _ := http.NewRequest("POST", uri, sr)
+				mux.ServeHTTP(writer, request)
+
+				json.Unmarshal(writer.Body.Bytes(), &nb)
+				Expect(nb.Code).To(Equal("400"))
+			})
+		})
 	})
 })
