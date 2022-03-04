@@ -87,6 +87,9 @@ var _ = Describe("Dynupd", func() {
 				Expect(writer.Code).To(Equal(http.StatusMethodNotAllowed))
 			})
 		})
+	})
+
+	Describe("nsddyn client request", func() {
 
 		Context("With a bad password", func() {
 			It("should return an HTTP 200 and nsddyn code 403", func() {
