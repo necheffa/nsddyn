@@ -91,6 +91,18 @@ var _ = Describe("Dynupd", func() {
 
 	Describe("nsddyn client request", func() {
 
+		Context("With a good request", func() {
+			It("should return an HTTP 200 and nsddyn code 200", func() {
+				var sr = strings.NewReader(`{"username": "alex", "password": "password", "ipaddr": "192.0.2.4", "hostnames": [ "host1", "host2" ], "version": "0.1.0"}`)
+				request, _ := http.NewRequest("POST", uri, sr)
+				mux.ServeHTTP(writer, request)
+				Expect(writer.Code).To(Equal(http.StatusOK))
+
+				json.Unmarshal(writer.Body.Bytes(), &nb)
+				Expect(nb.Code).To(Equal("200"))
+			})
+		})
+
 		Context("With a bad password", func() {
 			It("should return an HTTP 200 and nsddyn code 403", func() {
 				var sr = strings.NewReader(`{"username": "alex", "password": "badpassword", "ipaddr": "192.0.2.4", "hostnames": [ "host1", "host2" ], "version": "0.1.0"}`)
