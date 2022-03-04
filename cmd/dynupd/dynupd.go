@@ -185,7 +185,7 @@ func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(os.Stderr, "Bad method requested.\n")
 		}
 		w.WriteHeader(http.StatusMethodNotAllowed)
-		fmt.Fprintf(w, craftResponse(badMethod))
+		fmt.Fprintf(w, "%v", craftResponse(badMethod))
 		return
 	case "POST":
 		var msg dynreq.DynReq
@@ -197,7 +197,7 @@ func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			// we don't acutally know if the request was well formed or not, failing here
 			// is likely an internal server error...
-			fmt.Fprintf(w, craftResponse(zoneUpdateFail))
+			fmt.Fprintf(w, "%v", craftResponse(zoneUpdateFail))
 			return
 		}
 		err = json.Unmarshal(body, &msg)
@@ -205,7 +205,7 @@ func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 			if config.Debug {
 				fmt.Fprintf(os.Stderr, "Failed to unmarshal JSON request: %v\n", err)
 			}
-			fmt.Fprintf(w, craftResponse(malformedRequest))
+			fmt.Fprintf(w, "%v", craftResponse(malformedRequest))
 			return
 		}
 		defer auth.EraseBuf(msg.Password)
@@ -226,19 +226,19 @@ func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 			if config.Debug {
 				fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 			}
-			fmt.Fprintf(w, craftResponse(malformedRequest))
+			fmt.Fprintf(w, "%v", craftResponse(malformedRequest))
 			return
 		}
 
 		err = d.passwdDb.AuthRequest(passwd, msg.Username, msg.Hostnames)
 		if err != nil {
 			if strings.HasPrefix(err.Error(), "AuthRequest: failed to match requested hosts for:") {
-				fmt.Fprintf(w, craftResponse(hostsFail))
+				fmt.Fprintf(w, "%v", craftResponse(hostsFail))
 			} else if strings.HasPrefix(err.Error(), "AuthRequest: user account does not exist with name:") ||
 				strings.HasPrefix(err.Error(), "AuthRequest: crypto/bcrypt: hashedPassword is not the hash of the given password") {
-				fmt.Fprintf(w, craftResponse(authenticationFail))
+				fmt.Fprintf(w, "%v", craftResponse(authenticationFail))
 			} else {
-				fmt.Fprintf(w, craftResponse(zoneUpdateFail))
+				fmt.Fprintf(w, "%v", craftResponse(zoneUpdateFail))
 			}
 			if config.Debug {
 				fmt.Fprintf(os.Stderr, "Authentication failed: %v\n", err)
@@ -252,7 +252,7 @@ func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		status := d.UpdateZone(msg)
-		fmt.Fprintf(w, craftResponse(status))
+		fmt.Fprintf(w, "%v", craftResponse(status))
 	}
 }
 
