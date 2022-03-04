@@ -100,6 +100,17 @@ var _ = Describe("Dynupd", func() {
 			})
 		})
 
+		Context("With a good username", func() {
+			It("should return nsddyn code 200", func() {
+				var sr = strings.NewReader(`{"username": "alex", "password": "password", "ipaddr": "192.0.2.4", "hostnames": [ "host1", "host2" ], "version": "0.1.0"}`)
+				request, _ := http.NewRequest("POST", uri, sr)
+				mux.ServeHTTP(writer, request)
+
+				json.Unmarshal(writer.Body.Bytes(), &nb)
+				Expect(nb.Code).To(Equal("200"))
+			})
+		})
+
 		Context("With a bad username", func() {
 			It("should return nsddyn code 403", func() {
 				var sr = strings.NewReader(`{"username": "badusername", "password": "password", "ipaddr": "192.0.2.4", "hostnames": [ "host1", "host2" ], "version": "0.1.0"}`)
