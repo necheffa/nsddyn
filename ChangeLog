@@ -8,6 +8,9 @@ XXXX-YY-ZZ Alexander Necheff <alex@necheff.net>
     * Updated integration test Dockerfile to use Debian 11.
     * Removed gosec from build system, golangci-lint now handles this role. Fixed issue #81.
     * Added Ginkgo as a dependency for testing.
+    * Enhanced test coverage.
+    * Updated vendored dependencies.
+    * Corrected an untracked issue where printf-style format strings were not properly specified in dynupd.
 
 2021-10-13 Alexander Necheff <alex@necheff.net>
     * Set version to 0.5.1.
