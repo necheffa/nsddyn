@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2020 Alexander Necheff
+   Copyright (C) 2020, 2022 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -22,10 +22,57 @@ import (
 	"bytes"
 	"io"
 	"io/ioutil"
+	"os"
 	"testing"
 
 	"golang.org/x/crypto/bcrypt"
 )
+
+func TestUserMod(t *testing.T) {
+	passwd, _ := os.CreateTemp(os.TempDir(), "nsddynpasswd")
+	defer os.Remove(passwd.Name())
+
+	authFile := new(FlatFile)
+	authFile.SetFilePath(passwd.Name())
+
+	err := authFile.AddUser([]byte("password"), "alex", []string{"host1", "host2"})
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = authFile.ModUser("alex", []byte("password"), false, []string{"host3"}, true)
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = authFile.AuthRequest([]byte("password"), "alex", []string{"host3"})
+	if err != nil {
+		t.Errorf("Expected no error but got: %v", err)
+	}
+
+	err = authFile.ModUser("alex", []byte("newpassword"), true, []string{"host3"}, false)
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = authFile.AuthRequest([]byte("newpassword"), "alex", []string{"host3"})
+	if err != nil {
+		t.Errorf("Expected no error but got: %v", err)
+	}
+
+	err = authFile.DelUser("alex")
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = authFile.ModUser("alex", []byte("newpassword"), true, []string{"host3"}, false)
+	if err == nil {
+		t.Errorf("Expected error trying to modify non-existant user but did not recieve one.")
+	}
+	if err.Error() != "ModUser: user account with name alex does not exist." {
+		t.Errorf("Did not get expected error when trying to modify non-existant user. Got: %v", err.Error())
+	}
+}
 
 // TestUserExists() mocks a nsddynpasswd file to isolate testing to the userExists() function.
 func TestUserExists(t *testing.T) {
