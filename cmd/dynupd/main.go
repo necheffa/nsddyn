@@ -32,8 +32,9 @@ import (
 )
 
 const (
-	defaultUri  = "/api/dynupd"
-	defaultHost = "localhost:8080"
+	defaultUri       = "/api/dynupd"
+	defaultHost      = "localhost:8080"
+	defaultBrokerUrl = "http://localhost:8081/api/dynupd-broker"
 )
 
 func main() {
@@ -157,7 +158,7 @@ func main() {
 	}
 
 	passwdDb.SetFilePath(fileName)
-	d.NewDynUpd(passwdDb, zoneFile, domainName)
+	d.NewDynUpd(passwdDb, zoneFile, domainName, defaultBrokerUrl)
 
 	http.HandleFunc(uri, d.DynUpdHandler)
 	http.ListenAndServe(host, nil)

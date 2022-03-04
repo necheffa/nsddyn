@@ -26,6 +26,7 @@ import (
 	"necheff.net/nsddyn/cmd/internal/auth"
 
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -36,6 +37,7 @@ var passwd *os.File
 var zonefile *os.File
 var dynupd *DynUpd
 var authFile *auth.FlatFile
+var srv *httptest.Server
 
 var _ = BeforeSuite(func() {
 	passwd, _ = os.CreateTemp(os.TempDir(), "nsddynpasswd")
@@ -44,6 +46,11 @@ var _ = BeforeSuite(func() {
 	authFile.SetFilePath(passwd.Name())
 
 	_ = authFile.AddUser([]byte("password"), "alex", []string{"host1", "host2"})
+
+	srv = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// don't do anything, successfully
+		fmt.Fprintf(w, "%v", r.Body)
+	}))
 })
 
 var _ = AfterSuite(func() {
@@ -63,7 +70,7 @@ var _ = Describe("Dynupd", func() {
 	BeforeEach(func() {
 		uri = "/api/dynupd"
 		dynupd = new(DynUpd)
-		dynupd.NewDynUpd(authFile, zonefile.Name(), "example.com")
+		dynupd.NewDynUpd(authFile, zonefile.Name(), "example.com", srv.URL)
 
 		mux = http.NewServeMux()
 		mux.HandleFunc(uri, dynupd.DynUpdHandler)

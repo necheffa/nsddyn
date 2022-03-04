@@ -52,13 +52,15 @@ type DynUpd struct {
 	passwdDb   auth.AuthReader
 	zoneFile   string
 	domainName string
+	brokerUrl  string
 }
 
 // NewDynUpd initalizes a new instance of DynUpd that has already been allocated.
-func (d *DynUpd) NewDynUpd(passwdDb auth.AuthReader, zoneFile string, domainName string) {
+func (d *DynUpd) NewDynUpd(passwdDb auth.AuthReader, zoneFile string, domainName string, brokerUrl string) {
 	d.passwdDb = passwdDb
 	d.zoneFile = zoneFile
 	d.domainName = domainName
+	d.brokerUrl = brokerUrl
 }
 
 // UpdateZone updates the zonefile with the specified request.
@@ -163,7 +165,7 @@ func (d *DynUpd) UpdateZone(r dynreq.DynReq) string {
 		return zoneUpdateFail
 	}
 
-	_, err = http.Post("http://localhost:8081:/api/dynupd-broker", "text/plain", strings.NewReader(nsddynHome))
+	_, err = http.Post(d.brokerUrl, "text/plain", strings.NewReader(nsddynHome))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "dynupd: error: broker call failed, error was: "+err.Error())
 		return zoneUpdateFail
