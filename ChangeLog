@@ -6,9 +6,11 @@ XXXX-YY-ZZ Alexander Necheff <alex@necheff.net>
     * Corrected an untracked issue where the provided install script set executable permissions on the systemd service unit for dynupd.
     * Corrected untracked issue with README that referenced pre Go module path name for executing integration tests.
     * Updated integration test Dockerfile to use Debian 11.
+    * Updated integration tests to improve automation. Fixed issue #70, #41, and #39.
+    * Deprecated test/nsddynum/run.sh as this functionality is now covered by unit and Docker integration tests.
     * Removed gosec from build system, golangci-lint now handles this role. Fixed issue #81.
     * Added Ginkgo as a dependency for testing.
-    * Enhanced test coverage.
+    * Enhanced unit test coverage.
     * Updated vendored dependencies.
     * Corrected an untracked issue where printf-style format strings were not properly specified in dynupd.
     * Added -b/--broker option to dynupd for specifying the dynupd-broker communication URI. Fixed issue #78.
