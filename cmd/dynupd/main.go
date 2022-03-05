@@ -34,7 +34,7 @@ import (
 const (
 	defaultUri       = "/api/dynupd"
 	defaultHost      = "localhost:8080"
-	defaultBrokerUrl = "http://localhost:8081/api/dynupd-broker"
+	defaultBrokerUri = "http://localhost:8081/api/dynupd-broker"
 )
 
 func main() {
@@ -52,6 +52,7 @@ func main() {
 	var listenAddr string
 	var listenUri string
 	var domainName string
+	var brokerUri string
 
 	dynupdCmd.BoolVar(&printHelp, "help", false, "Print usage message and exit successfully.")
 	dynupdCmd.BoolVar(&printHelp, "h", false, "Print usage message and exit successfully.")
@@ -69,6 +70,8 @@ func main() {
 	dynupdCmd.StringVar(&listenUri, "uri", "", "Override the ddefault listen URI.")
 	dynupdCmd.StringVar(&domainName, "n", "", "Specify the domain name associated with the zonefile.")
 	dynupdCmd.StringVar(&domainName, "name", "", "Specify the domain name associated with the zonefile.")
+	dynupdCmd.StringVar(&brokerUri, "b", "", "Specify the URI of dynupd-broker.")
+	dynupdCmd.StringVar(&brokerUri, "broker", "", "Specify the URI of dynupd-broker.")
 
 	dynupdCmd.Parse(os.Args[1:])
 
@@ -109,6 +112,10 @@ func main() {
 		uri = defaultUri
 	} else {
 		uri = listenUri
+	}
+
+	if brokerUri == "" {
+		brokerUri = defaultBrokerUri
 	}
 
 	if config.Debug {
@@ -158,7 +165,7 @@ func main() {
 	}
 
 	passwdDb.SetFilePath(fileName)
-	d.NewDynUpd(passwdDb, zoneFile, domainName, defaultBrokerUrl)
+	d.NewDynUpd(passwdDb, zoneFile, domainName, brokerUri)
 
 	http.HandleFunc(uri, d.DynUpdHandler)
 	http.ListenAndServe(host, nil)

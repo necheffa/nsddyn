@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2020 Alexander Necheff
+   Copyright (C) 2020, 2022 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -26,7 +26,7 @@ import (
 // PrintUsage is called to display a useage message either when the user has explicitly requested one or
 // the user has not passed in sensable arguments.
 func PrintUsage() {
-	msg := "Usage: dynupd [-vhd] [-p PASSWD_FILE] [-a ADDRESS[:PORT]] [-u URI] -z ZONE_FILE -n DOMAIN_NAME\n" +
+	msg := "Usage: dynupd [-vhd] [-p PASSWD_FILE] [-a ADDRESS[:PORT]] [-u URI] [-b URI] -z ZONE_FILE -n DOMAIN_NAME\n" +
 		"  dynupd is the HTTP API host component of nsddyn.\n" +
 		"\n" +
 		"  -v,--version\t\tPrint version information and exit successfully.\n" +
@@ -36,6 +36,7 @@ func PrintUsage() {
 		"  -n,--name\t\tSpecify the domain name associated with the zonefile.\n" +
 		"  -p,--passwd-file\tOverride the location of the password store.\n" +
 		"  -a,--addr\t\tOverride the default listen host.\n" +
-		"  -u,--uri\t\tOverride the default listen URI.\n"
-	fmt.Fprintf(os.Stderr, msg)
+		"  -u,--uri\t\tOverride the default listen URI.\n" +
+		"  -b,--broker\t\tOverride the default dynupd-broker URI.\n"
+	fmt.Fprintf(os.Stderr, "%v", msg)
 }
