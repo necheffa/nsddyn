@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+BUILDROOT="$(dirname $(dirname $(dirname $(realpath $0))))"
+
+OLDPWD="$PWD"
+cd $BUILDROOT
+
+NSDDIR=$(mktemp -d)
+NSDDYNDIR=$(mktemp -d)
+
+function cleanup {
+    docker stop nsdtester dynupdtester
+    docker rm -f -v nsdtester dynupdtester
+
+    rm -rf $NSDDIR
+    rm -rf $NSDDYNDIR
+}
+
+trap cleanup EXIT
+
+cp test/example.com.zone $NSDDIR/
+cp -r bin $NSDDYNDIR/
+cp -r etc $NSDDYNDIR/
+cp test/nsddynpasswd $NSDDYNDIR/etc/
+sed -i 's/dyn\.//g' $NSDDYNDIR/etc/dynupd-broker.json
+sed -i 's/localhost/0\.0\.0\.0/g' $NSDDYNDIR/etc/dynupd-broker.json
+
+docker run -d -t --name nsdtester -p 5353:53 -p 8081:8081 -v $NSDDIR:/nsd -v $NSDDYNDIR:/nsddyn nsddyntest_nsd
+# let the NSD / broker instance have a chance to settle...just in case.
+sleep 1
+docker run -d -t --name dynupdtester -p 8080:8080 -v $NSDDIR:/nsd -v $NSDDYNDIR:/nsddyn nsddyntest_dynupd
+sleep 1
+
+export NSDDYNPORT="8080"
+export DNSIP="$(<$NSDDYNDIR/nsdip)"
+export NSDDYNIP="$(<$NSDDYNDIR/dynupdip)"
+
+scripts/test/automated_integration.sh
+
+cd $OLDPWD
+

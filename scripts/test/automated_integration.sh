@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
-IP="172.17.0.2"
-PORT="8080"
+IP=${NSDDYNIP:-172.17.0.3}
+DNSIP=${DNSIP:-172.17.0.2}
+PORT=${NSDDYNPORT:-8080}
 
 FAILED_TEST="no"
 
@@ -14,7 +15,7 @@ if [ "$RET1CODE" != "200" ]; then
     echo "Expected code 200 but got: $RET1CODE"
     FAILED_TEST="yes"
 else
-    RETADDR=$(host host1.example.com $IP | grep host1 | head -1 | awk '{print $4}')
+    RETADDR=$(host host1.example.com $DNSIP | grep host1 | head -1 | awk '{print $4}')
     if [ "$RETADDR" != "192.0.2.4" ]; then
         FAILED_TEST="yes"
         echo "Test of host lookup on good request failed"

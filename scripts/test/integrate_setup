@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+BUILDROOT="$(dirname $(dirname $(dirname $(realpath $0))))"
+
+if ! [ -d $BUILDROOT/bin ]; then
+    echo "Did you build nsddyn?"
+    exit 1
+fi
+
+OLDPWD="$PWD"
+cd $BUILDROOT
+
+docker build -t nsddyntest_nsd -f $BUILDROOT/test/nsd.Dockerfile .
+docker build -t nsddyntest_dynupd -f $BUILDROOT/test/dynupd.Dockerfile .
+
+cd $OLDPWD
+

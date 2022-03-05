@@ -1,44 +1,19 @@
 #
-# Set up a Docker container for dynupd as part of integration testing.
-#
-# I could eventually spinup multiple containers and use a shared volume to
-# provide the illusion that NSD and dynupd are running on the same system.
-# But using a shell script is the quick and dirty band aid I need to press on
-# early in development.
+# dynupd.Dockerfile sets up dynupd for integration testing.
+# A Docker volume should be mounted to /nsddyn/ in order to provide
+# access to the dynupd binary.
+# A Docker volume should be mounted to /nsd/ in order to provide access
+# to the zonefile.
 #
 
-# NOTE: I tried using alpine linux but ran into trouble because it links against muslc not glibc
 FROM debian:11-slim
-USER root
 
-# bash is a little heavy but it will make scripting easier for me
-#RUN /sbin/apk add --no-cache nsd bash
-RUN apt-get update && apt-get -y upgrade && apt-get install -y nsd procps
-RUN useradd nsddyn
-RUN mkdir -p /nsddyn/bin
-RUN mkdir -p /nsddyn/etc
-COPY test/nsddynpasswd /nsddyn/etc/
-RUN chown -R nsddyn /nsddyn
+RUN mkdir -p /nsddyn
+RUN mkdir -p /nsd
 
-#
-# Prep the NSD install
-#
-# installing the nsd package creates this user for me
-#RUN adduser -D nsd
-RUN mkdir -p /etc/nsd/zones
-COPY test/example.com.zone /etc/nsd/zones/
-COPY test/nsd.conf /etc/nsd/
-
-#
-# This is the stuff I'd need to do if I only ran dynupd from this container.
-#
-#USER nsddyn
-#WORKDIR /nsddyn
 ENV NSDDYN_HOME="/nsddyn"
 ENV PATH="$NSDDYN_HOME/bin:$PATH"
-COPY bin/dynupd /nsddyn/bin/
-COPY bin/nsddynum /nsddyn/bin/
-#CMD ["dynupd", "--debug", "--addr", "0.0.0.0:8080"]
 
-COPY test/dynupd_test_deploy /
-CMD ./dynupd_test_deploy
+COPY test/dynupd_deploy /
+CMD ./dynupd_deploy
+
