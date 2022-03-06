@@ -13,5 +13,5 @@ echo $DYNUPDIP > /nsddyn/dynupdip
 BROKERIP=$(</nsddyn/nsdip)
 BROKERURI="http://${BROKERIP}:8081/api/dynupd-broker"
 
-$NSDDYN_HOME/bin/dynupd -d -a 0.0.0.0:8080 -n example.com -z /nsd/example.com.zone -b $BROKERURI > dynupd.log 2>&1
+$NSDDYN_HOME/bin/dynupd -d -a 0.0.0.0:8080 -n example.com -z /nsd/example.com.zone -b $BROKERURI > /nsddyn/dynupd.log 2>&1
 
