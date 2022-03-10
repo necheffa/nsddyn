@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2021 Alexander Necheff
+   Copyright (C) 2021, 2022 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -32,7 +32,7 @@ func DynupdBroker(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	case "POST":
-		cmd := exec.Command("nsd-control", "reload", brokerConfig.ZoneName)
+		cmd := exec.Command("sh", "-c", "nsd-control reload "+brokerConfig.ZoneName)
 		out, err := cmd.CombinedOutput()
 		if err != nil {
 			log.Print("dynupd-broker: error: unable to execute nsd-control, error was: " + err.Error())
