@@ -19,6 +19,7 @@ function cleanup {
 trap cleanup EXIT
 
 cp test/example.com.zone $NSDDIR/
+chmod 0755 $NSDDIR # let NSD read this directory, default perms are 0700
 cp -r bin $NSDDYNDIR/
 cp -r etc $NSDDYNDIR/
 cp test/nsddynpasswd $NSDDYNDIR/etc/
