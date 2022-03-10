@@ -14,6 +14,7 @@ XXXX-YY-ZZ Alexander Necheff <alex@necheff.net>
     * Updated vendored dependencies.
     * Corrected an untracked issue where printf-style format strings were not properly specified in dynupd.
     * Added -b/--broker option to dynupd for specifying the dynupd-broker communication URI. Fixed issue #78.
+    * Modified dynupd-broker to execute nsd-control in a sub-shell rather than directly. Fixed issue #88.
 
 2021-10-13 Alexander Necheff <alex@necheff.net>
     * Set version to 0.5.1.
