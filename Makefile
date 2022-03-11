@@ -29,14 +29,18 @@ quality: vet shellcheck golangci-lint
 fmt: ## run `go fmt` on all source files
 	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) -C $(CMD_DIR) fmt
 
-.PHONY: test
-test: coverage.out
+.PHONY: integrationtest
+integrationtest: bin
+	$(BUILD_ROOT)/scripts/test/integrate
 
-coverage.out: ## unit tests
+.PHONY: test
+test: unittest integrationtest
+
+unittest:
 	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) -C $(CMD_DIR) unittest
 
-.PHONY: testresults
-testresults: coverage.out
+.PHONY: testcoverage
+testcoverage: unittest
 	@$(shell go tool cover -html=coverage.out)
 
 .PHONY: linecount
