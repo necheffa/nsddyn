@@ -379,22 +379,6 @@ func removeUserRecord(userName string, fileBuf []byte) (newFileBuf []byte) {
 	return newFileBuf
 }
 
-// getNumRecords returns the number of records in the password file by
-// counting the number of lines since there is one record per line.
-func getNumRecords(fileBuf []byte) int {
-	if len(fileBuf) == 0 {
-		return 0
-	}
-
-	numLines := 0
-	lines := bytes.Split(fileBuf, []byte("\n"))
-	for n := range lines {
-		numLines = n
-	}
-
-	return (numLines + 1)
-}
-
 // getUserRecord attempts to return the password file record for the specified user as a byte slice.
 // If getUserRecord is unable to locate a record, ok == false.
 func getUserRecord(userName string, fileBuf []byte) (userRecord []byte, ok bool) {
