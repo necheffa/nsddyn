@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2019, 2020, 2021 Alexander Necheff
+   Copyright (C) 2019, 2020, 2021, 2022 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -91,14 +91,14 @@ func main() {
 
 	if zoneFile == "" {
 		PrintUsage()
-		fmt.Fprintf(os.Stderr, "dynupd: error: missing required argument, --zone-file\n")
+		fmt.Fprintf(os.Stderr, "%s\n", "dynupd: error: missing required argument, --zone-file")
 		return
 	}
 
 	if domainName == "" {
 		// A future enhancement might just default to using the domain name of the host system.
 		PrintUsage()
-		fmt.Fprintf(os.Stderr, "dynupd: error: missing required argument, --name\n")
+		fmt.Fprintf(os.Stderr, "%s\n", "dynupd: error: missing required argument, --name")
 		return
 	}
 
@@ -119,8 +119,8 @@ func main() {
 	}
 
 	if config.Debug {
-		msg := "dynupd: listening on: " + host + uri + "\n"
-		fmt.Fprintf(os.Stderr, msg)
+		msg := "dynupd: listening on: " + host + uri
+		fmt.Fprintf(os.Stderr, "%s\n", msg)
 	}
 
 	nsddynHome, ok := os.LookupEnv("NSDDYN_HOME")
