@@ -190,19 +190,17 @@ Notice that the nsddyn server will always return its version number in the respo
 
 ### Running Tests
 
-The Makefile contains `test` and `testresults` targets for executing the unit tests and reviewing the results.
-Where possible, contributions should come with unit tests.
+Before tests can be run for the first time `scripts/test/integrate_setup` needs to be executed to create Docker images.
+Afterwards, all tests can be executed with `make test` and unit test coverage can be viewed with `make testcoverage`.
 
-Integration testing is somewhat more difficult since most people don't want to install and configure a name server on their laptop.
-To execute the integration tests, follow these steps:
+Unit tests can be executed individually with `make unittest` while integration tests can be executed individually with
+`make integrationtest`. The `make test` target simply executes both suites.
 
-* Compile nsddyn
-* `cd` to the root of the distribution
-* The first time integration testing is executed `scripts/test/integrate_setup` will need run to create Docker images.
-* Executing the `scripts/test/integrate` script actually spins up containers and executes the integration tests.
-* Results should be displayed on STDOUT and the tests should cleanup after themselves.
-
+Most people don't want to install and configure a name server on their laptop, integration testing uses Docker
+to host an NSD instance alongside the development build of nsddyn.
 Since integration testing relies on Docker images, it is a best practice to update images when migrating between major/minor versions of nsddyn.
+
+Where possible, contributions should come with enhancements to the test suite to cover new features and fixes.
 
 ## Licensing
 
