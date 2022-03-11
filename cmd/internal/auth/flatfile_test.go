@@ -28,6 +28,96 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// TestDelUserPos tests deleting user accounts from multiple positions in
+// the passwd file to ensure the remaining records are not malformed.
+func TestDelUserPos(t *testing.T) {
+	passwd, _ := os.CreateTemp(os.TempDir(), "nsddynpasswd")
+	defer os.Remove(passwd.Name())
+
+	authFile := new(FlatFile)
+	authFile.SetFilePath(passwd.Name())
+
+	authFile.AddUser([]byte("password"), "alex0", []string{"host1", "host2"})
+	authFile.AddUser([]byte("password"), "alex1", []string{"host1", "host2"})
+	authFile.AddUser([]byte("password"), "alex2", []string{"host1", "host2"})
+
+	// delete account from middle position
+	err := authFile.DelUser("alex1")
+	if err != nil {
+		t.Error(err)
+	}
+	err = authFile.AuthRequest([]byte("password"), "alex0", []string{"host1"})
+	if err != nil {
+		t.Error(err)
+	}
+	err = authFile.AuthRequest([]byte("password"), "alex2", []string{"host1"})
+	if err != nil {
+		t.Error(err)
+	}
+	err = authFile.AuthRequest([]byte("password"), "alex1", []string{"host1"})
+	if err == nil {
+		t.Error("Expected user alex1 to no longer exist but it does.")
+	}
+	if err.Error() != "AuthRequest: user account does not exist with name: alex1" {
+		t.Error("Unexpected error: " + err.Error())
+	}
+
+	// delete account from last position
+	err = authFile.DelUser("alex2")
+	if err != nil {
+		t.Error(err)
+	}
+	err = authFile.AuthRequest([]byte("password"), "alex0", []string{"host1"})
+	if err != nil {
+		t.Error(err)
+	}
+	err = authFile.AuthRequest([]byte("password"), "alex2", []string{"host1"})
+	if err == nil {
+		t.Error("Expected user alex2 to no longer exist but it does.")
+	}
+	if err.Error() != "AuthRequest: user account does not exist with name: alex2" {
+		t.Error("Unexpected error: " + err.Error())
+	}
+
+	// delete only account in file
+	err = authFile.DelUser("alex0")
+	if err != nil {
+		t.Error(err)
+	}
+	err = authFile.AuthRequest([]byte("password"), "alex0", []string{"host1"})
+	if err == nil {
+		t.Error("Expected user alex0 to no longer exist but it does.")
+	}
+	if err.Error() != "AuthRequest: user account does not exist with name: alex0" {
+		t.Error("Unexpected error: " + err.Error())
+	}
+
+	authFile.AddUser([]byte("password"), "alex0", []string{"host1", "host2"})
+	authFile.AddUser([]byte("password"), "alex1", []string{"host1", "host2"})
+	authFile.AddUser([]byte("password"), "alex2", []string{"host1", "host2"})
+
+	// delete account from first position
+	err = authFile.DelUser("alex0")
+	if err != nil {
+		t.Error(err)
+	}
+	err = authFile.AuthRequest([]byte("password"), "alex0", []string{"host1"})
+	if err == nil {
+		t.Error("Expected user alex0 to no longer exist but it does.")
+	}
+	if err.Error() != "AuthRequest: user account does not exist with name: alex0" {
+		t.Error("Unexpected error: " + err.Error())
+	}
+	err = authFile.AuthRequest([]byte("password"), "alex1", []string{"host1"})
+	if err != nil {
+		t.Error(err)
+	}
+	err = authFile.AuthRequest([]byte("password"), "alex2", []string{"host1"})
+	if err != nil {
+		t.Error(err)
+	}
+}
+
 func TestUserMod(t *testing.T) {
 	passwd, _ := os.CreateTemp(os.TempDir(), "nsddynpasswd")
 	defer os.Remove(passwd.Name())
