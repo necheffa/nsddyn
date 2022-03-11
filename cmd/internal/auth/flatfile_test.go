@@ -28,6 +28,105 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// TestModUserPos tests modifying user accounts from multiple mositions in
+// the passwd file to ensure the records are not malformed.
+func TestModUserPos(t *testing.T) {
+	passwd, _ := os.CreateTemp(os.TempDir(), "nsddynpasswd")
+	defer os.Remove(passwd.Name())
+
+	authFile := new(FlatFile)
+	authFile.SetFilePath(passwd.Name())
+
+	// mod account on empty file
+	err := authFile.ModUser("alex", []byte("password"), false, []string{"host1"}, true)
+	if err == nil {
+		t.Error(err)
+	}
+	if err.Error() != "ModUser: user account with name alex does not exist." {
+		t.Error("Unexpected error: " + err.Error())
+	}
+
+	// mod only account in file
+	authFile.AddUser([]byte("password"), "alex0", []string{"host1", "host2"})
+	err = authFile.ModUser("alex0", []byte("password1"), false, []string{"host11", "host22"}, false)
+	if err != nil {
+		t.Error(err)
+	}
+	err = authFile.AuthRequest([]byte("password"), "alex0", []string{"host1"})
+	if err != nil {
+		t.Error(err)
+	}
+	err = authFile.ModUser("alex0", []byte("password1"), true, []string{"host11"}, true)
+	if err != nil {
+		t.Error(err)
+	}
+	err = authFile.AuthRequest([]byte("password1"), "alex0", []string{"host11"})
+	if err != nil {
+		t.Error(err)
+	}
+	err = authFile.AuthRequest([]byte("password1"), "alex0", []string{"host1", "host2", "host11"})
+	if err == nil {
+		t.Error("Expected the auth request to fail but it did not.")
+	}
+	if err.Error() != "AuthRequest: failed to match requested hosts for: alex0" {
+		t.Error("Unexpected error: " + err.Error())
+	}
+	err = authFile.AuthRequest([]byte("password"), "alex0", []string{"host11"})
+	if err == nil {
+		t.Error("Expected the auth request to fail but it did not.")
+	}
+	if err.Error() != "AuthRequest: crypto/bcrypt: hashedPassword is not the hash of the given password" {
+		t.Error("Unexpected error: " + err.Error())
+	}
+
+	// mod account from last position
+
+	// mod middle account position
+	authFile.DelUser("alex0")
+	authFile.DelUser("alex1")
+	authFile.AddUser([]byte("password"), "alex0", []string{"host1", "host2"})
+	authFile.AddUser([]byte("password"), "alex1", []string{"host1", "host2"})
+	authFile.AddUser([]byte("password"), "alex2", []string{"host1", "host2"})
+	err = authFile.ModUser("alex1", []byte("password1"), false, []string{"host11", "host22"}, false)
+	if err != nil {
+		t.Error(err)
+	}
+	err = authFile.AuthRequest([]byte("password"), "alex1", []string{"host1"})
+	if err != nil {
+		t.Error(err)
+	}
+	err = authFile.ModUser("alex1", []byte("password1"), true, []string{"host11"}, true)
+	if err != nil {
+		t.Error(err)
+	}
+	err = authFile.AuthRequest([]byte("password1"), "alex1", []string{"host11"})
+	if err != nil {
+		t.Error(err)
+	}
+	err = authFile.AuthRequest([]byte("password1"), "alex1", []string{"host1", "host2", "host11"})
+	if err == nil {
+		t.Error("Expected the auth request to fail but it did not.")
+	}
+	if err.Error() != "AuthRequest: failed to match requested hosts for: alex1" {
+		t.Error("Unexpected error: " + err.Error())
+	}
+	err = authFile.AuthRequest([]byte("password"), "alex1", []string{"host11"})
+	if err == nil {
+		t.Error("Expected the auth request to fail but it did not.")
+	}
+	if err.Error() != "AuthRequest: crypto/bcrypt: hashedPassword is not the hash of the given password" {
+		t.Error("Unexpected error: " + err.Error())
+	}
+	err = authFile.AuthRequest([]byte("password"), "alex0", []string{"host1"})
+	if err != nil {
+		t.Error(err)
+	}
+	err = authFile.AuthRequest([]byte("password"), "alex2", []string{"host1"})
+	if err != nil {
+		t.Error(err)
+	}
+}
+
 // TestDelUserPos tests deleting user accounts from multiple positions in
 // the passwd file to ensure the remaining records are not malformed.
 func TestDelUserPos(t *testing.T) {
