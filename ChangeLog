@@ -11,6 +11,7 @@ XXXX-YY-ZZ Alexander Necheff <alex@necheff.net>
     * Removed gosec from build system, golangci-lint now handles this role. Fixed issue #81.
     * Added Ginkgo as a dependency for testing.
     * Enhanced unit test coverage.
+    * Enhanced tested edge cases in the auth package. Fixed issue #59.
     * Updated vendored dependencies.
     * Corrected an untracked issue where printf-style format strings were not properly specified in dynupd.
     * Added -b/--broker option to dynupd for specifying the dynupd-broker communication URI. Fixed issue #78.
