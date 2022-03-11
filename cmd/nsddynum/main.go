@@ -231,6 +231,6 @@ func main() {
 			"moduser [-p PASSWD_FILE ] -u USER\t\t\tModifies the password or authorized hostnames for a user account.\n" +
 			"deluser [-p PASSWD_FILE ] -u USER\t\t\tRemoves the specified user account from the passwd file.\n"
 
-		fmt.Fprintf(os.Stderr, msg)
+		fmt.Fprintf(os.Stderr, "%s", msg)
 	}
 }
