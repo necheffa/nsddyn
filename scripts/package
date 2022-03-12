@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+DIRLOC="$(dirname "$(dirname "$(readlink -f "$0")")")"
+VERSION="$(<"$DIRLOC"/VERSION)"
+PKGLOC="$DIRLOC"/nsddyn-"$VERSION"
+SUFFIX="tar.gz"
+
+if ! [ -d "$DIRLOC"/bin ]; then
+    echo "Error: make sure nsddyn is built first."
+    exit 1
+fi
+
+if [ -f "$PKGLOC"."$SUFFIX" ]; then
+    echo "Error: stale package exists. Manually remove it before trying again."
+    exit 1
+fi
+
+if [ -d "$PKGLOC" ]; then
+    echo "Error: stale package exists. Manually remove it before trying again."
+    exit 1
+fi
+
+OLDCWD="$CWD"
+cd "$DIRLOC" || exit 1
+
+mkdir -p "$PKGLOC"
+cp -r bin "$PKGLOC"/
+cp -r etc "$PKGLOC"/
+cp -r client "$PKGLOC"/
+cp scripts/install "$PKGLOC"/
+
+tar czf nsddyn-"$VERSION"."$SUFFIX" nsddyn-"$VERSION"
+rm -r nsddyn-"$VERSION"/
+
+cd "$OLDCWD" || exit 1
+sync
+

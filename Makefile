@@ -36,8 +36,13 @@ integrationtest: bin
 .PHONY: test
 test: unittest integrationtest
 
+.PHONY: unittest
 unittest:
 	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) -C $(CMD_DIR) unittest
+
+.PHONY: package
+package: bin
+	scripts/package
 
 .PHONY: testcoverage
 testcoverage: unittest
