@@ -16,6 +16,8 @@ XXXX-YY-ZZ Alexander Necheff <alex@necheff.net>
     * Corrected an untracked issue where printf-style format strings were not properly specified in dynupd.
     * Added -b/--broker option to dynupd for specifying the dynupd-broker communication URI. Fixed issue #78.
     * Modified dynupd-broker to execute nsd-control in a sub-shell rather than directly. Fixed issue #88.
+    * Corrected an issue where dynupd would only print a generic message if editing the zonefile failed. Now the
+        lower level error (e.g. file not found) message is printed too to aid diagnostics. Fixed issue #93.
 
 2021-10-13 Alexander Necheff <alex@necheff.net>
     * Set version to 0.5.1.
