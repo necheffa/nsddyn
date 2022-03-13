@@ -69,7 +69,8 @@ func (d *DynUpd) UpdateZone(r dynreq.DynReq) string {
 	file, err := os.OpenFile(d.zoneFile, os.O_RDWR, 0664)
 	if err != nil {
 		if config.Debug {
-			fmt.Fprintf(os.Stderr, "dynupd: error: failed to open zonefile for update: "+d.zoneFile)
+			fmt.Fprintf(os.Stderr, "%s\n", "dynupd: error: failed to open zonefile for update: "+d.zoneFile)
+			fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 		}
 		return zoneUpdateFail
 	}
@@ -78,7 +79,8 @@ func (d *DynUpd) UpdateZone(r dynreq.DynReq) string {
 	buf, err := ioutil.ReadAll(file)
 	if err != nil {
 		if config.Debug {
-			fmt.Fprintf(os.Stderr, "dynupd: error: failed to read zonefile for update: "+d.zoneFile)
+			fmt.Fprintf(os.Stderr, "%s\n", "dynupd: error: failed to read zonefile for update: "+d.zoneFile)
+			fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 		}
 		return zoneUpdateFail
 	}
@@ -86,7 +88,8 @@ func (d *DynUpd) UpdateZone(r dynreq.DynReq) string {
 	zf, err := zonefile.Load(buf)
 	if err != nil {
 		if config.Debug {
-			fmt.Fprintf(os.Stderr, "dynupd: error: failed to parse zonefile for update: "+d.zoneFile)
+			fmt.Fprintf(os.Stderr, "%s\n", "dynupd: error: failed to parse zonefile for update: "+d.zoneFile)
+			fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 		}
 		return zoneUpdateFail
 	}
@@ -240,9 +243,11 @@ func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 			} else {
 				fmt.Fprintf(w, "%v", craftResponse(zoneUpdateFail))
 			}
+
 			if config.Debug {
 				fmt.Fprintf(os.Stderr, "Authentication failed: %v\n", err)
 			}
+
 			return
 		}
 
