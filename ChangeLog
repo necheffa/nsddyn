@@ -1,3 +1,9 @@
+XXXX-YY-ZZ Alexander Necheff <alex@necheff.net>
+    * Set version to 1.0.0
+    * Corrected bad client rc examples in usage text. Fixed issue #94.
+    * Added systemd unit file for dynupd-broker. Fixed issue #92.
+    * Added the package make target to ease installation. Fixed issue #89.
+
 2022-03-13 Alexander Necheff <alex@necheff.net>
     * Set version to 0.6.0
     * Added dynupd-broker to reload managed zone.
