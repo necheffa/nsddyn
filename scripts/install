@@ -38,7 +38,7 @@ install -g staff -o root -m 0750 $BUILD_ROOT/bin/nsddynum /opt/nsddyn/bin/nsddyn
 install -g nsddyn -o root -m 0750 $BUILD_ROOT/bin/dynupd /opt/nsddyn/bin/dynupd
 install -g root -o root -m 0750 $BUILD_ROOT/bin/dynupd-broker /opt/nsddyn/bin/dynupd-broker
 
-install -g root -o root -m 0660 $BUILD_ROOT/etc/dynupd /opt/nsddyn/etc/dynupd
+install -g root -o root -m 0660 $BUILD_ROOT/etc/nsddyn /opt/nsddyn/etc/nsddyn
 install -g root -o root -m 0440 $BUILD_ROOT/etc/dynupd.service /opt/nsddyn/etc/dynupd.service
 install -g root -o root -m 0440 $BUILD_ROOT/etc/dynupd-broker.json /opt/nsddyn/etc/dynupd-broker.json
 

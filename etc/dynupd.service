@@ -3,7 +3,7 @@ Description=dynupd, the HTTP API component of nsddyn
 After=network.target
 
 [Service]
-EnvironmentFile=/opt/nsddyn/etc/dynupd
+EnvironmentFile=/opt/nsddyn/etc/nsddyn
 ExecStart=/opt/nsddyn/bin/dynupd $DYNUPD_ARGS
 NoNewPrivileges=yes
 PrivateTmp=yes
