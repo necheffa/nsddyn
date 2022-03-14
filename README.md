@@ -46,9 +46,9 @@ Compiling nsddyn is fairly simple, just follow these steps:
 1. `git clone https://gitlab.com/necheffa/nsddyn.git`
 2. `cd nsddyn/`
 3. `make`
+4. `make package`
 
-This will result in a bin/ directory being created, located here will be the dynupd and nsddynum binaries.
-Until the Makefile can be updated with an install target, these will need to be manually copied to your primary NSD server.
+Once the package is generated, it will need to be copied to your primary NSD server.
 
 The client component of nsddyn can be found in the client/ directory. nsddyncc is the cURL client and is designed to be run from a typical GNU/Linux distro.
 A RouterOS client can be found in nsddynrosc. It is not required to use both, choose which one best fits your environment and manually copy it to the client.
@@ -60,27 +60,32 @@ this environment variable should be the preferred way to specify file locations.
 
 #### Server
 
-An unprivileged user and group should be created, the installation scripts assume both are named `nsddyn` but motivated admins may manually change this.
-On Debian the recommended command to do this is: `adduser --disabled-password --group --system --no-create-home --home /opt/nsddyn nsddyn`
+1. Create an unpriviledged user and group for nsddyn. On Debian the recommanded command to do this is: `adduser --disabled-password --group --system --no-create-home --home /opt/nsddyn nsddyn`
+2. Unpack the generated tarball (see compilation above). Make sure by default root owns everything.
+3. Configure NSD with a new sub-domain, for example, dyn.example.com. Place the zone file (from here on: dyn.zone) in $NSDDYN\_HOME/etc/ and a symlink to it in /etc/nsd/. This is to allow for stronger sandboxing of dynupd.
+4. Execute `chown nsddyn:nsd dyn.zone && chmod 0644 dyn.zone` so that only dynupd has write access.
+5. Edit `$NSDDYN\_HOME/etc/nsddyn` to match the environment. At a minimum, ensure $NSDDYN\_HOME reflects the installation directory and that the -z and -n options on dynupd are set.
+6. Execute `touch $NSDDYN\_HOME/etc/nsddynpasswd && chmod 0640 $NSDDYN\_HOME/etc/nsddynpasswd && chown root:nsddyn $NSDDYN\_HOME/etc/nsddynpasswd`.
+7. Configure a reverse proxy if dynupd will be listening on localhost.
+8. Install, enable, and start the dynupd systemd unit file.
+9. Edit `$NSDDYN\_HOME/etc/dynupd-broker.json` to reflect the environment, minimally the ZoneName will need changed to match your new forward lookup zone for dynamic hosts.
+10. Install, enable, and start the dynupd-broker systemd unit file.
 
-Ensure nsddyn is compiled, see Compilation above. Then use the install target on make from the root of the cloned repo:
+It is recommended to run dynupd behind a reverse proxy like nginx or Apache. As a result, dynupd will listen for clients on localhost:8080 by default.
+But this can be changed with the --addr option at start up.
+Currently, dynupd relies on a reverse proxy configuration to provide TLS tunneling to protect authentication from prying eyes.
 
-`make install`
+It is also recommended to use a specific sub-domain for dynamic hosts rather than try to force dynupd to manage your primary forward lookup zones.
+This is to avoid problems with permissions that inevitably lead to poor security choices.
 
-This will create a directory hierarchy at `/opt/nsddyn/` along with symlinks to the dynupd.service unit and nsddynum binary into this hierarchy in system locations.
-The admin will need to manually enable and start the dynupd service with `systemctl`.
-
-The `$DYNUPD_ARGS` environment variable in /opt/nsddyn/etc/dynupd should at a minimum be modified to specify the zonefile and zone name to be managed by dynupd.
-
-By default, dynupd will listen on localhost:8080 for client requests. The --addr option is provided to override the listen address and port: `dynupd --addr 192.0.2.2:1337`.
-While any valid address:port combination may be specified, it is highly recommended to listen on a local loopback address and use a proxy to route public traffic to dynupd.
-Currently, dynupd relies on a proxy such as nginx to provide TLS tunneling and rate limiting functionality.
-When starting dynupd, only the --zone-file argument is required to specify the location of the forward-lookup zonefile dynupd should manage.
 Currently dynupd does not support reverse-lookup zonefile updates and likely never will as in most cases where ISPs issue dynamic IP addresses, the reverse-lookup zones
 are never delegated, so it would be meaningless to attempt to manage them with dynupd.
 
-Because dynupd requires Unix filesystem permissions for reading and writing to the zonefile, it is recommended to create a subdomain to segregate dynamic records from
-static records. The zonefile should be owned by the nsddyn user and the group nsd is running as, both the user and group should have read-write permissions to the file.
+By default, dynupd-broker listens on localhost:8081, this can be changed from the dynupd-broker.json file which is read at startup by the broker.
+The broker runs as root because by default NSD's nsd-control certificate and key are only readable by root. Whatever user/group is permitted to
+execute nsd-control in your environment should be the user/group that the broker runs as; this can be configured in the systemd unit file.
+Currently communication with the broker is not authenticated so it is recommended to run the broker on the same host as dynupd and NSD to
+limit connections to localhost. Otherwise, it may be possible for a public facing broker to be abused and at least hammer reloads of your dynamic zone.
 
 Both nsddynum and dynupd will look for the nsddynpasswd in the following locations in the following order: \
 * Path specified by the --passwd-file option
@@ -128,22 +133,13 @@ The `devel` branch serves as an integration branch. Tags are used to track relea
 
 ### Design
 
-nsddyn is comprised of 3 components:
-* dynupd - A web app that provides an HTTP API for accessing the name server. Upon successful authentication, dynupd updates the zonefile and reloads the zone.
+nsddyn is comprised of multiple components:
+* dynupd - A web app that provides an HTTP API for accessing the name server. Upon successful authentication, dynupd updates the zonefile requests the dynupd-broker reload the zone.
+* dynupd-broker - A web app that reloads the configured zone. This allows for a seporation of priviledge between NSD and dynupd.
 * A web client. While official clients will be provided, anyone can create their own. \
         A minimal client might take the form of a shell script wrapped around cURL. \
         More interesting might be a RouterOS script wrapped around the `/tool fetch` client.
 * nsddynum - A command-line, swiss army knife style tool for managing the nsddynpasswd file.
-
-nsddyn is a secure protocol for the following reasons:
-* It is just HTTP and so may be tunneled over TLS for confidentiality.
-* Clients are authenticated with a username and password, not just anyone can initiate a zone update. \
-        Further, nsddynd limits what A records a client is allowed to update. \
-        Passwords are stored as salted hashes to buy more time in the event hashes are leaked.
-* Its about as simple as I could make it - less attack surface.
-
-An astute reader will notice that a number of features are missing like rate limiting and permitted client IP ranges. \
-nsddyn is intended to be run on the localloop interface while a battle tested server like Apache or Nginx acts as a proxy.
 
 ### Protocol Description
 
