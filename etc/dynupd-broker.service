@@ -1,0 +1,19 @@
+[Unit]
+Description=dynupd-broker, the zone reload component of nsddyn
+After=network.target
+
+[Service]
+EnvironmentFile=/opt/nsddyn/etc/nsddyn
+ExecStart=/opt/nsddyn/bin/dynupd-broker
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectHome=yes
+User=root
+Group=root
+WorkingDirectory=/opt/nsddyn
+
+ProtectSystem=strict
+
+[Install]
+WantedBy=multi-user.target
