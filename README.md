@@ -108,10 +108,10 @@ nsddyncc relies on a JSON formatted configuration file and will search in the fo
 nsddynccrc should take the following form:
 ```
 {
-"username": "yourusername"
-"password": "secret"
-"hostnames": [ "host1", "host2" ]
-"server": "dynupdhost"
+"username": "yourusername",
+"password": "secret",
+"hostnames": [ "host1", "host2" ],
+"server": "dynupdhost",
 "port": "8080"
 }
 ```
