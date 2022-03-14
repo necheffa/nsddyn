@@ -40,6 +40,7 @@ install -g root -o root -m 0750 $BUILD_ROOT/bin/dynupd-broker /opt/nsddyn/bin/dy
 
 install -g root -o root -m 0660 $BUILD_ROOT/etc/nsddyn /opt/nsddyn/etc/nsddyn
 install -g root -o root -m 0440 $BUILD_ROOT/etc/dynupd.service /opt/nsddyn/etc/dynupd.service
+install -g root -o root -m 0440 $BUILD_ROOT/etc/dynupd-broker.service /opt/nsddyn/etc/dynupd-broker.service
 install -g root -o root -m 0440 $BUILD_ROOT/etc/dynupd-broker.json /opt/nsddyn/etc/dynupd-broker.json
 
 if [ -f /usr/local/bin/nsddynum ]; then
