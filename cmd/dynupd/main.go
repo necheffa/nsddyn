@@ -151,7 +151,7 @@ func main() {
 	}
 
 	d := new(DynUpd)
-	// TODO: support multiple auth mechanisms here...
+	// NOTE: support multiple auth mechanisms here...
 	passwdDb := new(auth.FlatFile)
 
 	fileName := passwdFile

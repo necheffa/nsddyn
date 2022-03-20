@@ -198,7 +198,7 @@ func (d *DynUpd) UpdateZone(r dynreq.DynReq) string {
 		fmt.Fprintf(os.Stderr, "dynupd: error: broker call failed, error was: "+err.Error())
 		return zoneUpdateFail
 	}
-	// TODO: look at response and see what happened.
+	// SEE: https://gitlab.com/necheffa/nsddyn/-/issues/102
 
 	return zoneUpdateSuccess
 }
