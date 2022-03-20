@@ -114,7 +114,11 @@ func (d *DynUpd) UpdateZone(r dynreq.DynReq) string {
 			}
 
 			// we found a match, update it
-			e.SetValue(0, []byte(r.Ipaddr))
+			err = e.SetValue(0, []byte(r.Ipaddr))
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "dynupd: error: updating A record: %v\n", err.Error())
+				return zoneUpdateFail
+			}
 			foundHost = true
 			updateSerial = true
 			break
@@ -144,7 +148,11 @@ func (d *DynUpd) UpdateZone(r dynreq.DynReq) string {
 			}
 
 			serial, _ := strconv.Atoi(string(vals[2]))
-			e.SetValue(2, []byte(strconv.Itoa(serial+1)))
+			err = e.SetValue(2, []byte(strconv.Itoa(serial+1)))
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "dynupd: error: unable to increment SOA serial: %v\n", err.Error())
+				return zoneUpdateFail
+			}
 			break
 		}
 	} else {
