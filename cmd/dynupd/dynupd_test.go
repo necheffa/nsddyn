@@ -98,7 +98,8 @@ var _ = Describe("Dynupd", func() {
 				mux.ServeHTTP(writer, request)
 				Expect(writer.Code).To(Equal(http.StatusOK))
 
-				json.Unmarshal(writer.Body.Bytes(), &nb)
+				err := json.Unmarshal(writer.Body.Bytes(), &nb)
+				Expect(err).NotTo(HaveOccurred())
 				Expect(nb.Code).To(Equal("200"))
 			})
 		})
@@ -110,7 +111,8 @@ var _ = Describe("Dynupd", func() {
 				mux.ServeHTTP(writer, request)
 				Expect(writer.Code).To(Equal(http.StatusOK))
 
-				json.Unmarshal(writer.Body.Bytes(), &nb)
+				err := json.Unmarshal(writer.Body.Bytes(), &nb)
+				Expect(err).NotTo(HaveOccurred())
 				Expect(nb.Code).To(Equal("403"))
 			})
 		})
@@ -121,7 +123,8 @@ var _ = Describe("Dynupd", func() {
 				request, _ := http.NewRequest("POST", uri, sr)
 				mux.ServeHTTP(writer, request)
 
-				json.Unmarshal(writer.Body.Bytes(), &nb)
+				err := json.Unmarshal(writer.Body.Bytes(), &nb)
+				Expect(err).NotTo(HaveOccurred())
 				Expect(nb.Code).To(Equal("200"))
 			})
 		})
@@ -132,7 +135,8 @@ var _ = Describe("Dynupd", func() {
 				request, _ := http.NewRequest("POST", uri, sr)
 				mux.ServeHTTP(writer, request)
 
-				json.Unmarshal(writer.Body.Bytes(), &nb)
+				err := json.Unmarshal(writer.Body.Bytes(), &nb)
+				Expect(err).NotTo(HaveOccurred())
 				Expect(nb.Code).To(Equal("403"))
 			})
 		})
@@ -143,7 +147,8 @@ var _ = Describe("Dynupd", func() {
 				request, _ := http.NewRequest("POST", uri, sr)
 				mux.ServeHTTP(writer, request)
 
-				json.Unmarshal(writer.Body.Bytes(), &nb)
+				err := json.Unmarshal(writer.Body.Bytes(), &nb)
+				Expect(err).NotTo(HaveOccurred())
 				Expect(nb.Code).To(Equal("418"))
 			})
 		})
@@ -154,7 +159,8 @@ var _ = Describe("Dynupd", func() {
 				request, _ := http.NewRequest("POST", uri, sr)
 				mux.ServeHTTP(writer, request)
 
-				json.Unmarshal(writer.Body.Bytes(), &nb)
+				err := json.Unmarshal(writer.Body.Bytes(), &nb)
+				Expect(err).NotTo(HaveOccurred())
 				Expect(nb.Code).To(Equal("400"))
 			})
 		})
@@ -165,7 +171,8 @@ var _ = Describe("Dynupd", func() {
 				request, _ := http.NewRequest("POST", uri, sr)
 				mux.ServeHTTP(writer, request)
 
-				json.Unmarshal(writer.Body.Bytes(), &nb)
+				err := json.Unmarshal(writer.Body.Bytes(), &nb)
+				Expect(err).NotTo(HaveOccurred())
 				Expect(nb.Code).To(Equal("400"))
 			})
 		})
