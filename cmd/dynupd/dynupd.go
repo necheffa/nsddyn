@@ -48,6 +48,8 @@ const (
 	hostsFail          = "418" // it's tea time
 )
 
+const zonefileMode os.FileMode = 0664
+
 type DynUpd struct {
 	passwdDb   auth.AuthReader
 	zoneFile   string
@@ -66,8 +68,7 @@ func (d *DynUpd) NewDynUpd(passwdDb auth.AuthReader, zoneFile string, domainName
 // UpdateZone updates the zonefile with the specified request.
 // Returns a status code as a string to be sent to the requesting client.
 func (d *DynUpd) UpdateZone(r dynreq.DynReq) string {
-	mode := os.FileMode(0664)
-	file, err := os.OpenFile(d.zoneFile, os.O_RDWR, mode)
+	file, err := os.OpenFile(d.zoneFile, os.O_RDWR, zonefileMode)
 	if err != nil {
 		if config.Debug {
 			fmt.Fprintf(os.Stderr, "%s\n", "dynupd: error: failed to open zonefile for update: "+d.zoneFile)
