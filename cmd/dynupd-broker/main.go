@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2021 Alexander Necheff
+   Copyright (C) 2021, 2022 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -40,5 +40,5 @@ func main() {
 		Addr:    brokerConfig.Address,
 		Handler: mux,
 	}
-	server.ListenAndServe()
+	log.Fatal(server.ListenAndServe())
 }
