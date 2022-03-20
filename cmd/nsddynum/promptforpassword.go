@@ -37,8 +37,10 @@ func promptForPasswd(file *os.File) (passwd []byte, err error) {
 		return nil, err
 	}
 
-	// TODO: there has to be a better way to handle this since the whole point is to avoid filling memory
+	// NOTE: there has to be a better way to handle this since the whole point is to avoid filling memory
 	// with a maliciously crafted password...
+	// SEE: https://gitlab.com/necheffa/nsddyn/-/issues/101
+	// SEE: https://gitlab.com/necheffa/nsddyn/-/issues/84
 	if len(passwd) > auth.MaxPasswd {
 		err = fmt.Errorf("promptForPasswd: Error: password length exceeds max password length of %v", auth.MaxPasswd)
 		passwd = nil
