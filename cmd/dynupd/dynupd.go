@@ -156,12 +156,23 @@ func (d *DynUpd) UpdateZone(r dynreq.DynReq) string {
 	if config.Debug {
 		fmt.Fprintf(os.Stderr, "dynupd: info: updating zonefile with: %s\n", newZoneFile)
 	}
-	//TODO: handle possible write error getting returned here...
-	file.Seek(0, os.SEEK_SET)
-	file.Write(newZoneFile)
+	_, err = file.Seek(0, os.SEEK_SET)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "dynupd: error: updating zonefile: %v\n", err.Error())
+		return zoneUpdateFail
+	}
+	_, err = file.Write(newZoneFile)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "dynupd: error: updating zonefile: %v\n", err.Error())
+		return zoneUpdateFail
+	}
 	if newZoneFile[len(newZoneFile)-3] != '\n' {
 		// make sure we always have a new-line after the final A record, otherwise NSD doesn't like zonefile
-		file.Write([]byte("\n"))
+		_, err = file.Write([]byte("\n"))
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "dynupd: error: updating zonefile: %v\n", err.Error())
+			return zoneUpdateFail
+		}
 	}
 
 	nsddynHome, err := util.FindHome()
