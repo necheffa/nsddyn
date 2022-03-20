@@ -66,7 +66,8 @@ func (d *DynUpd) NewDynUpd(passwdDb auth.AuthReader, zoneFile string, domainName
 // UpdateZone updates the zonefile with the specified request.
 // Returns a status code as a string to be sent to the requesting client.
 func (d *DynUpd) UpdateZone(r dynreq.DynReq) string {
-	file, err := os.OpenFile(d.zoneFile, os.O_RDWR, 0664)
+	mode := os.FileMode(0664)
+	file, err := os.OpenFile(d.zoneFile, os.O_RDWR, mode)
 	if err != nil {
 		if config.Debug {
 			fmt.Fprintf(os.Stderr, "%s\n", "dynupd: error: failed to open zonefile for update: "+d.zoneFile)
