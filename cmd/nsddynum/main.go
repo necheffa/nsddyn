@@ -145,7 +145,7 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Not updating authorized hosts.\n")
 		}
 
-		if modPasswd == false && modHostNames == false {
+		if !modPasswd && !modHostNames {
 			return
 		}
 
