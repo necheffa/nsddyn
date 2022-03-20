@@ -171,7 +171,5 @@ func main() {
 	d.NewDynUpd(passwdDb, zoneFile, domainName, brokerUri)
 
 	http.HandleFunc(uri, d.DynUpdHandler)
-	http.ListenAndServe(host, nil)
-
-	return
+	log.Fatal(http.ListenAndServe(host, nil))
 }
