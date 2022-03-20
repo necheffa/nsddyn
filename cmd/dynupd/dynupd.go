@@ -50,6 +50,9 @@ const (
 
 const zonefileMode os.FileMode = 0664
 
+// The number of data fields in a SOA record.
+const SOANumFields = 7
+
 type DynUpd struct {
 	passwdDb   auth.AuthReader
 	zoneFile   string
@@ -132,7 +135,7 @@ func (d *DynUpd) UpdateZone(r dynreq.DynReq) string {
 			}
 
 			vals := e.Values()
-			if len(vals) != 7 {
+			if len(vals) != SOANumFields {
 				if config.Debug {
 					fmt.Fprintf(os.Stderr, "dynupd: error: malformed SOA in zonefile\n")
 				}
