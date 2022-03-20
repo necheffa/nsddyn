@@ -22,6 +22,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -159,7 +160,7 @@ func (d *DynUpd) UpdateZone(r dynreq.DynReq) string {
 	if config.Debug {
 		fmt.Fprintf(os.Stderr, "dynupd: info: updating zonefile with: %s\n", newZoneFile)
 	}
-	_, err = file.Seek(0, os.SEEK_SET)
+	_, err = file.Seek(0, io.SeekStart)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "dynupd: error: updating zonefile: %v\n", err.Error())
 		return zoneUpdateFail
