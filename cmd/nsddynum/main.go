@@ -58,7 +58,10 @@ func main() {
 		delUserCmd.StringVar(&fileName, "passwd-file", nsddynHome+"/etc/nsddynpasswd", "Path to nsddyn passwd file.")
 		delUserCmd.StringVar(&fileName, "p", nsddynHome+"/etc/nsddynpasswd", "Path to nsddyn passwd file.")
 
-		delUserCmd.Parse(os.Args[2:])
+		err = delUserCmd.Parse(os.Args[2:])
+		if err != nil {
+			log.Fatal(fmt.Errorf("nsddynum: %v", err))
+		}
 
 		if userName == "" {
 			log.Fatal(fmt.Errorf("nsddynum: required argument `-u` missing."))
@@ -95,7 +98,10 @@ func main() {
 		modUserCmd.StringVar(&fileName, "passwd-file", nsddynHome+"/etc/nsddynpasswd", "Path to nsddyn passwd file.")
 		modUserCmd.StringVar(&fileName, "p", nsddynHome+"/etc/nsddynpasswd", "Path to nsddyn passwd file.")
 
-		modUserCmd.Parse(os.Args[2:])
+		err = modUserCmd.Parse(os.Args[2:])
+		if err != nil {
+			log.Fatal(fmt.Errorf("nsddynum: %v", err))
+		}
 
 		if userName == "" {
 			log.Fatal(fmt.Errorf("nsddynum: required argument `-u` missing."))
@@ -171,7 +177,10 @@ func main() {
 		addUserCmd.StringVar(&fileName, "passwd-file", nsddynHome+"/etc/nsddynpasswd", "Path to nsddyn passwd file.")
 		addUserCmd.StringVar(&fileName, "p", nsddynHome+"/etc/nsddynpasswd", "Path to nsddyn passwd file.")
 
-		addUserCmd.Parse(os.Args[2:])
+		err = addUserCmd.Parse(os.Args[2:])
+		if err != nil {
+			log.Fatal(fmt.Errorf("nsddynum: %v", err))
+		}
 
 		if userName == "" {
 			log.Fatal(fmt.Errorf("nsddynum: required argument `-u` missing."))
