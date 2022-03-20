@@ -73,7 +73,10 @@ func main() {
 	dynupdCmd.StringVar(&brokerUri, "b", "", "Specify the URI of dynupd-broker.")
 	dynupdCmd.StringVar(&brokerUri, "broker", "", "Specify the URI of dynupd-broker.")
 
-	dynupdCmd.Parse(os.Args[1:])
+	err := dynupdCmd.Parse(os.Args[1:])
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "dynupd: error: %v\n", err.Error())
+	}
 
 	if printVersion {
 		version.PrintVersion()
@@ -156,7 +159,7 @@ func main() {
 		fileName = nsddynHome + "/etc/nsddynpasswd"
 	}
 
-	ok, err := util.CheckFilePerms(fileName, util.NsddynpasswdPerms)
+	ok, err = util.CheckFilePerms(fileName, util.NsddynpasswdPerms)
 	if err != nil {
 		log.Fatal(fmt.Errorf("dynupd: Error: %v", err))
 	}
