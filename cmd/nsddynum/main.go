@@ -75,7 +75,7 @@ func main() {
 			log.Print(fmt.Errorf("nsddynum: permissions on nsddynpasswd too permissive, recommend chmod " + util.NsddynpasswdPermsStr + "."))
 		}
 
-		// TODO: support multiple auth methods here...
+		// NOTE: support multiple auth methods here...
 		passwdDb := new(auth.FlatFile)
 		passwdDb.SetFilePath(fileName)
 		err = passwdDb.DelUser(userName)
@@ -221,7 +221,7 @@ func main() {
 			log.Print(fmt.Errorf("nsddynum: permissions on nsddynpasswd too permissive, recommend chmod " + util.NsddynpasswdPermsStr + "."))
 		}
 
-		// TODO: support multiple auth methods here...
+		// NOTE: support multiple auth methods here...
 		passwdDb := new(auth.FlatFile)
 		passwdDb.SetFilePath(fileName)
 		err = passwdDb.AddUser(passwd, userName, hostNames)
@@ -229,7 +229,8 @@ func main() {
 			log.Fatal(fmt.Errorf("nsddynum: %v", err))
 		}
 	case "help":
-		// TODO: print the sub-command specific usage message if a sub-command is given as an argument
+		// NOTE: need to print the sub-command specific usage message if a sub-command is given as an argument
+		// SEE: https://gitlab.com/necheffa/nsddyn/-/issues/100
 		msg := "Usage: nsddynum SUB-COMMAND [OPTS]\n" +
 			"  nsddynnum is the nsddyn User Manager utility.\n" +
 			"\n" +
