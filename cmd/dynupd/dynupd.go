@@ -54,6 +54,9 @@ const zonefileMode os.FileMode = 0664
 // The number of data fields in a SOA record.
 const SOANumFields = 7
 
+// The position of the serial in the SOA record.
+const SOASerialPos = 2
+
 type DynUpd struct {
 	passwdDb   auth.AuthReader
 	zoneFile   string
@@ -147,8 +150,8 @@ func (d *DynUpd) UpdateZone(r dynreq.DynReq) string {
 				return zoneUpdateFail
 			}
 
-			serial, _ := strconv.Atoi(string(vals[2]))
-			err = e.SetValue(2, []byte(strconv.Itoa(serial+1)))
+			serial, _ := strconv.Atoi(string(vals[SOASerialPos]))
+			err = e.SetValue(SOASerialPos, []byte(strconv.Itoa(serial+1)))
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "dynupd: error: unable to increment SOA serial: %v\n", err.Error())
 				return zoneUpdateFail
