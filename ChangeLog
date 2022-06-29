@@ -3,11 +3,12 @@ XXXX-YY-ZZ Alexander Necheff <alex@necheff.net>
     * Corrected bad client rc examples in usage text. Fixed issue #94.
     * Added systemd unit file for dynupd-broker. Fixed issue #92.
     * Added the package make target to ease installation. Fixed issue #89.
+    * Addressed a number of outstanding linter issues. Fixed issue #86.
     * Modified go.mod to require 1.18 toolchain.
     * Updated vendored dependency golang.org/x/net (v0.0.0-20220607020251-c690dde0001d).
-    * Updated vendored dependency golang.org/x/sys (v0.0.0-20220520151302-bc2c85ada10a).
+    * Updated vendored dependency golang.org/x/sys (v0.0.0-20220627191245-f75cf1eec38b).
     * Updated vendored dependency golang.org/x/term (v0.0.0-20220526004731-065cf7ba2467).
-    * Updated vendored dependency golang.org/x/crypto (v0.0.0-20220525230936-793ad666bf5e).
+    * Updated vendored dependency golang.org/x/crypto (v0.0.0-20220622213112-05595931fe9d).
     * Updated vendored dependency github.com/onsi/ginkgo/v2 (v2.1.4).
     * Updated vendored dependency github.com/onsi/gomega (v1.19.0).
 
