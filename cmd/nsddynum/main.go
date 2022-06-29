@@ -50,7 +50,7 @@ func main() {
 
 		nsddynHome, err := util.FindHome()
 		if err != nil {
-			log.Fatal(fmt.Errorf("nsddynum: %v", err))
+			log.Fatal(fmt.Errorf("nsddynum: %w", err))
 		}
 
 		delUserCmd.StringVar(&userName, "user-name", "", "Username to delete.")
@@ -60,7 +60,7 @@ func main() {
 
 		err = delUserCmd.Parse(os.Args[2:])
 		if err != nil {
-			log.Fatal(fmt.Errorf("nsddynum: %v", err))
+			log.Fatal(fmt.Errorf("nsddynum: %w", err))
 		}
 
 		if userName == "" {
@@ -69,7 +69,7 @@ func main() {
 
 		ok, err := util.CheckFilePerms(fileName, util.NsddynpasswdPerms)
 		if err != nil {
-			log.Fatal(fmt.Errorf("nsddynum: %v", err))
+			log.Fatal(fmt.Errorf("nsddynum: %w", err))
 		}
 		if !ok {
 			log.Print(fmt.Errorf("nsddynum: permissions on nsddynpasswd too permissive, recommend chmod " + util.NsddynpasswdPermsStr + "."))
@@ -80,7 +80,7 @@ func main() {
 		passwdDb.SetFilePath(fileName)
 		err = passwdDb.DelUser(userName)
 		if err != nil {
-			log.Fatal(fmt.Errorf("nsddynum: %v", err))
+			log.Fatal(fmt.Errorf("nsddynum: %w", err))
 		}
 	case "moduser":
 		modUserCmd := flag.NewFlagSet("moduser", flag.ExitOnError)
@@ -90,7 +90,7 @@ func main() {
 
 		nsddynHome, err := util.FindHome()
 		if err != nil {
-			log.Fatal(fmt.Errorf("nsddynum: %v", err))
+			log.Fatal(fmt.Errorf("nsddynum: %w", err))
 		}
 
 		modUserCmd.StringVar(&userName, "user-name", "", "Username to modify.")
@@ -100,7 +100,7 @@ func main() {
 
 		err = modUserCmd.Parse(os.Args[2:])
 		if err != nil {
-			log.Fatal(fmt.Errorf("nsddynum: %v", err))
+			log.Fatal(fmt.Errorf("nsddynum: %w", err))
 		}
 
 		if userName == "" {
@@ -109,7 +109,7 @@ func main() {
 
 		ok, err := util.CheckFilePerms(fileName, util.NsddynpasswdPerms)
 		if err != nil {
-			log.Fatal(fmt.Errorf("nsddynum: %v", err))
+			log.Fatal(fmt.Errorf("nsddynum: %w", err))
 		}
 		if !ok {
 			log.Print(fmt.Errorf("nsddynum: permissions on nsddynpasswd too permissive, recommend chmod " + util.NsddynpasswdPermsStr + "."))
@@ -132,7 +132,7 @@ func main() {
 			modPasswd = true
 			passwd, err = promptForPasswd(os.Stdin)
 			if err != nil {
-				log.Fatal(fmt.Errorf("nsddynum: %v", err))
+				log.Fatal(fmt.Errorf("nsddynum: %w", err))
 			}
 		} else {
 			fmt.Fprintf(os.Stderr, "Not updating password.\n")
@@ -145,7 +145,7 @@ func main() {
 			hostNames, err = promptForHosts()
 			modHostNames = true
 			if err != nil {
-				log.Fatal(fmt.Errorf("nsddynum: %v", err))
+				log.Fatal(fmt.Errorf("nsddynum: %w", err))
 			}
 		} else {
 			fmt.Fprintf(os.Stderr, "Not updating authorized hosts.\n")
@@ -157,7 +157,7 @@ func main() {
 
 		err = passwdDb.ModUser(userName, passwd, modPasswd, hostNames, modHostNames)
 		if err != nil {
-			log.Fatal(fmt.Errorf("nsddynum: %v", err))
+			log.Fatal(fmt.Errorf("nsddynum: %w", err))
 		}
 
 	case "adduser":
@@ -169,7 +169,7 @@ func main() {
 
 		nsddynHome, err := util.FindHome()
 		if err != nil {
-			log.Fatal(fmt.Errorf("nsddynum: %v", err))
+			log.Fatal(fmt.Errorf("nsddynum: %w", err))
 		}
 
 		addUserCmd.StringVar(&userName, "user-name", "", "Username to add.")
@@ -179,7 +179,7 @@ func main() {
 
 		err = addUserCmd.Parse(os.Args[2:])
 		if err != nil {
-			log.Fatal(fmt.Errorf("nsddynum: %v", err))
+			log.Fatal(fmt.Errorf("nsddynum: %w", err))
 		}
 
 		if userName == "" {
@@ -194,7 +194,7 @@ func main() {
 
 		passwd, err := promptForPasswd(os.Stdin)
 		if err != nil {
-			log.Fatal(fmt.Errorf("nsddynum: %v", err))
+			log.Fatal(fmt.Errorf("nsddynum: %w", err))
 		}
 		defer auth.EraseBuf(passwd)
 
@@ -203,19 +203,19 @@ func main() {
 
 			f, err := os.Create(fileName)
 			if err != nil {
-				log.Fatal(fmt.Errorf("nsddynum: unable to create non-existant nsddynpasswd file. error was: %v", err))
+				log.Fatal(fmt.Errorf("nsddynum: unable to create non-existant nsddynpasswd file. error was: %w", err))
 			}
 			f.Close()
 
 			err = os.Chmod(fileName, util.NsddynpasswdPerms)
 			if err != nil {
-				log.Print(fmt.Errorf("nsddynum: unable to modify nsddynpasswd permissions: %v", err))
+				log.Print(fmt.Errorf("nsddynum: unable to modify nsddynpasswd permissions: %w", err))
 			}
 		}
 
 		ok, err := util.CheckFilePerms(fileName, util.NsddynpasswdPerms)
 		if err != nil {
-			log.Fatal(fmt.Errorf("nsddynum: %v", err))
+			log.Fatal(fmt.Errorf("nsddynum: %w", err))
 		}
 		if !ok {
 			log.Print(fmt.Errorf("nsddynum: permissions on nsddynpasswd too permissive, recommend chmod " + util.NsddynpasswdPermsStr + "."))
@@ -226,7 +226,7 @@ func main() {
 		passwdDb.SetFilePath(fileName)
 		err = passwdDb.AddUser(passwd, userName, hostNames)
 		if err != nil {
-			log.Fatal(fmt.Errorf("nsddynum: %v", err))
+			log.Fatal(fmt.Errorf("nsddynum: %w", err))
 		}
 	case "help":
 		// NOTE: need to print the sub-command specific usage message if a sub-command is given as an argument

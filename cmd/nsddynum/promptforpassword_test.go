@@ -19,6 +19,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -55,7 +56,7 @@ func TestShortPassword(t *testing.T) {
 	}
 
 	_, err = promptForPasswd(file)
-	if err != fmt.Errorf("promptForPasswd: Error: password length less than minimum length of %v", auth.MinPasswd) {
+	if !errors.Is(err, fmt.Errorf("promptForPasswd: Error: password length less than minimum length of %v", auth.MinPasswd)) {
 		t.Error(err)
 	}
 }
@@ -73,7 +74,7 @@ func TestLongPassword(t *testing.T) {
 	}
 
 	_, err = promptForPasswd(file)
-	if err != fmt.Errorf("promptForPasswd: Error: password length exceeds max password length of %v", auth.MaxPasswd) {
+	if !errors.Is(err, fmt.Errorf("promptForPasswd: Error: password length exceeds max password length of %v", auth.MaxPasswd)) {
 		t.Error(err)
 	}
 }

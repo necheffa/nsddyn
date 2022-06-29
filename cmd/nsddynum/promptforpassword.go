@@ -33,7 +33,7 @@ func promptForPasswd(file *os.File) (passwd []byte, err error) {
 	fmt.Fprintf(os.Stderr, "new password: ")
 	passwd, err = term.ReadPassword(int(file.Fd()))
 	if err != nil {
-		err = fmt.Errorf("promptForPasswd: Error reading password: %v", err)
+		err = fmt.Errorf("promptForPasswd: Error reading password: %w", err)
 		return nil, err
 	}
 

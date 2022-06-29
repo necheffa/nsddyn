@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2021 Alexander Necheff
+   Copyright (C) 2021, 2022 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -39,18 +39,18 @@ func ReadBrokerConfig() (bc BrokerConfig, err error) {
 
 	nsddynHome, err := util.FindHome()
 	if err != nil {
-		return bc, fmt.Errorf("dynupd-broker: %v", err)
+		return bc, fmt.Errorf("dynupd-broker: %w", err)
 	}
 
 	file, err := os.Open(nsddynHome + "/etc/dynupd-broker.json")
 	if err != nil {
-		return bc, fmt.Errorf("dynupd-broker: unable to read configuration file: %v", err)
+		return bc, fmt.Errorf("dynupd-broker: unable to read configuration file: %w", err)
 	}
 
 	decoder := json.NewDecoder(file)
 	err = decoder.Decode(&bc)
 	if err != nil {
-		return bc, fmt.Errorf("dynupd-broker: parse error reading configuration file: %v", err)
+		return bc, fmt.Errorf("dynupd-broker: parse error reading configuration file: %w", err)
 	}
 
 	return bc, nil

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2020 Alexander Necheff
+   Copyright (C) 2020, 2022 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -31,7 +31,7 @@ func passwdParse(buf []byte) (b []byte, err error) {
 	// We require at least a single character...
 	matched, err := regexp.Match(`".+"`, buf)
 	if err != nil {
-		return nil, fmt.Errorf("passwdParse: %v", err)
+		return nil, fmt.Errorf("passwdParse: %w", err)
 	}
 
 	if !matched {
