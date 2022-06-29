@@ -32,6 +32,7 @@ func DynupdBroker(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	case "POST":
+		// #nosec G204 -- The ZoneName is passed by a configuration file.
 		cmd := exec.Command("sh", "-c", "nsd-control reload "+brokerConfig.ZoneName)
 		out, err := cmd.CombinedOutput()
 		if err != nil {
