@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2021 Alexander Necheff
+   Copyright (C) 2021, 2022 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -23,8 +23,8 @@ import (
 )
 
 const (
-	NsddynpasswdPerms    = 0600
-	NsddynpasswdPermsStr = "0600"
+	NsddynpasswdPerms    = 0640
+	NsddynpasswdPermsStr = "0640"
 )
 
 // CheckFilePerms sees if the Unix permission bits set on fileName match the settings given in perm.
