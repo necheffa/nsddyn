@@ -4,21 +4,17 @@ set -eu -o pipefail
 
 PROGNAME="nsddyn installer"
 
-# TODO: make a command line option to set this...
-BUILD_ROOT="$1"
+PKGROOT="dirname $(readlink -f $0)"
 
 function func_eprintf {
     printf "%s\n" "$1" 1>&2
 }
 
-if ! [ -e "$BUILD_ROOT/bin" ]; then
-    func_eprintf "$PROGNAME: Error: is nsddyn built? $BUILD_ROOT/bin doesn't exist. Exiting."
-    exit 1
-fi
+PREFIX="${NSDDYN_PREFIX:-/opt/nsddyn}"
 
-# TODO: make a PREFIX option to override /opt/nsddyn/ as the default prefix.
-if [ -e /opt/nsddyn ]; then
-    func_eprintf "$PROGNAME: Warning: /opt/nsddyn/ exists. Are you sure you want to overwrite an existing install? [Y/n] "
+# TODO: make a PREFIX option to override /opt/nsddyn as the default prefix.
+if [ -e "$PREFIX" ]; then
+    func_eprintf "$PROGNAME: Warning: $PREFIX exists. Are you sure you want to overwrite an existing install? [Y/n] "
     read -r ANS
 
     if [ "$ANS" == "Y" ] || [ "$ANS" == "y" ] || [ -z "$ANS" ]; then
@@ -29,34 +25,39 @@ if [ -e /opt/nsddyn ]; then
     fi
 fi
 
-mkdir -p /opt/nsddyn/bin
-mkdir -p /opt/nsddyn/etc
+mkdir -p $PREFIX/bin
+mkdir -p $PREFIX/etc
 
 # don't be silly and make nsddynum owned by the nsddyn user/group, otherwise a remote user could
 # potentially exploit dynupd to execute nsddynum and modify the nsddynpasswd file...
-install -g staff -o root -m 0750 $BUILD_ROOT/bin/nsddynum /opt/nsddyn/bin/nsddynum
-install -g nsddyn -o root -m 0750 $BUILD_ROOT/bin/dynupd /opt/nsddyn/bin/dynupd
-install -g root -o root -m 0750 $BUILD_ROOT/bin/dynupd-broker /opt/nsddyn/bin/dynupd-broker
+install -g staff -o root -m 0750 $PKGROOT/bin/nsddynum $PREFIX/bin/
+install -g nsddyn -o root -m 0750 $PKGROOT/bin/dynupd $PREFIX/bin/
+install -g root -o root -m 0750 $PKGROOT/bin/dynupd-broker $PREFIX/bin/
 
-install -g root -o root -m 0660 $BUILD_ROOT/etc/nsddyn /opt/nsddyn/etc/nsddyn
-install -g root -o root -m 0440 $BUILD_ROOT/etc/dynupd.service /opt/nsddyn/etc/dynupd.service
-install -g root -o root -m 0440 $BUILD_ROOT/etc/dynupd-broker.service /opt/nsddyn/etc/dynupd-broker.service
-install -g root -o root -m 0440 $BUILD_ROOT/etc/dynupd-broker.json /opt/nsddyn/etc/dynupd-broker.json
+install -g root -o root -m 0660 $PKGROOT/etc/nsddyn $PREFIX/etc/
+install -g root -o root -m 0440 $PKGROOT/etc/dynupd.service $PREFIX/etc/
+install -g root -o root -m 0440 $PKGROOT/etc/dynupd-broker.service $PREFIX/etc/
+install -g root -o root -m 0440 $PKGROOT/etc/dynupd-broker.json $PREFIX/etc/
 
 if [ -f /usr/local/bin/nsddynum ]; then
     func_eprintf "$PROGNAME: Warning: overwriting /usr/local/bin/nsddynum"
 fi
-ln -sf /opt/nsddyn/bin/nsddynum /usr/local/sbin/nsddynum
+ln -sf $PREFIX/bin/nsddynum /usr/local/sbin/nsddynum
 
 if [ -f /etc/systemd/system/dynupd.service ]; then
     func_eprintf "$PROGNAME: Warning: overwriting /etc/systemd/system/dynupd.service"
 fi
-ln -sf /opt/nsddyn/etc/dynupd.service /etc/systemd/system/dynupd.service
+ln -sf $PREFIX/etc/dynupd.service /etc/systemd/system/dynupd.service
 
-if ! [ -f /opt/nsddyn/etc/nsddynpasswd ]; then
-    touch /opt/nsddyn/etc/nsddynpasswd
-    chmod 0640 /opt/nsddyn/etc/nsddynpasswd
-    chown root:nsddyn /opt/nsddyn/etc/nsddynpasswd
+if [ -f /etc/systemd/system/dynupd-broker.service ]; then
+    func_eprintf "$PROGNAME: Warning: overwriting /etc/systemd/system/dynupd-broker.service"
+fi
+ln -sf $PREFIX/etc/dynupd-broker.service /etc/systemd/system/dynupd-broker.service
+
+if ! [ -f $PREFIX/etc/nsddynpasswd ]; then
+    touch $PREFIX/etc/nsddynpasswd
+    chmod 0640 $PREFIX/etc/nsddynpasswd
+    chown root:nsddyn $PREFIX/etc/nsddynpasswd
 fi
 
 func_eprintf "$PROGNAME: Info: installation complete, sysadmin must manually enable dynupd service unit."
