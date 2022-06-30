@@ -5,6 +5,7 @@ XXXX-YY-ZZ Alexander Necheff <alex@necheff.net>
     * Added the package make target to ease installation. Fixed issue #89.
     * Addressed a number of outstanding linter issues. Fixed issue #86.
     * Modified recommended nsddynpasswd permissions. Fixed issue #76.
+    * Increased verbosity of logging when debug flag is disabled. Fixed issue #95.
     * Modified go.mod to require 1.18 toolchain.
     * Updated vendored dependency golang.org/x/net (v0.0.0-20220607020251-c690dde0001d).
     * Updated vendored dependency golang.org/x/sys (v0.0.0-20220627191245-f75cf1eec38b).

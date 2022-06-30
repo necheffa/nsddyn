@@ -77,29 +77,23 @@ func (d *DynUpd) NewDynUpd(passwdDb auth.AuthReader, zoneFile string, domainName
 func (d *DynUpd) UpdateZone(r dynreq.DynReq) string {
 	file, err := os.OpenFile(d.zoneFile, os.O_RDWR, zonefileMode)
 	if err != nil {
-		if config.Debug {
-			fmt.Fprintf(os.Stderr, "%s\n", "dynupd: error: failed to open zonefile for update: "+d.zoneFile)
-			fmt.Fprintf(os.Stderr, "%s\n", err.Error())
-		}
+		fmt.Fprintf(os.Stderr, "%s\n", "dynupd: error: failed to open zonefile for update: "+d.zoneFile)
+		fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 		return zoneUpdateFail
 	}
 	defer file.Close()
 
 	buf, err := ioutil.ReadAll(file)
 	if err != nil {
-		if config.Debug {
-			fmt.Fprintf(os.Stderr, "%s\n", "dynupd: error: failed to read zonefile for update: "+d.zoneFile)
-			fmt.Fprintf(os.Stderr, "%s\n", err.Error())
-		}
+		fmt.Fprintf(os.Stderr, "%s\n", "dynupd: error: failed to read zonefile for update: "+d.zoneFile)
+		fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 		return zoneUpdateFail
 	}
 
 	zf, err := zonefile.Load(buf)
 	if err != nil {
-		if config.Debug {
-			fmt.Fprintf(os.Stderr, "%s\n", "dynupd: error: failed to parse zonefile for update: "+d.zoneFile)
-			fmt.Fprintf(os.Stderr, "%s\n", err.Error())
-		}
+		fmt.Fprintf(os.Stderr, "%s\n", "dynupd: error: failed to parse zonefile for update: "+d.zoneFile)
+		fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 		return zoneUpdateFail
 	}
 
@@ -144,9 +138,7 @@ func (d *DynUpd) UpdateZone(r dynreq.DynReq) string {
 
 			vals := e.Values()
 			if len(vals) != SOANumFields {
-				if config.Debug {
-					fmt.Fprintf(os.Stderr, "dynupd: error: malformed SOA in zonefile\n")
-				}
+				fmt.Fprintf(os.Stderr, "dynupd: error: malformed SOA in zonefile\n")
 				return zoneUpdateFail
 			}
 
@@ -159,10 +151,8 @@ func (d *DynUpd) UpdateZone(r dynreq.DynReq) string {
 			break
 		}
 	} else {
-		if config.Debug {
-			fmt.Fprintf(os.Stderr, "dynupd: error: failed to update A record\n")
-			return zoneUpdateFail
-		}
+		fmt.Fprintf(os.Stderr, "dynupd: error: failed to update A record\n")
+		return zoneUpdateFail
 	}
 
 	// if we made it this far...things have gone well.
@@ -212,9 +202,7 @@ func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	default:
-		if config.Debug {
-			fmt.Fprintf(os.Stderr, "Bad method requested.\n")
-		}
+		fmt.Fprintf(os.Stderr, "Bad method requested.\n")
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		fmt.Fprintf(w, "%v", craftResponse(badMethod))
 		return
@@ -223,9 +211,7 @@ func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 		// parse the reqest
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			if config.Debug {
-				fmt.Fprintf(os.Stderr, "Failed to read request: %v\n", err)
-			}
+			fmt.Fprintf(os.Stderr, "Failed to read request: %v\n", err)
 			// we don't acutally know if the request was well formed or not, failing here
 			// is likely an internal server error...
 			fmt.Fprintf(w, "%v", craftResponse(zoneUpdateFail))
@@ -233,9 +219,7 @@ func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		err = json.Unmarshal(body, &msg)
 		if err != nil {
-			if config.Debug {
-				fmt.Fprintf(os.Stderr, "Failed to unmarshal JSON request: %v\n", err)
-			}
+			fmt.Fprintf(os.Stderr, "Failed to unmarshal JSON request: %v\n", err)
 			fmt.Fprintf(w, "%v", craftResponse(malformedRequest))
 			return
 		}
@@ -254,9 +238,7 @@ func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 
 		passwd, err := passwdParse([]byte(msg.Password))
 		if err != nil {
-			if config.Debug {
-				fmt.Fprintf(os.Stderr, "%s\n", err.Error())
-			}
+			fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 			fmt.Fprintf(w, "%v", craftResponse(malformedRequest))
 			return
 		}
@@ -272,17 +254,12 @@ func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 				fmt.Fprintf(w, "%v", craftResponse(zoneUpdateFail))
 			}
 
-			if config.Debug {
-				fmt.Fprintf(os.Stderr, "Authentication failed: %v\n", err)
-			}
+			fmt.Fprintf(os.Stderr, "Authentication failed: %v\n", err)
 
 			return
 		}
 
-		// if authentication successful, update zonefile
-		if config.Debug {
-			fmt.Fprintf(os.Stderr, "authentication successful, updating: "+d.zoneFile+"\n")
-		}
+		fmt.Fprintf(os.Stderr, "authentication successful, updating: "+d.zoneFile+"\n")
 
 		status := d.UpdateZone(msg)
 		fmt.Fprintf(w, "%v", craftResponse(status))
