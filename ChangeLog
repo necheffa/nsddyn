@@ -8,6 +8,7 @@ XXXX-YY-ZZ Alexander Necheff <alex@necheff.net>
     * Increased verbosity of logging when debug flag is disabled. Fixed issue #95.
     * Add capability to preserve existing configuration when executing install script. Fixed issue #79.
     * Modified the install script to assume it is being executed from an extracted package. Fixed issue #90.
+    * Removed Project Status section from README. Fixed issue #98.
     * Modified go.mod to require 1.18 toolchain.
     * Updated vendored dependency golang.org/x/net (v0.0.0-20220607020251-c690dde0001d).
     * Updated vendored dependency golang.org/x/sys (v0.0.0-20220627191245-f75cf1eec38b).

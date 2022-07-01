@@ -11,27 +11,6 @@ Several other third-party scripts can be found on the web for providing Dynamic 
 I found them all to lack security. \
 nsddyn aims to provide a secure alternative.
 
-## Project Status
-
-After much development, the project has finally entered its first beta. Although not ready for a v1.0.0 release, \
-all the major functionality is in place, including RouterOS and GNU/Linux clients. Major milestones targeted before the \
-first stable release include:
-
-* v0.4.0 - Improve developer documentation, improve user documentation, transition from `$GOPATH` to use Go modules, and add vendoring for all Go dependencies.
-* v0.5.0 - Improve the end user experience by providing installation scripts, buttoning up installation documentation, and addressing some outstanding issues 
-related to usability.
-* v0.6.0 - Improve robustness of test suite by increasing the coverage of unit and integration tests.
-
-| Feature | Status |
-| ------- | ------ |
-| User Management | Complete |
-| Server | Complete |
-| Client | Complete |
-| Protocol | Complete |
-
-* The nsddyncc client works but assumes you are running a GNU userspace with cURL and jq installed and in your `$PATH`. \
-A future release may include a client written purely in Go.
-
 ## Installing and Getting Started
 
 nsddyn is currently a source only distribution. A Unix-like system is required to perform compilation. In particular, GNU Make and Google Go are required.
