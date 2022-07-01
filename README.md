@@ -66,7 +66,7 @@ execute nsd-control in your environment should be the user/group that the broker
 Currently communication with the broker is not authenticated so it is recommended to run the broker on the same host as dynupd and NSD to
 limit connections to localhost. Otherwise, it may be possible for a public facing broker to be abused and at least hammer reloads of your dynamic zone.
 
-Both nsddynum and dynupd will look for the nsddynpasswd in the following locations in the following order: \
+Both nsddynum and dynupd will look for the nsddynpasswd in the following locations in the following order:
 * Path specified by the --passwd-file option
 * $NSDDYN\_HOME/etc/nsddynpasswd
 * /usr/local/etc/nsddynpasswd
