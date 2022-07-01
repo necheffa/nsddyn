@@ -43,11 +43,11 @@ this environment variable should be the preferred way to specify file locations.
 2. Unpack the generated tarball (see compilation above). Make sure by default root owns everything.
 3. Configure NSD with a new sub-domain, for example, dyn.example.com. Place the zone file (from here on: dyn.zone) in $NSDDYN\_HOME/etc/ and a symlink to it in /etc/nsd/. This is to allow for stronger sandboxing of dynupd.
 4. Execute `chown nsddyn:nsd dyn.zone && chmod 0644 dyn.zone` so that only dynupd has write access.
-5. Edit `$NSDDYN\_HOME/etc/nsddyn` to match the environment. At a minimum, ensure $NSDDYN\_HOME reflects the installation directory and that the -z and -n options on dynupd are set.
-6. Execute `touch $NSDDYN\_HOME/etc/nsddynpasswd && chmod 0640 $NSDDYN\_HOME/etc/nsddynpasswd && chown root:nsddyn $NSDDYN\_HOME/etc/nsddynpasswd`.
+5. Edit `$NSDDYN_HOME/etc/nsddyn` to match the environment. At a minimum, ensure $NSDDYN\_HOME reflects the installation directory and that the -z and -n options on dynupd are set.
+6. Execute `touch $NSDDYN_HOME/etc/nsddynpasswd && chmod 0640 $NSDDYN_HOME/etc/nsddynpasswd && chown root:nsddyn $NSDDYN_HOME/etc/nsddynpasswd`.
 7. Configure a reverse proxy if dynupd will be listening on localhost.
 8. Install, enable, and start the dynupd systemd unit file.
-9. Edit `$NSDDYN\_HOME/etc/dynupd-broker.json` to reflect the environment, minimally the ZoneName will need changed to match your new forward lookup zone for dynamic hosts.
+9. Edit `$NSDDYN_HOME/etc/dynupd-broker.json` to reflect the environment, minimally the ZoneName will need changed to match your new forward lookup zone for dynamic hosts.
 10. Install, enable, and start the dynupd-broker systemd unit file.
 
 It is recommended to run dynupd behind a reverse proxy like nginx or Apache. As a result, dynupd will listen for clients on localhost:8080 by default.
