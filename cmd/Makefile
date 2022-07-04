@@ -12,7 +12,7 @@ bin: ## build the binary proper
 
 .PHONY: unittest
 unittest:
-	@go test -covermode=count -coverprofile=../coverage.out ./...
+	@go test -race -covermode=atomic -coverprofile=../coverage.out ./...
 
 .PHONY: fmt
 fmt: ## run `go fmt` on all source files

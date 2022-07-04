@@ -28,6 +28,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 
 	"necheff.net/nsddyn/cmd/internal/auth"
 	"necheff.net/nsddyn/cmd/internal/config"
@@ -62,6 +63,7 @@ type DynUpd struct {
 	zoneFile   string
 	domainName string
 	brokerUrl  string
+	lock       sync.Mutex
 }
 
 // NewDynUpd initalizes a new instance of DynUpd that has already been allocated.
@@ -75,6 +77,9 @@ func (d *DynUpd) NewDynUpd(passwdDb auth.AuthReader, zoneFile string, domainName
 // UpdateZone updates the zonefile with the specified request.
 // Returns a status code as a string to be sent to the requesting client.
 func (d *DynUpd) UpdateZone(r dynreq.DynReq) string {
+	d.lock.Lock()
+	defer d.lock.Unlock()
+
 	file, err := os.OpenFile(d.zoneFile, os.O_RDWR, zonefileMode)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s\n", "dynupd: error: failed to open zonefile for update: "+d.zoneFile)
@@ -254,12 +259,16 @@ func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 				fmt.Fprintf(w, "%v", craftResponse(zoneUpdateFail))
 			}
 
-			fmt.Fprintf(os.Stderr, "Authentication failed: %v\n", err)
+			if config.Debug {
+				fmt.Fprintf(os.Stderr, "Authentication failed: %v\n", err)
+			}
 
 			return
 		}
 
-		fmt.Fprintf(os.Stderr, "authentication successful, updating: "+d.zoneFile+"\n")
+		if config.Debug {
+			fmt.Fprintf(os.Stderr, "authentication successful, updating: "+d.zoneFile+"\n")
+		}
 
 		status := d.UpdateZone(msg)
 		fmt.Fprintf(w, "%v", craftResponse(status))

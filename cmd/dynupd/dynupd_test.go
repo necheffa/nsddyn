@@ -30,7 +30,9 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strconv"
 	"strings"
+	"sync"
 )
 
 var passwd *os.File
@@ -174,6 +176,55 @@ var _ = Describe("Dynupd", func() {
 				err := json.Unmarshal(writer.Body.Bytes(), &nb)
 				Expect(err).NotTo(HaveOccurred())
 				Expect(nb.Code).To(Equal("400"))
+			})
+		})
+
+		Context("With many active clients", func() {
+			It("should not corrupt the zone file", Label("slow"), func() {
+				/*
+									   Use a statistical approch to try and coax a race condition to occur;
+					                   i.e. use a large number of goroutines to hammer dynupd and see if it breaks.
+
+					                   Run with `go test -race` for best results.
+					                   If the zonefile ends up getting malformed, dynupd will kick back an error from go-zonefile.
+				*/
+				var wg sync.WaitGroup
+				for i := 0; i <= 1024; i++ {
+					wg.Add(1)
+					go func(addr int) {
+						defer wg.Done()
+						defer GinkgoRecover()
+
+						var nnb nsddynbody
+						w := httptest.NewRecorder()
+
+						sr := strings.NewReader(`{"username":"alex","password":"password","ipaddr":"192.0.2.` + strconv.Itoa(addr) + `","hostnames":["host1"],"version":"0.1.0"}`)
+						request, _ := http.NewRequest("POST", uri, sr)
+						mux.ServeHTTP(w, request)
+
+						err := json.Unmarshal(w.Body.Bytes(), &nnb)
+						Expect(err).NotTo(HaveOccurred())
+						Expect(nnb.Code).To(Equal("200"))
+					}(i)
+
+					wg.Add(1)
+					go func(addr int) {
+						defer wg.Done()
+						defer GinkgoRecover()
+
+						var nnb nsddynbody
+						w := httptest.NewRecorder()
+
+						sr := strings.NewReader(`{"username":"alex","password":"password","ipaddr":"192.0.2.` + strconv.Itoa(addr) + `","hostnames":["host2"],"version":"0.1.0"}`)
+						request, _ := http.NewRequest("POST", uri, sr)
+						mux.ServeHTTP(w, request)
+
+						err := json.Unmarshal(w.Body.Bytes(), &nnb)
+						Expect(err).NotTo(HaveOccurred())
+						Expect(nnb.Code).To(Equal("200"))
+					}(i)
+				}
+				wg.Wait()
 			})
 		})
 	})
