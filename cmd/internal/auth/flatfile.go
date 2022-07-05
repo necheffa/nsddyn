@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2020 Alexander Necheff
+   Copyright (C) 2020, 2022 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -27,6 +27,7 @@ import (
 	"strings"
 
 	"golang.org/x/crypto/bcrypt"
+	"golang.org/x/sys/unix"
 )
 
 /*
@@ -61,11 +62,21 @@ func (f *FlatFile) SetFilePath(filePath string) {
 func (f *FlatFile) AuthRequest(passwd []byte, userName string, hosts []string) (err error) {
 	file, err := os.OpenFile(f.filePath, os.O_RDONLY, 0640)
 	if err != nil {
-		return fmt.Errorf("AuthRequest: %v", err)
+		return fmt.Errorf("AuthRequest: %w", err)
 	}
 	defer file.Close()
 
-	return f.authRequest(passwd, userName, hosts, file)
+	if err = unix.Flock(int(file.Fd()), unix.LOCK_SH); err != nil {
+		return fmt.Errorf("AuthRequest: %w", err)
+	}
+
+	ret := f.authRequest(passwd, userName, hosts, file)
+
+	if err = unix.Flock(int(file.Fd()), unix.LOCK_UN); err != nil {
+		return fmt.Errorf("AuthRequest: %w", err)
+	}
+
+	return ret
 }
 
 // authRequest is a low-level call backing AuthRequest, allowing the file to be mocked for testing.
@@ -155,7 +166,17 @@ func (f *FlatFile) AddUser(passwd []byte, userName string, hosts []string) (err 
 	}
 	defer file.Close()
 
-	return f.addUser(passwd, userName, hosts, file)
+	if err = unix.Flock(int(file.Fd()), unix.LOCK_EX); err != nil {
+		return fmt.Errorf("AddUser: %w", err)
+	}
+
+	ret := f.addUser(passwd, userName, hosts, file)
+
+	if err = unix.Flock(int(file.Fd()), unix.LOCK_UN); err != nil {
+		return fmt.Errorf("AddUser: %w", err)
+	}
+
+	return ret
 }
 
 // addUser is a low-level call backing AddUser, allowing the file to be mocked for testing.
@@ -227,13 +248,21 @@ func (f *FlatFile) DelUser(userName string) (err error) {
 	}
 	defer file.Close()
 
-	size, err := f.delUser(userName, file)
+	if err = unix.Flock(int(file.Fd()), unix.LOCK_EX); err != nil {
+		return fmt.Errorf("DelUser: %w", err)
+	}
+
+	size, ret := f.delUser(userName, file)
 	if err == nil {
 		file.Truncate(size)
 		file.Sync()
 	}
 
-	return err
+	if err = unix.Flock(int(file.Fd()), unix.LOCK_UN); err != nil {
+		return fmt.Errorf("DelUser: %w", err)
+	}
+
+	return ret
 }
 
 // delUser is a low-level call backing DelUser, allowing the file to be mocked for testing.
@@ -268,13 +297,21 @@ func (f *FlatFile) ModUser(userName string, passwd []byte, modPasswd bool, hostN
 	}
 	defer file.Close()
 
-	size, err := f.modUser(userName, passwd, modPasswd, hostNames, modHostNames, file)
-	if err == nil {
+	if err = unix.Flock(int(file.Fd()), unix.LOCK_EX); err != nil {
+		return fmt.Errorf("ModUser: %w", err)
+	}
+
+	size, ret := f.modUser(userName, passwd, modPasswd, hostNames, modHostNames, file)
+	if ret == nil {
 		file.Truncate(size)
 		file.Sync()
 	}
 
-	return err
+	if err = unix.Flock(int(file.Fd()), unix.LOCK_UN); err != nil {
+		return fmt.Errorf("ModUser: %w", err)
+	}
+
+	return ret
 }
 
 // modUser is a low-level call backing ModUser, allowing the file to be mocked for testing.

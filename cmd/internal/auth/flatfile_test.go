@@ -23,10 +23,60 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"sync"
 	"testing"
 
 	"golang.org/x/crypto/bcrypt"
 )
+
+// TestAuthFileLocks tests to make sure concurrent access to the auth file
+// does not result in file corruption.
+func TestAuthFileLocks(t *testing.T) {
+	passwd, _ := os.CreateTemp(os.TempDir(), "nsddynpasswd")
+	defer os.Remove(passwd.Name())
+
+	authFile0 := new(FlatFile)
+	authFile0.SetFilePath(passwd.Name())
+
+	authFile1 := new(FlatFile)
+	authFile1.SetFilePath(passwd.Name())
+
+	authFile0.AddUser([]byte("password"), "alex0", []string{"host0"})
+	authFile1.AddUser([]byte("password"), "alex1", []string{"host1"})
+
+	var wg sync.WaitGroup
+	for i := 0; i < 512; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			err := authFile0.ModUser("alex0", []byte("password"), false, []string{"host00"}, true)
+			if err != nil {
+				t.Error(err)
+			}
+		}()
+
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			err := authFile1.ModUser("alex1", []byte("password"), false, []string{"host11"}, true)
+			if err != nil {
+				t.Error(err)
+			}
+		}()
+	}
+
+	wg.Wait()
+
+	err := authFile0.AuthRequest([]byte("password"), "alex0", []string{"host00"})
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = authFile0.AuthRequest([]byte("password"), "alex1", []string{"host11"})
+	if err != nil {
+		t.Error(err)
+	}
+}
 
 // TestModUserPos tests modifying user accounts from multiple mositions in
 // the passwd file to ensure the records are not malformed.
