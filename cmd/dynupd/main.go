@@ -126,21 +126,12 @@ func main() {
 		fmt.Fprintf(os.Stderr, "%s\n", msg)
 	}
 
-	nsddynHome, ok := os.LookupEnv("NSDDYN_HOME")
-
-	if !ok {
-		nsddynHome = "/usr/local"
+	nsddynHome, err := util.FindHome()
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	if passwdFile == "" {
-		fi, err := os.Stat(nsddynHome)
-		if os.IsNotExist(err) {
-			log.Fatal("dynupd: Error: $NSDDYN_HOME set to non-existent location.")
-		}
-		if !fi.IsDir() {
-			log.Fatal("dynupd: Error: $NSDDYN_HOME is not set to a directory.")
-		}
-	} else {
+	if passwdFile != "" {
 		fi, err := os.Stat(passwdFile)
 		if os.IsNotExist(err) {
 			log.Fatal("dynupd: Error: file specified by -p does not exist.")
@@ -159,7 +150,7 @@ func main() {
 		fileName = nsddynHome + "/etc/nsddynpasswd"
 	}
 
-	ok, err = util.CheckFilePerms(fileName, util.NsddynpasswdPerms)
+	ok, err := util.CheckFilePerms(fileName, util.NsddynpasswdPerms)
 	if err != nil {
 		log.Fatal(fmt.Errorf("dynupd: Error: %w", err))
 	}
