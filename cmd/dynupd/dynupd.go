@@ -44,6 +44,7 @@ import (
 const (
 	zoneUpdateFail     = "500"
 	zoneUpdateSuccess  = "200"
+	zoneNotModified    = "304"
 	malformedRequest   = "400"
 	authenticationFail = "403"
 	badMethod          = "405"
@@ -57,6 +58,9 @@ const SOANumFields = 7
 
 // The position of the serial in the SOA record.
 const SOASerialPos = 2
+
+// The position of the IP in an A record value.
+const IPPos = 0
 
 type DynUpd struct {
 	passwdDb   auth.AuthReader
@@ -102,6 +106,7 @@ func (d *DynUpd) UpdateZone(r dynreq.DynReq) string {
 		return zoneUpdateFail
 	}
 
+	zoneReloadNotNeeded := 0
 	updateSerial := false
 	for i := 0; i < len(r.Hostnames); i++ {
 		// find r.Hostnames[i] in the zonefile
@@ -115,8 +120,19 @@ func (d *DynUpd) UpdateZone(r dynreq.DynReq) string {
 				continue
 			}
 
+			vals := e.Values()
+			if bytes.Equal(vals[IPPos], []byte(r.Ipaddr)) {
+				// the existing A record already has the IP in the request.
+				// no need to update the zone.
+				if config.Debug {
+					fmt.Fprintf(os.Stderr, "dynupd: A record for %v already has IP %v so not updating.\n", r.Hostnames[i], r.Ipaddr)
+				}
+				// can't return here because there could be other hostnames in the request that could need a reload.
+				zoneReloadNotNeeded += 1
+			}
+
 			// we found a match, update it
-			err = e.SetValue(0, []byte(r.Ipaddr))
+			err = e.SetValue(IPPos, []byte(r.Ipaddr))
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "dynupd: error: updating A record: %v\n", err.Error())
 				return zoneUpdateFail
@@ -132,6 +148,11 @@ func (d *DynUpd) UpdateZone(r dynreq.DynReq) string {
 			zf.AddEntry(e)
 			updateSerial = true
 		}
+	}
+
+	if zoneReloadNotNeeded == len(r.Hostnames) {
+		// none of the hosts required a record update.
+		return zoneNotModified
 	}
 
 	// does zonefile automatically update the serial? if not update it here.

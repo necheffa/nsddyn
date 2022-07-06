@@ -48,6 +48,7 @@ var _ = BeforeSuite(func() {
 	authFile.SetFilePath(passwd.Name())
 
 	_ = authFile.AddUser([]byte("password"), "alex", []string{"host1", "host2"})
+	_ = authFile.AddUser([]byte("password"), "alex0", []string{"host3", "host4"})
 
 	srv = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// don't do anything, successfully
@@ -106,6 +107,38 @@ var _ = Describe("Dynupd", func() {
 			})
 		})
 
+		Context("With a good request for multiple hosts where only one host has a new IP", func() {
+			It("should return an HTTP 200 and nsddyn code 200", func() {
+				var sr = strings.NewReader(`{"username": "alex0", "password": "password", "ipaddr": "192.0.2.10", "hostnames": [ "host3" ], "version": "0.1.0"}`)
+				request, _ := http.NewRequest("POST", uri, sr)
+				mux.ServeHTTP(writer, request)
+
+				// host3 already has an A record with IP 192.0.2.10 but host4 is new so we should still reload the zone
+				sr = strings.NewReader(`{"username": "alex0", "password": "password", "ipaddr": "192.0.2.10", "hostnames": [ "host3", "host4" ], "version": "0.1.0"}`)
+				request, _ = http.NewRequest("POST", uri, sr)
+				writer = httptest.NewRecorder()
+				mux.ServeHTTP(writer, request)
+				Expect(writer.Code).To(Equal(http.StatusOK))
+
+				err := json.Unmarshal(writer.Body.Bytes(), &nb)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(nb.Code).To(Equal("200"))
+			})
+		})
+
+		Context("With a good request for multiple hosts where none need updated", func() {
+			It("should return an HTTP 200 and nsddyn code 304", func() {
+				var sr = strings.NewReader(`{"username": "alex0", "password": "password", "ipaddr": "192.0.2.10", "hostnames": [ "host3", "host4" ], "version": "0.1.0"}`)
+				request, _ := http.NewRequest("POST", uri, sr)
+				mux.ServeHTTP(writer, request)
+				Expect(writer.Code).To(Equal(http.StatusOK))
+
+				err := json.Unmarshal(writer.Body.Bytes(), &nb)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(nb.Code).To(Equal("304"))
+			})
+		})
+
 		Context("With a bad password", func() {
 			It("should return an HTTP 200 and nsddyn code 403", func() {
 				var sr = strings.NewReader(`{"username": "alex", "password": "badpassword", "ipaddr": "192.0.2.4", "hostnames": [ "host1", "host2" ], "version": "0.1.0"}`)
@@ -121,7 +154,7 @@ var _ = Describe("Dynupd", func() {
 
 		Context("With a good username", func() {
 			It("should return nsddyn code 200", func() {
-				var sr = strings.NewReader(`{"username": "alex", "password": "password", "ipaddr": "192.0.2.4", "hostnames": [ "host1", "host2" ], "version": "0.1.0"}`)
+				var sr = strings.NewReader(`{"username": "alex", "password": "password", "ipaddr": "192.0.2.5", "hostnames": [ "host1", "host2" ], "version": "0.1.0"}`)
 				request, _ := http.NewRequest("POST", uri, sr)
 				mux.ServeHTTP(writer, request)
 

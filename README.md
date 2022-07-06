@@ -155,6 +155,7 @@ nsddyn will always return a status as a JSON object with the following form:
 
 The following status codes may be returned:
 * 200 - Success. The request was authenticated and applied.
+* 304 - None of the requested hosts needed to have their record updated.
 * 400 - The request was malformed, dynupd rejected it.
 * 403 - Authentication failed, nsddynd didn't agree with your provided username or password.
 * 405 - A bad method was used to connect to the server, we only accept HTTP POSTs.
