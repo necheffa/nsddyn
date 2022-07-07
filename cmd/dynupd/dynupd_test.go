@@ -214,13 +214,11 @@ var _ = Describe("Dynupd", func() {
 
 		Context("With many active clients", func() {
 			It("should not corrupt the zone file", Label("slow"), func() {
-				/*
-									   Use a statistical approch to try and coax a race condition to occur;
-					                   i.e. use a large number of goroutines to hammer dynupd and see if it breaks.
-
-					                   Run with `go test -race` for best results.
-					                   If the zonefile ends up getting malformed, dynupd will kick back an error from go-zonefile.
-				*/
+				// Use a statistical approch to try and coax a race condition to occur;
+				// i.e. use a large number of goroutines to hammer dynupd and see if it breaks.
+				//
+				// Run with `go test -race` for best results.
+				// If the zonefile ends up getting malformed, dynupd will kick back an error from go-zonefile.
 				var wg sync.WaitGroup
 				for i := 0; i <= 1024; i++ {
 					wg.Add(1)
