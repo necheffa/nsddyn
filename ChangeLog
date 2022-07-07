@@ -4,6 +4,7 @@ XXXX-YY-ZZ Alexander Necheff <alex@necheff.net>
     * Corrected race condition in auth/flatfile that could possibly corrupt the passwd file. Partially fixes issue #64.
     * Modified dynupd to only reload the zone when a new IP is provided for a host. Fixed issue #99.
     * Modified dynupd to use same logic as nsddynum for determining $NSDDYN_HOME. Fixed issue #53.
+    * Modified test targets so that long running tests can be omitted if desired. Fixed issue #105.
 
 2022-06-30 Alexander Necheff <alex@necheff.net>
     * Set version to 1.0.0.

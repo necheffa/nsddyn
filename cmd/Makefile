@@ -12,6 +12,11 @@ bin: ## build the binary proper
 
 .PHONY: unittest
 unittest:
+	@ulimit -n 100000 && go test -short -race -covermode=atomic -coverprofile=../coverage.out ./...
+
+# specifically omits the -short flag to run all tests, even the long running ones.
+.PHONY: unittestlong
+unittestlong:
 	@ulimit -n 100000 && go test -race -covermode=atomic -coverprofile=../coverage.out ./...
 
 .PHONY: fmt
