@@ -33,6 +33,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"testing"
 )
 
 var passwd *os.File
@@ -214,6 +215,9 @@ var _ = Describe("Dynupd", func() {
 
 		Context("With many active clients", func() {
 			It("should not corrupt the zone file", Label("slow"), func() {
+				if testing.Short() {
+					Skip("skipping in short mode...")
+				}
 				// Use a statistical approch to try and coax a race condition to occur;
 				// i.e. use a large number of goroutines to hammer dynupd and see if it breaks.
 				//

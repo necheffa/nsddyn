@@ -32,6 +32,10 @@ import (
 // TestAuthFileLocks tests to make sure concurrent access to the auth file
 // does not result in file corruption.
 func TestAuthFileLocks(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping in short mode...")
+	}
+
 	passwd, _ := os.CreateTemp(os.TempDir(), "nsddynpasswd")
 	defer os.Remove(passwd.Name())
 
