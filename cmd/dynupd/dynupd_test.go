@@ -73,8 +73,7 @@ var _ = Describe("Dynupd", func() {
 
 	BeforeEach(func() {
 		uri = "/api/dynupd"
-		dynupd = new(DynUpd)
-		dynupd.NewDynUpd(authFile, zonefile.Name(), "example.com", srv.URL)
+		dynupd = NewDynUpd(authFile, zonefile.Name(), "example.com", srv.URL)
 
 		mux = http.NewServeMux()
 		mux.HandleFunc(uri, dynupd.DynUpdHandler)

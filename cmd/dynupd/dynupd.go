@@ -70,7 +70,22 @@ type DynUpd struct {
 	lock       sync.Mutex
 }
 
+// NewDynUpd creates and initalizes an instance of DynUpd.
+func NewDynUpd(passwdDb auth.AuthReader, zoneFile string, domainName string, brokerUrl string) (d *DynUpd) {
+	d = new(DynUpd)
+
+	d.passwdDb = passwdDb
+	d.zoneFile = zoneFile
+	d.domainName = domainName
+	d.brokerUrl = brokerUrl
+
+	return d
+}
+
 // NewDynUpd initalizes a new instance of DynUpd that has already been allocated.
+//
+// Deprecated: This method is preserved for legacy compatability. The NewDynUpd function should be called
+// instead in new code.
 func (d *DynUpd) NewDynUpd(passwdDb auth.AuthReader, zoneFile string, domainName string, brokerUrl string) {
 	d.passwdDb = passwdDb
 	d.zoneFile = zoneFile

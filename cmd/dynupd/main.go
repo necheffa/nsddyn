@@ -141,7 +141,6 @@ func main() {
 		}
 	}
 
-	d := new(DynUpd)
 	// NOTE: support multiple auth mechanisms here...
 	passwdDb := new(auth.FlatFile)
 
@@ -159,7 +158,7 @@ func main() {
 	}
 
 	passwdDb.SetFilePath(fileName)
-	d.NewDynUpd(passwdDb, zoneFile, domainName, brokerUri)
+	d := NewDynUpd(passwdDb, zoneFile, domainName, brokerUri)
 
 	http.HandleFunc(uri, d.DynUpdHandler)
 	err = http.ListenAndServe(host, nil)
