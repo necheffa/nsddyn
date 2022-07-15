@@ -6,6 +6,7 @@ XXXX-YY-ZZ Alexander Necheff <alex@necheff.net>
     * Modified dynupd to use same logic as nsddynum for determining $NSDDYN_HOME. Fixed issue #53.
     * Modified test targets so that long running tests can be omitted if desired. Fixed issue #105.
     * Added NewDynUpd function to allocate and initalize DynUpd instances; deprecated the NewDynUpd method. Fixed issue #63.
+    * Added NewFlatFile function to allocate and initalize FlatFile instances; deprecated the SetFilePath method.
 
 2022-06-30 Alexander Necheff <alex@necheff.net>
     * Set version to 1.0.0.

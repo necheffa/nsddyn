@@ -56,6 +56,18 @@ type FlatFile struct {
 	filePath string
 }
 
+// NewFlatFile returns a new FlatFile with the specified path.
+func NewFlatFile(filePath string) (f *FlatFile) {
+	f = new(FlatFile)
+	f.filePath = filePath
+
+	return f
+}
+
+// SetFilePath sets the file path of the flat file.
+//
+// Deprecated: This method is preserved for legacy compatability. The NewFlatFile function should be called
+// instead in new code.
 func (f *FlatFile) SetFilePath(filePath string) {
 	f.filePath = filePath
 }
