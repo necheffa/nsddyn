@@ -44,6 +44,12 @@ import (
   user base that is expected initially.
 */
 
+// Cost of bcrypt password hashing.
+//
+// as of 2020-03-08 a cost of 8 seems to be an acceptable compromise
+// between performance and security.
+const bcryptCost = 8
+
 // FlatFile satisfies the AuthReadWriter interface.
 type FlatFile struct {
 	// The path to the file backing this authentication method
@@ -196,9 +202,7 @@ func (f *FlatFile) addUser(passwd []byte, userName string, hosts []string, file 
 	// this is intentional, in order to retain control over the allocation so that _all_ the
 	// memory can be wiped when we are done.
 
-	// as of 2020-03-08 a cost of 8 seems to be an acceptable compromise
-	// between performance and security.
-	hashedPasswd, err := bcrypt.GenerateFromPassword(passwd, 8)
+	hashedPasswd, err := bcrypt.GenerateFromPassword(passwd, bcryptCost)
 	if err != nil {
 		return fmt.Errorf("AddUser: %v", err)
 	}
@@ -337,7 +341,7 @@ func (f *FlatFile) modUser(userName string, passwd []byte, modPasswd bool, hostN
 
 	// we are either generating a new password hash, or keeping the existing one.
 	if modPasswd {
-		passwdHash, err = bcrypt.GenerateFromPassword(passwd, 8)
+		passwdHash, err = bcrypt.GenerateFromPassword(passwd, bcryptCost)
 		if err != nil {
 			return -1, fmt.Errorf("ModUser: %v", err)
 		}
