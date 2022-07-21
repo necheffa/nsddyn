@@ -55,7 +55,7 @@ var _ = Describe("Dynupdbroker", func() {
 	Describe("HTTP method response", func() {
 		Context("With an invalid GET", func() {
 			It("should return a 405", func() {
-				request, _ := http.NewRequest("GET", bc.Uri, nil)
+				request, _ := http.NewRequest(http.MethodGet, bc.Uri, nil)
 				mux.ServeHTTP(writer, request)
 				Expect(writer.Code).To(Equal(http.StatusMethodNotAllowed))
 			})
@@ -64,13 +64,13 @@ var _ = Describe("Dynupdbroker", func() {
 		Context("With POST and a valid URI", func() {
 
 			It("should return a 200", func() {
-				request, _ := http.NewRequest("POST", bc.Uri, bytes.NewReader([]byte("asdf")))
+				request, _ := http.NewRequest(http.MethodPost, bc.Uri, bytes.NewReader([]byte("asdf")))
 				mux.ServeHTTP(writer, request)
 				Expect(writer.Code).To(Equal(http.StatusOK))
 			})
 
 			It("should return a zone reloaded message", func() {
-				request, _ := http.NewRequest("POST", bc.Uri, bytes.NewReader([]byte("asdf")))
+				request, _ := http.NewRequest(http.MethodPost, bc.Uri, bytes.NewReader([]byte("asdf")))
 				mux.ServeHTTP(writer, request)
 				Expect(writer.Body).To(Equal(bytes.NewBufferString("Zone Reloaded")))
 			})

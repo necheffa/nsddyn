@@ -85,7 +85,7 @@ var _ = Describe("Dynupd", func() {
 	Describe("HTTP method response", func() {
 		Context("With an invalid GET", func() {
 			It("should return an HTTP 405", func() {
-				request, _ := http.NewRequest("GET", uri, nil)
+				request, _ := http.NewRequest(http.MethodGet, uri, nil)
 				mux.ServeHTTP(writer, request)
 				Expect(writer.Code).To(Equal(http.StatusMethodNotAllowed))
 			})
@@ -97,7 +97,7 @@ var _ = Describe("Dynupd", func() {
 		Context("With a good request", func() {
 			It("should return an HTTP 200 and nsddyn code 200", func() {
 				var sr = strings.NewReader(`{"username": "alex", "password": "password", "ipaddr": "192.0.2.4", "hostnames": [ "host1", "host2" ], "version": "0.1.0"}`)
-				request, _ := http.NewRequest("POST", uri, sr)
+				request, _ := http.NewRequest(http.MethodPost, uri, sr)
 				mux.ServeHTTP(writer, request)
 				Expect(writer.Code).To(Equal(http.StatusOK))
 
@@ -110,12 +110,12 @@ var _ = Describe("Dynupd", func() {
 		Context("With a good request for multiple hosts where only one host has a new IP", func() {
 			It("should return an HTTP 200 and nsddyn code 200", func() {
 				var sr = strings.NewReader(`{"username": "alex0", "password": "password", "ipaddr": "192.0.2.10", "hostnames": [ "host3" ], "version": "0.1.0"}`)
-				request, _ := http.NewRequest("POST", uri, sr)
+				request, _ := http.NewRequest(http.MethodPost, uri, sr)
 				mux.ServeHTTP(writer, request)
 
 				// host3 already has an A record with IP 192.0.2.10 but host4 is new so we should still reload the zone
 				sr = strings.NewReader(`{"username": "alex0", "password": "password", "ipaddr": "192.0.2.10", "hostnames": [ "host3", "host4" ], "version": "0.1.0"}`)
-				request, _ = http.NewRequest("POST", uri, sr)
+				request, _ = http.NewRequest(http.MethodPost, uri, sr)
 				writer = httptest.NewRecorder()
 				mux.ServeHTTP(writer, request)
 				Expect(writer.Code).To(Equal(http.StatusOK))
@@ -129,7 +129,7 @@ var _ = Describe("Dynupd", func() {
 		Context("With a good request for multiple hosts where none need updated", func() {
 			It("should return an HTTP 200 and nsddyn code 304", func() {
 				var sr = strings.NewReader(`{"username": "alex0", "password": "password", "ipaddr": "192.0.2.10", "hostnames": [ "host3", "host4" ], "version": "0.1.0"}`)
-				request, _ := http.NewRequest("POST", uri, sr)
+				request, _ := http.NewRequest(http.MethodPost, uri, sr)
 				mux.ServeHTTP(writer, request)
 				Expect(writer.Code).To(Equal(http.StatusOK))
 
@@ -142,7 +142,7 @@ var _ = Describe("Dynupd", func() {
 		Context("With a bad password", func() {
 			It("should return an HTTP 200 and nsddyn code 403", func() {
 				var sr = strings.NewReader(`{"username": "alex", "password": "badpassword", "ipaddr": "192.0.2.4", "hostnames": [ "host1", "host2" ], "version": "0.1.0"}`)
-				request, _ := http.NewRequest("POST", uri, sr)
+				request, _ := http.NewRequest(http.MethodPost, uri, sr)
 				mux.ServeHTTP(writer, request)
 				Expect(writer.Code).To(Equal(http.StatusOK))
 
@@ -155,7 +155,7 @@ var _ = Describe("Dynupd", func() {
 		Context("With a good username", func() {
 			It("should return nsddyn code 200", func() {
 				var sr = strings.NewReader(`{"username": "alex", "password": "password", "ipaddr": "192.0.2.5", "hostnames": [ "host1", "host2" ], "version": "0.1.0"}`)
-				request, _ := http.NewRequest("POST", uri, sr)
+				request, _ := http.NewRequest(http.MethodPost, uri, sr)
 				mux.ServeHTTP(writer, request)
 
 				err := json.Unmarshal(writer.Body.Bytes(), &nb)
@@ -167,7 +167,7 @@ var _ = Describe("Dynupd", func() {
 		Context("With a bad username", func() {
 			It("should return nsddyn code 403", func() {
 				var sr = strings.NewReader(`{"username": "badusername", "password": "password", "ipaddr": "192.0.2.4", "hostnames": [ "host1", "host2" ], "version": "0.1.0"}`)
-				request, _ := http.NewRequest("POST", uri, sr)
+				request, _ := http.NewRequest(http.MethodPost, uri, sr)
 				mux.ServeHTTP(writer, request)
 
 				err := json.Unmarshal(writer.Body.Bytes(), &nb)
@@ -179,7 +179,7 @@ var _ = Describe("Dynupd", func() {
 		Context("With a bad host", func() {
 			It("should return nsddyn code 418", func() {
 				var sr = strings.NewReader(`{"username": "alex", "password": "password", "ipaddr": "192.0.2.4", "hostnames": [ "host1", "badhost" ], "version": "0.1.0"}`)
-				request, _ := http.NewRequest("POST", uri, sr)
+				request, _ := http.NewRequest(http.MethodPost, uri, sr)
 				mux.ServeHTTP(writer, request)
 
 				err := json.Unmarshal(writer.Body.Bytes(), &nb)
@@ -191,7 +191,7 @@ var _ = Describe("Dynupd", func() {
 		Context("With a malformed request - missing password", func() {
 			It("should return nsddyn code 400", func() {
 				var sr = strings.NewReader(`{"username": "alex", "ipaddr": "192.0.2.4", "hostnames": [ "host1", "badhost" ], "version": "0.1.0"}`)
-				request, _ := http.NewRequest("POST", uri, sr)
+				request, _ := http.NewRequest(http.MethodPost, uri, sr)
 				mux.ServeHTTP(writer, request)
 
 				err := json.Unmarshal(writer.Body.Bytes(), &nb)
@@ -203,7 +203,7 @@ var _ = Describe("Dynupd", func() {
 		Context("With a malformed request - totally bogus", func() {
 			It("should return nsddyn code 400", func() {
 				var sr = strings.NewReader(`{"username":ersio}`)
-				request, _ := http.NewRequest("POST", uri, sr)
+				request, _ := http.NewRequest(http.MethodPost, uri, sr)
 				mux.ServeHTTP(writer, request)
 
 				err := json.Unmarshal(writer.Body.Bytes(), &nb)
@@ -233,7 +233,7 @@ var _ = Describe("Dynupd", func() {
 						w := httptest.NewRecorder()
 
 						sr := strings.NewReader(`{"username":"alex","password":"password","ipaddr":"192.0.2.` + strconv.Itoa(addr) + `","hostnames":["host1"],"version":"0.1.0"}`)
-						request, _ := http.NewRequest("POST", uri, sr)
+						request, _ := http.NewRequest(http.MethodPost, uri, sr)
 						mux.ServeHTTP(w, request)
 
 						err := json.Unmarshal(w.Body.Bytes(), &nnb)
@@ -250,7 +250,7 @@ var _ = Describe("Dynupd", func() {
 						w := httptest.NewRecorder()
 
 						sr := strings.NewReader(`{"username":"alex","password":"password","ipaddr":"192.0.2.` + strconv.Itoa(addr) + `","hostnames":["host2"],"version":"0.1.0"}`)
-						request, _ := http.NewRequest("POST", uri, sr)
+						request, _ := http.NewRequest(http.MethodPost, uri, sr)
 						mux.ServeHTTP(w, request)
 
 						err := json.Unmarshal(w.Body.Bytes(), &nnb)

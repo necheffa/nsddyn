@@ -31,7 +31,7 @@ func DynupdBroker(w http.ResponseWriter, r *http.Request) {
 		log.Print("dynupd-broker: error: bad connect method: " + r.Method)
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
-	case "POST":
+	case http.MethodPost:
 		// #nosec G204 -- The ZoneName is passed by a configuration file.
 		cmd := exec.Command("sh", "-c", "nsd-control reload "+brokerConfig.ZoneName)
 		out, err := cmd.CombinedOutput()

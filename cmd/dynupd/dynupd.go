@@ -247,7 +247,7 @@ func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		fmt.Fprintf(w, "%v", craftResponse(badMethod))
 		return
-	case "POST":
+	case http.MethodPost:
 		var msg dynreq.DynReq
 		// parse the reqest
 		body, err := ioutil.ReadAll(r.Body)
