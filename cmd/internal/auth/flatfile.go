@@ -403,8 +403,8 @@ func (f *FlatFile) modUser(userName string, passwd []byte, modPasswd bool, hostN
 
 // removeUserRecord returns a copy of fileBuf with the account record for userName removed.
 // The caller is responsible for:
-//  1) validating that userName exists in the fileBuf before calling removeUserRecord.
-//  2) erasing the returned []byte which contains sensitive account material.
+//  1. validating that userName exists in the fileBuf before calling removeUserRecord.
+//  2. erasing the returned []byte which contains sensitive account material.
 func removeUserRecord(userName string, fileBuf []byte) (newFileBuf []byte) {
 	lines := bytes.Split(fileBuf, []byte("\n"))
 	runningSize := 0
