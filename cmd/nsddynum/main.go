@@ -229,18 +229,53 @@ func main() {
 			log.Fatal(fmt.Errorf("nsddynum: %w", err))
 		}
 	case "help":
-		// NOTE: need to print the sub-command specific usage message if a sub-command is given as an argument
-		// SEE: https://gitlab.com/necheffa/nsddyn/-/issues/100
-		msg := "Usage: nsddynum SUB-COMMAND [OPTS]\n" +
-			"  nsddynnum is the nsddyn User Manager utility.\n" +
-			"\n" +
-			"Available SUB-COMMANDs:\n" +
-			"help [SUB-COMMAND]\t\t\t\t\tPrints this message if no argument is given, otherwise prints help text for specified SUB-COMMAND.\n" +
-			"version\t\t\t\t\t\t\tPrints version information and exits.\n" +
-			"adduser [-p PASSWD_FILE ] -u USER HOST1 HOST2\t\tAdds a user to the passwd file.\n" +
-			"moduser [-p PASSWD_FILE ] -u USER\t\t\tModifies the password or authorized hostnames for a user account.\n" +
-			"deluser [-p PASSWD_FILE ] -u USER\t\t\tRemoves the specified user account from the passwd file.\n"
 
+		var msg string
+
+		if len(os.Args) <= 2 {
+			// NOTE: need to print the sub-command specific usage message if a sub-command is given as an argument
+			// SEE: https://gitlab.com/necheffa/nsddyn/-/issues/100
+			msg = "Usage: nsddynum SUB-COMMAND [OPTS]\n" +
+				"  nsddynnum is the nsddyn User Manager utility.\n" +
+				"\n" +
+				"Available SUB-COMMANDs:\n" +
+				"help [SUB-COMMAND]\t\t\t\t\tPrints this message if no argument is given, otherwise prints help text for specified SUB-COMMAND.\n" +
+				"version\t\t\t\t\t\t\tPrints version information and exits.\n" +
+				"adduser [-p PASSWD_FILE ] -u USER HOST1 HOST2\t\tAdds a user to the passwd file.\n" +
+				"moduser [-p PASSWD_FILE ] -u USER\t\t\tModifies the password or authorized hostnames for a user account.\n" +
+				"deluser [-p PASSWD_FILE ] -u USER\t\t\tRemoves the specified user account from the passwd file.\n"
+		} else {
+			switch os.Args[2] {
+			default:
+				log.Fatal(errors.New("nsddynum: error: unrecognized sub-command: " + os.Args[2]))
+
+			case "version":
+				msg = "Usage: nsddynum version\n" +
+					"\n" +
+					"Prints version information and exits.\n"
+			case "adduser":
+				msg = "Usage: nsddynum adduser [-p PASSWD_FILE ] -u USER HOST1 HOST2\n" +
+					"\n" +
+					"Adds a user to the passwd file.\n" +
+					"\t-p  Optionally, specify an alternative passwd file to edit. See README for default passwd locations.\n" +
+					"\t-u Specify the name of the user account to add.\n" +
+					"\n" +
+					"Following the argument flags, a list of one or more hostnames associated with the user are specified.\n" +
+					"These hostnames are A records the user will be permitted to update.\n"
+			case "moduser":
+				msg = "Usage: nsddynum moduser [-p PASSWD_FILE ] -u USER\n" +
+					"\n" +
+					"Modifies attributes of the specified user account.\n" +
+					"\t-p  Optionally, specify an alternative passwd file to edit. See README for default passwd locations.\n" +
+					"\t-u Specify the name of the user account to modify.\n"
+			case "deluser":
+				msg = "Usage: nsddynum deluser [-p PASSWD_FILE ] -u USER\n" +
+					"\n" +
+					"Deletes the specified user account.\n" +
+					"\t-p  Optionally, specify an alternative passwd file to edit. See README for default passwd locations.\n" +
+					"\t-u Specify the name of the user account to delete.\n"
+			}
+		}
 		fmt.Fprintf(os.Stderr, "%s", msg)
 	}
 }
