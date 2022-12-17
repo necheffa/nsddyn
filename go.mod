@@ -4,15 +4,17 @@ go 1.18
 
 require (
 	github.com/bwesterb/go-zonefile v1.0.0
-	github.com/onsi/ginkgo/v2 v2.1.4
-	github.com/onsi/gomega v1.19.0
-	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d
-	golang.org/x/term v0.0.0-20220526004731-065cf7ba2467
+	github.com/onsi/ginkgo/v2 v2.6.1
+	github.com/onsi/gomega v1.24.2
+	golang.org/x/crypto v0.4.0
+	golang.org/x/sys v0.3.0
+	golang.org/x/term v0.3.0
 )
 
 require (
-	golang.org/x/net v0.0.0-20220630215102-69896b714898 // indirect
-	golang.org/x/sys v0.0.0-20220627191245-f75cf1eec38b // indirect
-	golang.org/x/text v0.3.7 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
+	github.com/go-logr/logr v1.2.3 // indirect
+	github.com/google/go-cmp v0.5.9 // indirect
+	golang.org/x/net v0.4.0 // indirect
+	golang.org/x/text v0.5.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

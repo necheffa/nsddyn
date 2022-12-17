@@ -8,6 +8,16 @@ XXXX-YY-ZZ Alexander Necheff <alex@necheff.net>
     * Added NewDynUpd function to allocate and initalize DynUpd instances; deprecated the NewDynUpd method. Fixed issue #63.
     * Added NewFlatFile function to allocate and initalize FlatFile instances; deprecated the SetFilePath method.
     * Added sub-command specific usage text to nsddynum help sub-command. Fixed issue #100.
+    * Updated vendored dependency github.com/onsi/ginkgo/v2 (v2.6.1).
+    * Updated vendored dependency github.com/onsi/gomega (v1.24.2).
+    * Updated vendored dependency github.com/go-logr/logr (v1.2.3).
+    * Updated vendored dependency github.com/google/go-cmp (v0.5.9).
+    * Updated vendored dependency gopkg.in/yaml.v3 (v3.0.1).
+    * Updated vendored dependency golang.org/x/crypto (v0.4.0).
+    * Updated vendored dependency golang.org/x/net (v0.4.0).
+    * Updated vendored dependency golang.org/x/sys (v0.3.0).
+    * Updated vendored dependency golang.org/x/term (v0.3.0).
+    * Updated vendored dependency golang.org/x/text (v0.5.0).
 
 2022-06-30 Alexander Necheff <alex@necheff.net>
     * Set version to 1.0.0.
