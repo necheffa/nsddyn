@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+
+set -e
+
+SUBVER="${DEBABI:-1}"
+
+WRKDIR="$(mktemp -d)"
+CURDIR="$(pwd)"
+# Per Debian maintainer's guide, we want to avoid `-` in the upstream version number.
+# Since I note development builds similarly to "1.1.0-dev3", I need to transform that
+# to "1.1.0~dev3" to maintain compatabiliy with dpkg. A `-` is used to seporate the
+# upstream version from the package/ABI version incremented by Debian.
+PKGVER="$(cat VERSION | tr '-' '~')-$SUBVER"
+PKGDIR="nsddyn_${PKGVER}_amd64"
+
+function cleanup {
+    rm -rf "$WRKDIR"
+}
+trap cleanup EXIT
+
+if [ "$SUBVER" == "" ]; then
+    echo "You need to specify a Debian package version as an argument: i.e. 5"
+    exit 1
+fi
+
+if ! [ -f "bin/dynupd" ]; then
+    echo "The dynupd binary doesn't exist, did you run the Makefile?"
+    exit 1
+fi
+
+cd "$WRKDIR"
+mkdir -p "$PKGDIR"/opt/catloaf/sbin
+mkdir -p "$PKGDIR"/opt/catloaf/share/nsddyn
+mkdir -p "$PKGDIR"/opt/catloaf/etc
+
+BINDST="$PKGDIR"/opt/catloaf/sbin
+
+cp "$CURDIR"/bin/dynupd "$BINDST"/
+cp "$CURDIR"/bin/dynupd-broker "$BINDST"/
+cp "$CURDIR"/bin/nsddynum "$BINDST"/
+
+CONFDST="$PKGDIR"/opt/catloaf/share/nsddyn
+cp "$CURDIR"/etc/dynupd-broker.json "$CONFDST"/
+cp "$CURDIR"/etc/dynupd-broker.service "$CONFDST"/
+cp "$CURDIR"/etc/dynupd.service "$CONFDST"/
+cp "$CURDIR"/etc/nsddyn "$CONFDST"/
+
+mkdir -p "$PKGDIR"/DEBIAN
+
+CONTROL="\
+Package: nsddyn
+Version: $PKGVER
+Architecture: amd64
+Depends: nsd (>= 4.3.5), libc6 (>= 2.31)
+Maintainer: Alex Necheff <pkg@necheff.net>
+Homepage: https://www.necheff.net
+Description: nsddyn provides a secure method for achieving Dynamic DNS when using NSD as an authoritative DNS server.
+"
+
+echo "$CONTROL" > "$PKGDIR"/DEBIAN/control
+
+POSTINST="\
+#!/usr/bin/env bash
+
+set -e
+
+adduser --system --group nsddyn || echo \"Nsddyn user already exists, proceeding anyways.\"
+chmod 0550 /opt/catloaf/sbin/dynupd
+chmod 0550 /opt/catloaf/sbin/dynupd-broker
+chmod 0550 /opt/catloaf/sbin/nsddynum
+
+chown root:nsddyn /opt/catloaf/sbin/dynupd
+chown root:root /opt/catloaf/sbin/dynupd-broker
+chown root:root /opt/catloaf/sbin/nsddynum
+chown root:root -R /opt/catloaf/share/nsddyn
+
+if ! [ -f /opt/catloaf/etc/nsddynpasswd ]; then
+    touch /opt/catloaf/etc/nsddynpasswd
+    chmod 0640 /opt/catloaf/etc/nsddynpasswd
+    chown root:nsddyn /opt/catloaf/etc/nsddynpasswd
+fi
+"
+
+echo "$POSTINST" > "$PKGDIR"/DEBIAN/postinst
+chmod 0555 "$PKGDIR"/DEBIAN/postinst
+
+dpkg-deb --build "$PKGDIR"
+cp "$PKGDIR".deb "$CURDIR"/
+

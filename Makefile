@@ -64,7 +64,10 @@ linecount:
 install:
 	@scripts/install $(BUILD_ROOT)
 
+debian: bin
+	scripts/package-deb
+
 .PHONY: clean
 clean: ## remove old binaries
-	rm -rf $(BUILD_ROOT)/bin coverage.out quality.log
+	rm -rf $(BUILD_ROOT)/bin coverage.out quality.log *.deb
 	find $(BUILD_ROOT) -type f -iname coverprofile.out -print | xargs rm -f
