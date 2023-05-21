@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2021, 2022 Alexander Necheff
+   Copyright (C) 2021, 2022, 2023 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -21,6 +21,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"necheff.net/nsddyn/cmd/dynupd-broker/config"
 )
@@ -37,8 +38,11 @@ func main() {
 	mux.HandleFunc(brokerConfig.Uri, DynupdBroker)
 
 	server := &http.Server{
-		Addr:    brokerConfig.Address,
-		Handler: mux,
+		Addr:         brokerConfig.Address,
+		Handler:      mux,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  120 * time.Second,
 	}
 	log.Fatal(server.ListenAndServe())
 }

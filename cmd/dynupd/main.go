@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2019, 2020, 2021, 2022 Alexander Necheff
+   Copyright (C) 2019, 2020, 2021, 2022, 2023 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -24,6 +24,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"necheff.net/nsddyn/cmd/internal/auth"
 	"necheff.net/nsddyn/cmd/internal/config"
@@ -160,8 +161,19 @@ func main() {
 	passwdDb.SetFilePath(fileName)
 	d := NewDynUpd(passwdDb, zoneFile, domainName, brokerUri)
 
-	http.HandleFunc(uri, d.DynUpdHandler)
-	err = http.ListenAndServe(host, nil)
+	mux := http.NewServeMux()
+	mux.HandleFunc(uri, d.DynUpdHandler)
+
+	server := &http.Server{
+		Addr:         host,
+		Handler:      mux,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  120 * time.Second,
+	}
+
+	err = server.ListenAndServe()
+
 	if err != nil {
 		log.Fatal(fmt.Errorf("dynupd: Error: %w", err))
 	}
