@@ -1,6 +1,6 @@
 module necheff.net/nsddyn
 
-go 1.18
+go 1.20
 
 require (
 	github.com/bwesterb/go-zonefile v1.0.0
