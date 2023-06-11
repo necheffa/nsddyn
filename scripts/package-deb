@@ -15,6 +15,12 @@ PKGDIR="nsddyn_${PKGVER}_amd64"
 
 function cleanup {
     rm -rf "$WRKDIR"
+
+    if [ "$(whoami)" != "root" ]; then
+        echo "Did you remember to build with \`fakeroot\` you silly goose?"
+        echo "If not, you better know what you are doing."
+        exit 1
+    fi
 }
 trap cleanup EXIT
 
@@ -38,6 +44,10 @@ BINDST="$PKGDIR"/opt/catloaf/sbin
 cp "$CURDIR"/bin/dynupd "$BINDST"/
 cp "$CURDIR"/bin/dynupd-broker "$BINDST"/
 cp "$CURDIR"/bin/nsddynum "$BINDST"/
+
+chmod 0550 "$BINDST"/dynupd
+chmod 0550 "$BINDST"/dynupd-broker
+chmod 0550 "$BINDST"/nsddynum
 
 CONFDST="$PKGDIR"/opt/catloaf/share/nsddyn
 cp "$CURDIR"/etc/dynupd-broker.json "$CONFDST"/
@@ -65,14 +75,8 @@ POSTINST="\
 set -e
 
 adduser --system --group nsddyn || echo \"Nsddyn user already exists, proceeding anyways.\"
-chmod 0550 /opt/catloaf/sbin/dynupd
-chmod 0550 /opt/catloaf/sbin/dynupd-broker
-chmod 0550 /opt/catloaf/sbin/nsddynum
 
 chown root:nsddyn /opt/catloaf/sbin/dynupd
-chown root:root /opt/catloaf/sbin/dynupd-broker
-chown root:root /opt/catloaf/sbin/nsddynum
-chown root:root -R /opt/catloaf/share/nsddyn
 
 if ! [ -f /opt/catloaf/etc/nsddynpasswd ]; then
     touch /opt/catloaf/etc/nsddynpasswd
