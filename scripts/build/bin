@@ -8,4 +8,4 @@ if ! [ -d ${BUILD_ROOT}/bin ]; then
     mkdir ${BUILD_ROOT}/bin
 fi
 
-go build --ldflags "${LDFLAGS}"
+go build -buildmode=pie --ldflags "${LDFLAGS}"
