@@ -1,3 +1,8 @@
+2023-09-23 Alexander Necheff <alex@necheff.net>
+    * Set version to 1.1.1.
+    * Build now uses position independent code. Fixed issue #119.
+    * Updated vendored dependencies.
+
 2023-05-20 Alexander Necheff <alex@necheff.net>
     * Set version to 1.1.0.
     * Require a minimum of Go 1.20 when compiling.
