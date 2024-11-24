@@ -1,3 +1,5 @@
-bin/
 coverage.out
-coverprofile.out
+*.deb
+cmd/dynupd-broker/dynupd-broker
+cmd/dynupd/dynupd
+cmd/nsddynum/nsddynum

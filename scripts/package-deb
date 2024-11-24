@@ -29,11 +29,6 @@ if [ "$SUBVER" == "" ]; then
     exit 1
 fi
 
-if ! [ -f "bin/dynupd" ]; then
-    echo "The dynupd binary doesn't exist, did you run the Makefile?"
-    exit 1
-fi
-
 cd "$WRKDIR"
 mkdir -p "$PKGDIR"/opt/catloaf/sbin
 mkdir -p "$PKGDIR"/opt/catloaf/share/nsddyn
@@ -41,9 +36,9 @@ mkdir -p "$PKGDIR"/opt/catloaf/etc
 
 BINDST="$PKGDIR"/opt/catloaf/sbin
 
-cp "$CURDIR"/bin/dynupd "$BINDST"/
-cp "$CURDIR"/bin/dynupd-broker "$BINDST"/
-cp "$CURDIR"/bin/nsddynum "$BINDST"/
+cp "$CURDIR"/cmd/dynupd/dynupd "$BINDST"/
+cp "$CURDIR"/cmd/dynupd-broker/dynupd-broker "$BINDST"/
+cp "$CURDIR"/cmd/nsddynum/nsddynum "$BINDST"/
 
 chmod 0550 "$BINDST"/dynupd
 chmod 0550 "$BINDST"/dynupd-broker

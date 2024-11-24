@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-
-golangci-lint run --enable godox --enable gomnd --enable gosec --enable errorlint --enable gofmt --enable unconvert "$1"
-exit 0
-

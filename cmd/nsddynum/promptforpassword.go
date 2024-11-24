@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2020, 2021, 2022 Alexander Necheff
+   Copyright (C) 2020-2022, 2024 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -22,7 +22,7 @@ import (
 	"fmt"
 	"os"
 
-	"necheff.net/nsddyn/cmd/internal/auth"
+	"necheff.net/nsddyn/internal/auth"
 
 	"golang.org/x/term"
 )

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2021, 2022 Alexander Necheff
+   Copyright (C) 2021, 2022, 2024 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -23,7 +23,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	. "necheff.net/nsddyn/cmd/dynupd"
-	"necheff.net/nsddyn/cmd/internal/auth"
+	"necheff.net/nsddyn/internal/auth"
 
 	"encoding/json"
 	"fmt"

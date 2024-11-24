@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2020, 2021, 2022 Alexander Necheff
+   Copyright (C) 2020-2022, 2024 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -30,11 +30,11 @@ import (
 	"strings"
 	"sync"
 
-	"necheff.net/nsddyn/cmd/internal/auth"
-	"necheff.net/nsddyn/cmd/internal/config"
-	"necheff.net/nsddyn/cmd/internal/dynreq"
-	"necheff.net/nsddyn/cmd/internal/util"
-	"necheff.net/nsddyn/cmd/internal/version"
+	"necheff.net/nsddyn"
+	"necheff.net/nsddyn/internal/auth"
+	"necheff.net/nsddyn/internal/config"
+	"necheff.net/nsddyn/internal/dynreq"
+	"necheff.net/nsddyn/internal/util"
 
 	"github.com/bwesterb/go-zonefile"
 )
@@ -314,5 +314,5 @@ func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 // craftResponse crafts a JSON responce object conforming to the nsddyn protocol using
 // the given status code as a string.
 func craftResponse(status string) string {
-	return "{ \"version\": \"" + version.Version + "\", \"code\": \"" + status + "\" }"
+	return "{ \"version\": \"" + nsddyn.Version() + "\", \"code\": \"" + status + "\" }"
 }

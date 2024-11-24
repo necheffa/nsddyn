@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2022 Alexander Necheff
+   Copyright (C) 2022, 2024 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -26,7 +26,7 @@ import (
 	"strings"
 	"testing"
 
-	"necheff.net/nsddyn/cmd/internal/auth"
+	"necheff.net/nsddyn/internal/auth"
 )
 
 func TestValidPassword(t *testing.T) {

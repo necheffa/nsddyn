@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2021, 2022 Alexander Necheff
+   Copyright (C) 2021, 2022, 2024 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -23,7 +23,7 @@ import (
 	"fmt"
 	"os"
 
-	"necheff.net/nsddyn/cmd/internal/util"
+	"necheff.net/nsddyn/internal/util"
 )
 
 type BrokerConfig struct {

@@ -1,73 +1,55 @@
-VERSION=$(shell cat VERSION)
-
 BUILD_ROOT:=$(CURDIR)
-CMD_DIR:=$(CURDIR)/cmd
-BIN_DIR:=$(CURDIR)/bin
+COVERLOG:="./coverage.out"
+GOAMD64:=v3
 
-.PHONY: bin
-bin: ## build the standard distribution
-	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) -C $(CMD_DIR) bin
+all: nsddynum dynupd dynupd-broker
 
-.PHONY: vet
-vet:
-	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) -C $(CMD_DIR) vet
+nsddynum:
+	cd cmd/nsddynum; GOAMD64=$(GOAMD64) go build -buildmode=pie
 
-.PHONY: golangci-lint
-golangci-lint:
-	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) -C $(CMD_DIR) golangci-lint
+dynupd:
+	cd cmd/dynupd; GOAMD64=$(GOAMD64) go build -buildmode=pie
 
-.PHONY: shellcheck
+dynupd-broker:
+	cd cmd/dynupd-broker; GOAMD64=$(GOAMD64) go build -buildmode=pie
+
 shellcheck:
-	@scripts/build/shellcheck client/nsddyncc
-	@scripts/build/shellcheck scripts/test/automated_integration.sh
-	@scripts/build/shellcheck test/nsddynum/run.sh
+	@shellcheck client/nsddyncc || true
+	@shellcheck scripts/test/automated_integration.sh || true
+	@shellcheck test/nsddynum/run.sh || true
 
-.PHONY: quality
-quality: vet shellcheck golangci-lint
+quality: shellcheck
+	go vet ./... || true
+	golangci-lint run --enable godox --enable mnd --enable gosec --enable errorlint --enable gofmt --enable unconvert --enable ginkgolinter ./...
 
-.PHONY: fmt
-fmt: ## run `go fmt` on all source files
-	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) -C $(CMD_DIR) fmt
+fmt:
+	go fmt ./...
 
-.PHONY: integrationtest
-integrationtest: bin
+integrationtest: all
 	$(BUILD_ROOT)/scripts/test/integrate
 
-.PHONY: test
-test: unittestlong integrationtest
+test: ginkgotestlong integrationtest
 
-.PHONY: ginkgotest
 ginkgotest:
-	@ulimit -n 100000 && export BUILD_ROOT=$(BUILD_ROOT); ginkgo run --label-filter='!slow' --race --covermode=atomic --output-dir=$(BUILD_ROOT) ./...
+	@ulimit -n 100000 && BUILD_ROOT=$(BUILD_ROOT) GOAMD64=$(GOAMD64) ginkgo run -v --label-filter='!slow' --race --trace --covermode=atomic --coverprofile=$(COVERLOG) ./...
 
-.PHONY: unittest
-unittest:
-	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) -C $(CMD_DIR) unittest
+ginkgotestlong:
+	@ulimit -n 100000 && BUILD_ROOT=$(BUILD_ROOT) GOAMD64=$(GOAMD64) ginkgo run -v --race --trace --covermode=atomic --coverprofile=$(COVERLOG) ./...
 
-.PHONY: unittestlong
-unittestlong:
-	@$(MAKE) BUILD_ROOT=$(BUILD_ROOT) VERSION=$(VERSION) CMD_DIR=$(CMD_DIR) -C $(CMD_DIR) unittestlong
+testcoverage: ginkgotest
+	@$(shell go tool cover -html=$(COVERLOG))
 
-.PHONY: package
-package: bin
-	scripts/package
-
-.PHONY: testcoverage
-testcoverage: unittest
-	@$(shell go tool cover -html=coverage.out)
-
-.PHONY: linecount
 linecount:
-	find . -not \( -path ./vendor -prune \) -type f -iname *.go | xargs wc -l
+	find . -not \( -path ./vendor -prune \) -type f -iname '*.go' | xargs wc -l
 
-.PHONY: install
-install:
-	@scripts/install $(BUILD_ROOT)
-
-debian: bin
+debian: all
 	scripts/package-deb
 
-.PHONY: clean
-clean: ## remove old binaries
-	rm -rf $(BUILD_ROOT)/bin coverage.out quality.log *.deb
-	find $(BUILD_ROOT) -type f -iname coverprofile.out -print | xargs rm -f
+vulns:
+	govulncheck -show verbose ./...
+
+clean:
+	cd cmd/nsddynum; go clean
+	cd cmd/dynupd; go clean
+	cd cmd/dynupd-broker; go clean
+	rm -rf $(COVERLOG) *.deb

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2019, 2020, 2021, 2022, 2023 Alexander Necheff
+   Copyright (C) 2019-2024 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -26,10 +26,10 @@ import (
 	"os"
 	"time"
 
-	"necheff.net/nsddyn/cmd/internal/auth"
-	"necheff.net/nsddyn/cmd/internal/config"
-	"necheff.net/nsddyn/cmd/internal/util"
-	"necheff.net/nsddyn/cmd/internal/version"
+	"necheff.net/nsddyn/internal/auth"
+	"necheff.net/nsddyn/internal/config"
+	"necheff.net/nsddyn/internal/util"
+	"necheff.net/nsddyn/internal/version"
 )
 
 const (
