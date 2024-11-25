@@ -1,29 +1,11 @@
 #!/usr/bin/env bash
 
-set -eu -o pipefail
-
-NSDDYN_SRC="$(dirname $(dirname $(dirname $(realpath $0))))"
-
-UM="$NSDDYN_SRC/bin/nsddynum"
-
-if ! [ -f "$UM" ]; then
-    echo "Did you build nsddyn?"
-    echo "Can't run tests without the build, exiting."
-    exit 1
-fi
-
-WORKDIR=$(mktemp -d)
-
-function cleanup {
-    rm -rf $WORKDIR
-}
-trap cleanup EXIT
+set -e
 
 FAILED_TEST="no"
 
-# we don't want to modify files in version control.
-# work with a copy instead.
-cp ./* $WORKDIR/
+UM=/nsddyn/bin/nsddynum
+WORKDIR=/nsddyn/etc
 
 # Abuse GNU script to get around a problem where the Go terminal.ReadPassword() function
 # tries to use tty control to disable echoing back the "typed" password but since this
@@ -72,6 +54,6 @@ if [ ! -f "$WORKDIR/nonexistent" ]; then
 fi
 
 if [ "$FAILED_TEST" == "no" ]; then
-    echo "All tests passed."
+    echo "All tests passed!"
 fi
 

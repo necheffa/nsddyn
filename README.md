@@ -166,15 +166,18 @@ Notice that the nsddyn server will always return its version number in the respo
 
 ### Running Tests
 
-Before tests can be run for the first time `scripts/test/integrate_setup` needs to be executed to create Docker images.
-Afterwards, all tests can be executed with `make test` and unit test coverage can be viewed with `make testcoverage`.
+There are several test related targets in the Makefile, a `test` target is provided to execute the complete test suite.
 
-Unit tests can be executed individually with `make unittest` while integration tests can be executed individually with
-`make integrationtest`. The `make test` target simply executes both suites.
+Unit tests may be executed with the `ginkgotest` and `ginkgotestlong` targets. The `ginkgotestlong` target is a superset of the
+suite executed by the `ginkgotest` target and is executed by the `test` target.
 
-Most people don't want to install and configure a name server on their laptop, integration testing uses Docker
-to host an NSD instance alongside the development build of nsddyn.
-Since integration testing relies on Docker images, it is a best practice to update images when migrating between major/minor versions of nsddyn.
+Integration and E2E tests are provided through the `integrationtest` target and make use of Podman. The Podman based tests do
+create custom images in the local repository and take advantage of layer caching to reduce wasteful network access. This does mean
+that periodically deleting these images manually may be required as the underlying test platform is updated to ensure an accurate
+representation. The `cleanpodman` target is provided as a conveniance and is not executed by the `clean` target.
+
+The shorter running `ginkgotest` suite is provided to aid in rapid development but there is an expectation that the complete
+suite will be executed via the `test` target just prior to submitting a code change for review.
 
 Where possible, contributions should come with enhancements to the test suite to cover new features and fixes.
 

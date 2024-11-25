@@ -1,0 +1,7 @@
+FROM debian:12-slim
+
+RUN apt-get update && apt-get install -y curl jq bind9-host nsd procps
+RUN nsd-control-setup
+
+ENV NSDDYN_HOME="/nsddyn"
+ENV PATH="$NSDDYN_HOME/bin:$PATH"

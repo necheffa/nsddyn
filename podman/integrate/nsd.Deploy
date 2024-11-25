@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -e
+
+nsd -4 -a 0.0.0.0 -c /nsddyn/etc/nsd.conf &
+/nsddyn/bin/dynupd-broker &
+
+# Keep the container alive until either nsd or dynupd-broker exits.
+while sleep 60; do
+    ps aux | grep nsd | grep -qv grep
+    PID1STAT=$?
+    ps aux | grep dynupd-broker | grep -qv grep
+    PID2STAT=$?
+
+    if [ $PID1STAT -ne 0 ] || [ $PID2STAT -ne 0]; then
+        exit 2
+    fi
+done
+

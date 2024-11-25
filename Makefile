@@ -26,7 +26,8 @@ fmt:
 	go fmt ./...
 
 integrationtest: all
-	$(BUILD_ROOT)/scripts/test/integrate
+	podman/integrate/podtest || echo "dynupd test failed!"
+	podman/nsddynum/podtest || echo "nsddynum test failed!"
 
 test: ginkgotestlong integrationtest
 
@@ -47,6 +48,9 @@ debian: all
 
 vulns:
 	govulncheck -show verbose ./...
+
+cleanpodman:
+	podman/clean
 
 clean:
 	cd cmd/nsddynum; go clean

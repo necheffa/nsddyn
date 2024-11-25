@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+
+set -e
+
+STATUS=0
+RESULTS="Exited early."
+
+BLDDIR="$(dirname "$(dirname "$(dirname "$(realpath $0)")")")"
+PODDIR="$BLDDIR"/podman/nsddynum
+TESTLOG="run.log"
+PODNAME="onebigpod"
+IMGNAME="nsddynumtesting"
+
+VOLNAME="nsddynum_test_volume"
+VOL="$HOME"/.local/share/containers/storage/volumes/"$VOLNAME"/_data
+
+if ! [ -f "$BLDDIR"/cmd/nsddynum/nsddynum ]; then
+    echo "Did you run the build first?"
+    exit 1
+fi
+
+podman volume create "$VOLNAME"
+
+function cleanup {
+    cd "$PODDIR" || exit 1
+    podman pod stop "$PODNAME" || echo "Failed to stop pod..."
+    podman pod rm "$PODNAME" || echo "Failed to remove pod..."
+    podman volume rm --force "$VOLNAME" || echo "Failed to cleanup the volume..."
+
+    echo ""
+    echo "$RESULTS"
+    echo ""
+
+    if [[ $STATUS -gt 0 ]]; then
+        exit $STATUS
+    fi
+}
+
+trap cleanup EXIT
+
+cd "$VOL"
+
+mkdir bin
+cp "$BLDDIR"/cmd/nsddynum/nsddynum bin/
+cp "$PODDIR"/runtest bin/
+cp "$PODDIR"/nsddynum.Deploy bin/
+
+mkdir etc
+cp "$PODDIR"/badperms etc/
+chmod 0744 etc/badperms # Make sure this is world readable for the test conditions.
+
+cd "$PODDIR"
+
+podman image build -t "$IMGNAME" -f Containerfile .
+
+podman pod create --name "$PODNAME" --volume "$VOLNAME":/nsddyn:z
+podman create --pod "$PODNAME" --name nsddynum --workdir /nsddyn "$IMGNAME" /nsddyn/bin/nsddynum.Deploy
+podman pod start "$PODNAME"
+
+podman wait nsddynum
+
+EXPECTED_VAL="All tests passed!"
+RES=$(< "$VOL"/"$TESTLOG")
+RESULTS="$RES"
+
+if [[ $RES != $EXPECTED_VAL ]]; then
+    STATUS=1
+fi
+

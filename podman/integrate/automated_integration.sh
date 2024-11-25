@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-IP=${NSDDYNIP:-172.17.0.3}
-DNSIP=${DNSIP:-172.17.0.2}
+IP=${NSDDYNIP:-dynupd}
+DNSIP=${DNSIP:-nsd}
 PORT=${NSDDYNPORT:-8080}
 
 FAILED_TEST="no"

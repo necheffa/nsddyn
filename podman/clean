@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+podman image rm --force localhost/nsddynumtesting
+podman image rm --force localhost/nsddyntesting
