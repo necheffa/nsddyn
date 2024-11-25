@@ -15,8 +15,14 @@ dynupd-broker:
 
 shellcheck:
 	@shellcheck client/nsddyncc || true
-	@shellcheck scripts/test/automated_integration.sh || true
-	@shellcheck test/nsddynum/run.sh || true
+	@shellcheck podman/integrate/automated_integration.sh || true
+	@shellcheck podman/integrate/nsd.Deploy || true
+	@shellcheck podman/integrate/dynupd.Deploy || true
+	@shellcheck podman/integrate/runtest.Deploy || true
+	@shellcheck podman/integrate/podtest || true
+	@shellcheck podman/nsddynum/runtest || true
+	@shellcheck podman/nsddynum/nsddynum.Deploy || true
+	@shellcheck podman/nsddynum/podtest || true
 
 quality: shellcheck
 	go vet ./... || true
