@@ -1,8 +1,9 @@
 XXXX-YY-ZZ Alexander Necheff <alex@necheff.net>
-    * Set version to 1.2.0-dev2.
+    * Set version to 1.2.0-dev3.
     * Update vendored dependencies.
     * Complete overhaul of build system.
     * Overhaul E2E test system, including migration from Docker to Podman.
+    * Added nsddynd, deprecating dynupd-broker.
 
 2024-04-04 Alexander Necheff <alex@necheff.net>
     * Set version to 1.1.2.

@@ -2,7 +2,7 @@ BUILD_ROOT:=$(CURDIR)
 COVERLOG:="./coverage.out"
 GOAMD64:=v3
 
-all: nsddynum dynupd dynupd-broker
+all: nsddynum dynupd dynupd-broker nsddynd
 
 nsddynum:
 	cd cmd/nsddynum; GOAMD64=$(GOAMD64) go build -buildmode=pie
@@ -12,6 +12,9 @@ dynupd:
 
 dynupd-broker:
 	cd cmd/dynupd-broker; GOAMD64=$(GOAMD64) go build -buildmode=pie
+
+nsddynd:
+	cd cmd/nsddynd; GOAMD64=$(GOAMD64) go build -buildmode=pie
 
 shellcheck:
 	@shellcheck client/nsddyncc || true
@@ -62,4 +65,5 @@ clean:
 	cd cmd/nsddynum; go clean
 	cd cmd/dynupd; go clean
 	cd cmd/dynupd-broker; go clean
+	cd cmd/nsddynd; go clean
 	rm -rf $(COVERLOG) *.deb
