@@ -68,8 +68,9 @@ func NewNsdDynd(config *data.Configuration) *NsdDynd {
 	n.WebRouter.HandleFunc("POST /{$}", n.ZoneUpdateWebHandle)
 	n.WebRouter.HandleFunc("/", n.NotFoundHandle)
 
-	// TODO: add one for each zone in the config
-	n.DnsRouter.HandleFunc("example.com.", n.ZoneUpdateDnsHandle)
+	for _, zone := range n.Config.Zones {
+		n.DnsRouter.HandleFunc(zone.CanonicalName(), n.ZoneUpdateDnsHandle)
+	}
 
 	return n
 }
