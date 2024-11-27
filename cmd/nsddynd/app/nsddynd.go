@@ -130,17 +130,19 @@ func (n *NsdDynd) NotFoundHandle(w http.ResponseWriter, r *http.Request) {
 
 func (n *NsdDynd) ZoneUpdateWebHandle(w http.ResponseWriter, r *http.Request) {
 	// TODO: Send the DNS NOTIFY from here to configured secondaries.
-	// Force the in-memory record cache to upate.
 
 	// TODO: dynupd will POST the zone that is updating, we just need to extract it from the HTTP.
 	// for now, hard code the zone to notify
-	zone := "myzone"
+	name := "myzone"
+
+	zone := n.Config.ZoneByName(name)
+	zone.CacheRecords()
 
 	msg := new(dns.Msg)
-	msg.SetNotify(zone)
+	msg.SetNotify(name)
 	msg.RecursionDesired = false
 
-	key := n.Config.KeyByName(zone)
+	key := n.Config.KeyByName(name)
 	msg.SetTsig(key.CanonicalName(), key.HmacAlgo(), 300, time.Now().Unix())
 
 	// TODO: do for each secondary in the config
@@ -182,8 +184,8 @@ func (n *NsdDynd) ZoneUpdateDnsHandle(w dns.ResponseWriter, r *dns.Msg) {
 		// TODO: does the name even need to be canonicalized?
 		msg.SetTsig(key.CanonicalName(), key.HmacAlgo(), 300, time.Now().Unix())
 
-		// TODO: pull zoneRecords out of an in-memory cache, keyed by domain name assocated with the query.
-		zoneRecords := []dns.RR{}
+		zone := n.Config.ZoneByName(name)
+		zoneRecords := zone.CachedRecords()
 		for _, rec := range zoneRecords {
 			msg.Answer = append(msg.Answer, rec)
 		}

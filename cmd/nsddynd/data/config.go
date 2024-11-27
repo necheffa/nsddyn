@@ -51,6 +51,16 @@ func (c *Configuration) KeyByName(name string) *Key {
 	return nil
 }
 
+func (c *Configuration) ZoneByName(name string) *Zone {
+	for _, zone := range c.Zones {
+		if zone.Name == name {
+			return &zone
+		}
+	}
+
+	return nil
+}
+
 func locateConfig() (string, error) {
 	nsdHome, err := util.FindHome()
 	if err != nil {
