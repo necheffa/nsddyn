@@ -12,11 +12,35 @@ import (
 	"necheff.net/nsddyn/internal/util"
 )
 
+type Key struct {
+	Name   string
+	Algo   string
+	Secret string
+}
+
+type Pattern struct {
+	Name       string
+	NotifyTo   string
+	NotifyFrom string
+	XfrTo      string
+	XfrFrom    string
+	Key        string
+}
+
+type Zone struct {
+	Name    string
+	File    string
+	Pattern string
+}
+
 type Configuration struct {
 	ListenAddrWeb string
 	ListenAddrDns string
 	ExitWait      time.Duration
 	LogLevel      string
+	Keys          []Key
+	Patterns      []Pattern
+	Zones         []Zone
 }
 
 func (c *Configuration) TsigSecrets() map[string]string {
@@ -56,6 +80,11 @@ func NewConfig() (*Configuration, error) {
 	v.SetDefault("ListenAddrDns", "127.0.0.1:5353")
 	v.SetDefault("ExitWait", 15)
 	v.SetDefault("LogLevel", "info")
+
+	err = v.ReadInConfig()
+	if err != nil {
+		return config, err
+	}
 
 	err = v.Unmarshal(config)
 	if err != nil {
