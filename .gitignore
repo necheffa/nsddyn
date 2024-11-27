@@ -3,3 +3,4 @@ coverage.out
 cmd/dynupd-broker/dynupd-broker
 cmd/dynupd/dynupd
 cmd/nsddynum/nsddynum
+cmd/nsddynd/nsddynd
