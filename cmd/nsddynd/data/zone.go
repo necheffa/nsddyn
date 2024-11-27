@@ -5,7 +5,11 @@
 package data
 
 import (
-	"io/ioutil"
+	"bytes"
+	"io"
+	"os"
+
+	"golang.org/x/sys/unix"
 
 	"github.com/bwesterb/go-zonefile"
 	"github.com/miekg/dns"
@@ -24,14 +28,31 @@ func (z *Zone) CanonicalName() string {
 }
 
 func (z *Zone) CacheRecords() error {
-	// TODO: probably should get a file lock on the zone file :-)
 	// TODO: assume an absolute path exists in the Zone.File string for now
-	buf, err := ioutil.ReadFile(z.File)
+	file, err := os.OpenFile(z.File, os.O_RDONLY, 0640)
 	if err != nil {
 		return err
 	}
+	defer file.Close()
 
-	zf, err := zonefile.Load(buf)
+	if err = unix.Flock(int(file.Fd()), unix.LOCK_SH); err != nil {
+		return err
+	}
+
+	defer func() {
+		if err = unix.Flock(int(file.Fd()), unix.LOCK_UN); err != nil {
+			//return err // TODO: need to make sure we are not clobbering an existing error...
+		}
+	}()
+
+	buf := bytes.NewBuffer(nil)
+	_, err = io.Copy(buf, file)
+	if err != nil {
+		// NOTE: may need to add something here to handle EOF.
+		return err
+	}
+
+	zf, err := zonefile.Load(buf.Bytes())
 	if err != nil {
 		return err
 	}
