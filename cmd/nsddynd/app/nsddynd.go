@@ -131,7 +131,29 @@ func (n *NsdDynd) NotFoundHandle(w http.ResponseWriter, r *http.Request) {
 func (n *NsdDynd) ZoneUpdateWebHandle(w http.ResponseWriter, r *http.Request) {
 	// TODO: Send the DNS NOTIFY from here to configured secondaries.
 	// Force the in-memory record cache to upate.
-	// dynupd will POST the zone that is updating, we just need to extract it from the HTTP.
+
+	// TODO: dynupd will POST the zone that is updating, we just need to extract it from the HTTP.
+	// for now, hard code the zone to notify
+	zone := "myzone"
+
+	msg := new(dns.Msg)
+	msg.SetNotify(zone)
+	msg.RecursionDesired = false
+
+	key := n.Config.KeyByName(zone)
+	msg.SetTsig(key.CanonicalName(), key.HmacAlgo(), 300, time.Now().Unix())
+
+	// TODO: do for each secondary in the config
+	res, err := dns.Exchange(msg, "secondary:53")
+	if err != nil {
+		n.sugar.Debugw("Failed to send NOTIFY to secondary", "secondary", "secondary:53", "error", err)
+		return
+	}
+	if res.Rcode != dns.RcodeSuccess {
+		n.sugar.Debugw("NOTIFY to secondary was unsuccessful", "secondary", "secondary:53", "rcode", dns.RcodeToString[res.Rcode])
+		return
+	}
+
 	return
 }
 
