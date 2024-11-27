@@ -93,8 +93,11 @@ func (n *NsdDynd) Run() {
 		}
 	}()
 
+	// TODO: add TsigSecret to this struct
 	dnsServer := &dns.Server{
+		// NOTE: for some reason 5353 doesn't show up in nmap, but dig @localhost -p 5353 foo.example.com +tcp works.
 		Addr:    ":5353",
+		Net:     "tcp",
 		Handler: n.DnsRouter,
 	}
 
