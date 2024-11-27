@@ -19,6 +19,16 @@ type Configuration struct {
 	LogLevel      string
 }
 
+func (c *Configuration) TsigSecrets() map[string]string {
+	// TODO: get these from the config file, base64 encode the secrets in this method.
+	m := make(map[string]string)
+
+	// there is probably a miekg/dns function for canonicalizing the zone names...
+	m["example.com."] = "pretendThisIsABase64Secret"
+
+	return m
+}
+
 func locateConfig() (string, error) {
 	nsdHome, err := util.FindHome()
 	if err != nil {
