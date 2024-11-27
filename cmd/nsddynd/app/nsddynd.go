@@ -9,12 +9,12 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path"
 	"time"
 
+	"github.com/miekg/dns"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-
-	"github.com/miekg/dns"
 
 	"necheff.net/nsddyn/cmd/nsddynd/data"
 )
@@ -129,11 +129,7 @@ func (n *NsdDynd) NotFoundHandle(w http.ResponseWriter, r *http.Request) {
 }
 
 func (n *NsdDynd) ZoneUpdateWebHandle(w http.ResponseWriter, r *http.Request) {
-	// TODO: Send the DNS NOTIFY from here to configured secondaries.
-
-	// TODO: dynupd will POST the zone that is updating, we just need to extract it from the HTTP.
-	// for now, hard code the zone to notify
-	name := "myzone"
+	name := path.Base(r.URL.Path)
 
 	zone := n.Config.ZoneByName(name)
 	zone.CacheRecords()
