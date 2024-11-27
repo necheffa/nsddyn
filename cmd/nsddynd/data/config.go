@@ -30,6 +30,7 @@ type Configuration struct {
 	Keys          []Key
 	Patterns      []Pattern
 	Zones         []Zone
+	Secondaries   []Secondary
 }
 
 func (c *Configuration) TsigSecrets() map[string]string {

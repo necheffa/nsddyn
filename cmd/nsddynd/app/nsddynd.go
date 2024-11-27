@@ -145,15 +145,13 @@ func (n *NsdDynd) ZoneUpdateWebHandle(w http.ResponseWriter, r *http.Request) {
 	key := n.Config.KeyByName(name)
 	msg.SetTsig(key.CanonicalName(), key.HmacAlgo(), 300, time.Now().Unix())
 
-	// TODO: do for each secondary in the config
-	res, err := dns.Exchange(msg, "secondary:53")
-	if err != nil {
-		n.sugar.Debugw("Failed to send NOTIFY to secondary", "secondary", "secondary:53", "error", err)
-		return
-	}
-	if res.Rcode != dns.RcodeSuccess {
-		n.sugar.Debugw("NOTIFY to secondary was unsuccessful", "secondary", "secondary:53", "rcode", dns.RcodeToString[res.Rcode])
-		return
+	for _, sec := range n.Config.Secondaries {
+		res, err := dns.Exchange(msg, sec.Host())
+		if err != nil {
+			n.sugar.Debugw("Failed to send NOTIFY to secondary", "secondary", sec.Host(), "error", err)
+		} else if res.Rcode != dns.RcodeSuccess {
+			n.sugar.Debugw("NOTIFY to secondary was unsuccessful", "secondary", sec.Host(), "rcode", dns.RcodeToString[res.Rcode])
+		}
 	}
 
 	return
