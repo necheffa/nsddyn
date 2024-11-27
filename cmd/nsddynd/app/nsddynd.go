@@ -152,7 +152,8 @@ func (n *NsdDynd) ZoneUpdateDnsHandle(w dns.ResponseWriter, r *dns.Msg) {
 		}
 		// TODO: how to actually sign this message with TSIG?
 		// server_test.go from miekg/dns looks like a potential start.
-		msg.SetTsig("junk.", dns.HmacSHA512, 300, time.Now().Unix())
+		// The key name and HMAC need to come from the config file and we need to look it up based on zone.
+		msg.SetTsig("ProbablyTheKeyName", dns.HmacSHA512, 300, time.Now().Unix())
 
 		// TODO: pull zoneRecords out of an in-memory cache, keyed by domain name assocated with the query.
 		zoneRecords := []dns.RR{}
