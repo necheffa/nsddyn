@@ -7,16 +7,11 @@ package data
 import (
 	"time"
 
+	"github.com/miekg/dns"
 	"github.com/spf13/viper"
 
 	"necheff.net/nsddyn/internal/util"
 )
-
-type Key struct {
-	Name   string
-	Algo   string
-	Secret string
-}
 
 type Pattern struct {
 	Name       string
@@ -44,11 +39,10 @@ type Configuration struct {
 }
 
 func (c *Configuration) TsigSecrets() map[string]string {
-	// TODO: get these from the config file, base64 encode the secrets in this method.
 	m := make(map[string]string)
-
-	// there is probably a miekg/dns function for canonicalizing the zone names...
-	m["example.com."] = "pretendThisIsABase64Secret"
+	for _, k := range c.Keys {
+		m[dns.CanonicalName(k.Name)] = k.Base64()
+	}
 
 	return m
 }
