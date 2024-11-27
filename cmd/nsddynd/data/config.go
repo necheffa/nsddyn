@@ -22,12 +22,6 @@ type Pattern struct {
 	Key        string
 }
 
-type Zone struct {
-	Name    string
-	File    string
-	Pattern string
-}
-
 type Configuration struct {
 	ListenAddrWeb string
 	ListenAddrDns string
@@ -45,6 +39,16 @@ func (c *Configuration) TsigSecrets() map[string]string {
 	}
 
 	return m
+}
+
+func (c *Configuration) KeyByName(name string) *Key {
+	for _, key := range c.Keys {
+		if key.Name == name {
+			return &key
+		}
+	}
+
+	return nil
 }
 
 func locateConfig() (string, error) {
