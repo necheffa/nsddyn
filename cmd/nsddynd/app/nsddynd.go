@@ -65,7 +65,9 @@ func NewNsdDynd(config *data.Configuration) *NsdDynd {
 	n.WebRouter = http.NewServeMux()
 	n.DnsRouter = dns.NewServeMux()
 
-	n.WebRouter.HandleFunc("POST /{$}", n.ZoneUpdateWebHandle)
+	// Only match HOST/example.com anything else is a 404.
+	n.WebRouter.HandleFunc("POST /{zoneName}", n.ZoneUpdateWebHandle)
+	n.WebRouter.HandleFunc("POST /{zoneName}/{somethingElse...}", n.NotFoundHandle)
 	n.WebRouter.HandleFunc("/", n.NotFoundHandle)
 
 	for _, zone := range n.Config.Zones {
@@ -126,11 +128,11 @@ func (n *NsdDynd) Run() {
 }
 
 func (n *NsdDynd) errorWebHandler(w http.ResponseWriter, r *http.Request, code int) {
+	n.sugar.Debugw("Sending HTTP error in response", "status", code, "remote", r.RemoteAddr, "URL", r.URL.Path)
 	w.WriteHeader(code)
 }
 
 func (n *NsdDynd) NotFoundHandle(w http.ResponseWriter, r *http.Request) {
-	n.sugar.Debugw("Sending HTTP 404 in response to incoming zone update request", "remote", r.RemoteAddr, "URL", r.URL.Path)
 	n.errorWebHandler(w, r, http.StatusNotFound)
 }
 
