@@ -153,7 +153,7 @@ func (n *NsdDynd) ZoneUpdateWebHandle(w http.ResponseWriter, r *http.Request) {
 	msg.SetNotify(name)
 	msg.RecursionDesired = false
 
-	key := n.Config.KeyByName(name)
+	key := n.Config.KeyByZone(name)
 	if key == nil {
 		n.sugar.Debugw("No key associated with requeted zone", "zone", name)
 		n.errorWebHandle(w, r, http.StatusInternalServerError)

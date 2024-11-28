@@ -18,6 +18,7 @@ import (
 type Zone struct {
 	Name    string
 	File    string
+	Key     string
 	Pattern string
 
 	cache []dns.RR

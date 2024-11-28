@@ -52,6 +52,15 @@ func (c *Configuration) KeyByName(name string) *Key {
 	return nil
 }
 
+func (c *Configuration) KeyByZone(zone string) *Key {
+	z := c.ZoneByName(zone)
+	if z == nil {
+		return nil
+	}
+
+	return c.KeyByName(z.Key)
+}
+
 func (c *Configuration) ZoneByName(name string) *Zone {
 	for _, zone := range c.Zones {
 		if zone.Name == name {
