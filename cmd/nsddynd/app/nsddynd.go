@@ -103,6 +103,7 @@ func (n *NsdDynd) Run() {
 
 	secrets := n.Config.TsigSecrets()
 	n.sugar.Debugw("Registering TSIG secrets", "secrets", secrets)
+	n.sugar.Debugw("Registering zones", "zones", n.Config.Zones)
 
 	dnsServer := &dns.Server{
 		Addr:       defaultDnsListen,
@@ -205,7 +206,11 @@ func (n *NsdDynd) ZoneUpdateDnsHandle(w dns.ResponseWriter, r *dns.Msg) {
 
 		// TODO: the name may be compressed, will need to look in to how to decompress.
 		name := r.Question[0].Name
-		key := n.Config.KeyByName(name)
+		key := n.Config.KeyByZone(name)
+		if key == nil {
+			n.sugar.Debugw("Failed to look up key by zone name", "zoneName", name)
+			return
+		}
 		msg.SetTsig(key.Name, key.HmacAlgo(), 300, time.Now().Unix())
 
 		zone := n.Config.ZoneByName(name)
