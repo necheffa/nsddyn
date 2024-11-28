@@ -151,7 +151,11 @@ func (n *NsdDynd) ZoneUpdateWebHandle(w http.ResponseWriter, r *http.Request) {
 		n.NotFoundHandle(w, r)
 		return
 	}
-	zone.CacheRecords()
+	err := zone.CacheRecords()
+	if err != nil {
+		n.sugar.Debugw("Failed to cache records for zone", "zone", zone.Name, "error", err)
+		return
+	}
 
 	msg := new(dns.Msg)
 	msg.SetNotify(zone.CanonicalName())
@@ -196,11 +200,15 @@ func (n *NsdDynd) ZoneUpdateDnsHandle(w dns.ResponseWriter, r *dns.Msg) {
 		msg.Authoritative = true
 		status := w.TsigStatus()
 		if status != nil {
-			n.sugar.Debugw("TSIG invalid status", "status", status)
-			return
+			if w.TsigStatus() == nil {
+				// TSIG is validated, good to go
+			} else {
+				n.sugar.Debugw("TSIG invalid status", "status", status)
+				return
+			}
 		}
 
-		n.sugar.Debugw("AXFR message for key", "key", r.Question[0].Name)
+		n.sugar.Debugw("AXFR message for zone", "zone", r.Question[0].Name)
 
 		// TODO: look up the patterns and see if this host is even permitted to request AXFR from us.
 
@@ -214,7 +222,10 @@ func (n *NsdDynd) ZoneUpdateDnsHandle(w dns.ResponseWriter, r *dns.Msg) {
 		msg.SetTsig(key.Name, key.HmacAlgo(), 300, time.Now().Unix())
 
 		zone := n.Config.ZoneByName(name)
+		// TODO: the cache is broken so read the zone file every time for now
+		zone.CacheRecords()
 		zoneRecords := zone.CachedRecords()
+		n.sugar.Debugw("Prepairing to send records", "records", zoneRecords)
 		for _, rec := range zoneRecords {
 			msg.Answer = append(msg.Answer, rec)
 		}
