@@ -4,11 +4,11 @@ LogLevel = "debug"
 Name = "127.0.0.1:53"
 
 [[Keys]]
-Name = "thexfrkey"
+Name = "thexfrkey."
 Algo = "hmac-sha512"
 Secret = "passwordpasswordpassword"
 
 [[Zones]]
 Name = "example.com"
-Key = "thexfrkey"
+Key = "thexfrkey."
 File = "/nsddyn/etc/example.com.zone"
