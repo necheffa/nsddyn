@@ -6,8 +6,10 @@ package data
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"os"
+	"slices"
 
 	"golang.org/x/sys/unix"
 
@@ -60,13 +62,17 @@ func (z *Zone) CacheRecords() error {
 
 	// TODO: probably delete the old cache first
 	for _, e := range zf.Entries() {
-		rr, err := dns.NewRR(e.String())
+		rr, err := dns.NewRR(convertToString(e))
 		if err != nil {
 			// TODO: don't just bail on error here.
 			// may need to work on a copy of the cache first so we can revert back if an error occurs.
-			return err
+			return fmt.Errorf("zone: %s: type: %s: %w", e.String(), string(e.Type()), err)
 		}
-		z.cache = append(z.cache, rr)
+		if bytes.Equal(e.Type(), []byte("SOA")) {
+			z.cache = slices.Insert(z.cache, 0, rr)
+		} else {
+			z.cache = append(z.cache, rr)
+		}
 	}
 
 	return nil
@@ -74,4 +80,33 @@ func (z *Zone) CacheRecords() error {
 
 func (z *Zone) CachedRecords() []dns.RR {
 	return z.cache
+}
+
+func convertToString(e zonefile.Entry) string {
+	// TODO: use a string builder or some shit here to be more efficient.
+	// TODO: deal with the TTL, I don't need it right this second and bwesterb is gonna make me convert a *int to string...
+	if bytes.Equal(e.Command(), []byte("$ORIGIN")) {
+		s := "$ORIGIN "
+		for _, val := range e.Values() {
+			s = s + string(val) + " "
+		}
+
+		return s
+	}
+
+	if bytes.Equal(e.Command(), []byte("$TTL")) {
+		s := "$TTL "
+		for _, val := range e.Values() {
+			s = s + string(val) + " "
+		}
+
+		return s
+	}
+
+	s := string(e.Domain()) + " " + string(e.Class()) + " " + string(e.Type()) + " "
+	for _, val := range e.Values() {
+		s = s + string(val) + " "
+	}
+
+	return s
 }
