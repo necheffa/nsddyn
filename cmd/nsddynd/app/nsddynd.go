@@ -142,6 +142,11 @@ func (n *NsdDynd) ZoneUpdateWebHandle(w http.ResponseWriter, r *http.Request) {
 	n.sugar.Debugw("Got a zone update request for", "zone", name)
 
 	zone := n.Config.ZoneByName(name)
+	if zone == nil {
+		n.sugar.Debugw("Requested zone not located in managed zones", "zone", name)
+		n.NotFoundHandle(w, r)
+		return
+	}
 	zone.CacheRecords()
 
 	msg := new(dns.Msg)
