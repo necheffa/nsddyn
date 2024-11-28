@@ -67,8 +67,8 @@ podman network create "$NETNAME"
 
 podman pod create --name "$PODNAME" --volume "$VOLNAME":/nsddyn:z --network "$NETNAME"
 podman create --pod "$PODNAME" --name nsddynd --workdir /nsddyn "$IMGNAME" /nsddyn/bin/nsddynd.Deploy
-podman create --pod "$PODNAME" --name nsd --workdir /nsddyn "$IMGNAME" /nsddyn/bin/nsd.Deploy
-podman create --pod "$PODNAME" --name runtest --workdir /nsddyn "$IMGNAME" /nsddyn/bin/runtest.Deploy
+podman create --pod "$PODNAME" --name nsd --requires nsddynd --workdir /nsddyn "$IMGNAME" /nsddyn/bin/nsd.Deploy
+podman create --pod "$PODNAME" --name runtest --requires nsd --workdir /nsddyn "$IMGNAME" /nsddyn/bin/runtest.Deploy
 podman pod start "$PODNAME"
 
 podman wait runtest
