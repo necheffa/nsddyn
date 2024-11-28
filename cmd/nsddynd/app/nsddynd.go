@@ -159,7 +159,7 @@ func (n *NsdDynd) ZoneUpdateWebHandle(w http.ResponseWriter, r *http.Request) {
 		n.errorWebHandle(w, r, http.StatusInternalServerError)
 		return
 	}
-	msg.SetTsig(key.CanonicalName(), key.HmacAlgo(), 300, time.Now().Unix())
+	msg.SetTsig(key.Name, key.HmacAlgo(), 300, time.Now().Unix())
 
 	for _, sec := range n.Config.Secondaries {
 		res, err := dns.Exchange(msg, sec.Host())
@@ -195,8 +195,7 @@ func (n *NsdDynd) ZoneUpdateDnsHandle(w dns.ResponseWriter, r *dns.Msg) {
 		// TODO: the name may be compressed, will need to look in to how to decompress.
 		name := r.Question[0].Name
 		key := n.Config.KeyByName(name)
-		// TODO: does the name even need to be canonicalized?
-		msg.SetTsig(key.CanonicalName(), key.HmacAlgo(), 300, time.Now().Unix())
+		msg.SetTsig(key.Name, key.HmacAlgo(), 300, time.Now().Unix())
 
 		zone := n.Config.ZoneByName(name)
 		zoneRecords := zone.CachedRecords()

@@ -7,7 +7,6 @@ package data
 import (
 	"time"
 
-	"github.com/miekg/dns"
 	"github.com/spf13/viper"
 
 	"necheff.net/nsddyn/internal/util"
@@ -36,7 +35,7 @@ type Configuration struct {
 func (c *Configuration) TsigSecrets() map[string]string {
 	m := make(map[string]string)
 	for _, k := range c.Keys {
-		m[dns.CanonicalName(k.Name)] = k.Base64()
+		m[k.Name] = k.Base64()
 	}
 
 	return m

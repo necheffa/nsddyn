@@ -6,8 +6,6 @@ package data
 
 import (
 	"encoding/base64"
-
-	"github.com/miekg/dns"
 )
 
 type Key struct {
@@ -22,8 +20,4 @@ func (k *Key) Base64() string {
 
 func (k *Key) HmacAlgo() string {
 	return k.Algo + "."
-}
-
-func (k *Key) CanonicalName() string {
-	return dns.CanonicalName(k.Name)
 }
