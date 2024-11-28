@@ -80,8 +80,12 @@ func (n *NsdDynd) Run() {
 	writeTimeout := 10 * time.Second
 	idleTimeout := 120 * time.Second
 
+	defaultWebListen := ":8080"
+	// NOTE: for some reason 5353 doesn't show up in nmap, but dig @localhost -p 5353 foo.example.com +tcp works.
+	defaultDnsListen := ":5353"
+
 	webServer := &http.Server{
-		Addr:         ":8080",
+		Addr:         defaultWebListen,
 		Handler:      n.WebRouter,
 		ReadTimeout:  readTimeout,
 		WriteTimeout: writeTimeout,
@@ -89,20 +93,21 @@ func (n *NsdDynd) Run() {
 	}
 
 	go func() {
+		n.sugar.Debugw("starting up nsddynd web server", "address", defaultWebListen)
 		if err := webServer.ListenAndServe(); err != nil {
 			n.sugar.Debugw("nsddynd web server exited on error", "error", err)
 		}
 	}()
 
 	dnsServer := &dns.Server{
-		// NOTE: for some reason 5353 doesn't show up in nmap, but dig @localhost -p 5353 foo.example.com +tcp works.
-		Addr:       ":5353",
+		Addr:       defaultDnsListen,
 		Net:        "tcp",
 		Handler:    n.DnsRouter,
 		TsigSecret: n.Config.TsigSecrets(),
 	}
 
 	go func() {
+		n.sugar.Debugw("starting up nsddynd dns server", "address", defaultDnsListen)
 		if err := dnsServer.ListenAndServe(); err != nil {
 			n.sugar.Debugw("nsddyn dns server exited on error", "error", err)
 		}
@@ -125,11 +130,14 @@ func (n *NsdDynd) errorWebHandler(w http.ResponseWriter, r *http.Request, code i
 }
 
 func (n *NsdDynd) NotFoundHandle(w http.ResponseWriter, r *http.Request) {
+	n.sugar.Debugw("Sending HTTP 404 in response to incoming zone update request", "remote", r.RemoteAddr, "URL", r.URL.Path)
 	n.errorWebHandler(w, r, http.StatusNotFound)
 }
 
 func (n *NsdDynd) ZoneUpdateWebHandle(w http.ResponseWriter, r *http.Request) {
 	name := path.Base(r.URL.Path)
+
+	n.sugar.Debugw("Got a zone update request for", "zone", name)
 
 	zone := n.Config.ZoneByName(name)
 	zone.CacheRecords()
