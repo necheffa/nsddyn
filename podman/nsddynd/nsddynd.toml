@@ -9,6 +9,6 @@ Algo = "hmac-sha512"
 Secret = "passwordpasswordpassword"
 
 [[Zones]]
-Name = "example.com"
+Name = "example.com."
 Key = "thexfrkey."
 File = "/nsddyn/etc/example.com.zone"

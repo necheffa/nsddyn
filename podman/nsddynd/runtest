@@ -3,7 +3,11 @@
 # Simulate a zone update via dynupd.
 sed -i 's/2020062800/2020062801/g' /nsddyn/etc/example.com.zone
 echo "test  IN A 192.0.2.99" >> /nsddyn/etc/example.com.zone
-curl -s -X POST http://nsddynd:8080/example.com
+curl -s -X POST http://nsddynd:8080/example.com.
+
+dig test.example.com @nsd
+cat /nsddyn/etc/example.com.zone
+dig example.com ANY @nsd
 
 RETADDR=$(host test.example.com nsd | grep host1 | head -1 | awk '{print $4}')
 if [[ "$RETADDR" != "192.0.2.99" ]]; then
