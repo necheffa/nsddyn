@@ -2,4 +2,4 @@
 
 set -e
 
-nsd -4 -a 0.0.0.0 -c /nsddyn/etc/nsd.conf -d
+nsd -4 -a 0.0.0.0 -c /nsddyn/etc/nsd.conf -d -V debug > /nsddyn/nsd.stdout 2>&1
