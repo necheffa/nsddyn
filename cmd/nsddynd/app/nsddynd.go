@@ -181,9 +181,9 @@ func (n *NsdDynd) ZoneUpdateWebHandle(w http.ResponseWriter, r *http.Request) {
 }
 
 func (n *NsdDynd) ZoneUpdateDnsHandle(w dns.ResponseWriter, r *dns.Msg) {
-	n.sugar.Debugw("Receving DNS message...")
-	// We only support AXFR.
-	if r.Opcode == dns.OpcodeQuery && r.Question[0].Qtype == dns.TypeAXFR {
+	n.sugar.Debugw("Receving DNS message...", "opcode", r.Opcode, "questionType", r.Question[0].Qtype, "name", r.Question[0].Name)
+	// We only support AXFR, RFC says we can reply to IXFR with AXFR instead.
+	if r.Opcode == dns.OpcodeQuery && r.Question[0].Qtype == dns.TypeAXFR || r.Question[0].Qtype == dns.TypeIXFR {
 		n.sugar.Debugw("Receving an AXFR DNS message...")
 		if r.IsTsig() == nil {
 			n.sugar.Debugw("TSIG verification failed")
