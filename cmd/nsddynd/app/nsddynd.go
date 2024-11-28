@@ -164,7 +164,7 @@ func (n *NsdDynd) ZoneUpdateWebHandle(w http.ResponseWriter, r *http.Request) {
 	for _, sec := range n.Config.Secondaries {
 		res, err := dns.Exchange(msg, sec.Host())
 		if err != nil {
-			n.sugar.Debugw("Failed to send NOTIFY to secondary", "secondary", sec.Host(), "error", err)
+			n.sugar.Debugw("Failed to send NOTIFY to secondary", "secondary", sec.Host(), "zone", zone.Name, "key", key.Name, "error", err)
 		} else if res.Rcode != dns.RcodeSuccess {
 			n.sugar.Debugw("NOTIFY to secondary was unsuccessful", "secondary", sec.Host(), "rcode", dns.RcodeToString[res.Rcode])
 		}
@@ -191,6 +191,8 @@ func (n *NsdDynd) ZoneUpdateDnsHandle(w dns.ResponseWriter, r *dns.Msg) {
 			n.sugar.Debugw("TSIG invalid status", "status", status)
 			return
 		}
+
+		n.sugar.Debugw("AXFR message for key", "key", r.Question[0].Name)
 
 		// TODO: look up the patterns and see if this host is even permitted to request AXFR from us.
 
