@@ -101,11 +101,14 @@ func (n *NsdDynd) Run() {
 		}
 	}()
 
+	secrets := n.Config.TsigSecrets()
+	n.sugar.Debugw("Registering TSIG secrets", "secrets", secrets)
+
 	dnsServer := &dns.Server{
 		Addr:       defaultDnsListen,
 		Net:        "tcp",
 		Handler:    n.DnsRouter,
-		TsigSecret: n.Config.TsigSecrets(),
+		TsigSecret: secrets,
 	}
 
 	go func() {
@@ -161,8 +164,12 @@ func (n *NsdDynd) ZoneUpdateWebHandle(w http.ResponseWriter, r *http.Request) {
 	}
 	msg.SetTsig(key.Name, key.HmacAlgo(), 300, time.Now().Unix())
 
+	client := &dns.Client{
+		TsigSecret: n.Config.TsigSecrets(),
+	}
+
 	for _, sec := range n.Config.Secondaries {
-		res, err := dns.Exchange(msg, sec.Host())
+		res, _, err := client.Exchange(msg, sec.Host())
 		if err != nil {
 			n.sugar.Debugw("Failed to send NOTIFY to secondary", "secondary", sec.Host(), "zone", zone.Name, "key", key.Name, "error", err)
 		} else if res.Rcode != dns.RcodeSuccess {
