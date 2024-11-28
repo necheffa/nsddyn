@@ -150,7 +150,7 @@ func (n *NsdDynd) ZoneUpdateWebHandle(w http.ResponseWriter, r *http.Request) {
 	zone.CacheRecords()
 
 	msg := new(dns.Msg)
-	msg.SetNotify(name)
+	msg.SetNotify(zone.CanonicalName())
 	msg.RecursionDesired = false
 
 	key := n.Config.KeyByZone(name)

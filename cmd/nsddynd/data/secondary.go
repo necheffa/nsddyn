@@ -10,5 +10,6 @@ type Secondary struct {
 
 func (s *Secondary) Host() string {
 	// TODO: may need to do some footwork here if I choose to support @port syntax in the config file.
+	// TODO: add support for a default port if none is specified, the required return format should be "host:port"
 	return s.Name
 }
