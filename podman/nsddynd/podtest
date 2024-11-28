@@ -32,6 +32,10 @@ function cleanup {
     echo ""
     echo "$RESULTS"
     echo ""
+    echo "nsddynd log contents:"
+    echo "$NSDDYNDLOG"
+    echo "end of nsddynd log contents"
+    echo ""
 
     if [[ $STATUS -gt 0 ]]; then
         exit $STATUS
@@ -72,6 +76,8 @@ podman wait runtest
 EXPECTED_VAL="All tests passed!"
 RES=$(< "$VOL"/"$TESTLOG")
 RESULTS="$RES"
+
+NSDDYNDLOG=$(< "$VOL"/nsddynd.log)
 
 if [[ $RES != $EXPECTED_VAL ]]; then
     STATUS=1

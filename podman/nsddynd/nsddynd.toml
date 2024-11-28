@@ -1,3 +1,5 @@
+LogLevel = "debug"
+
 [[Secondaries]]
 Name = "nsd"
 
