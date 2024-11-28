@@ -127,13 +127,13 @@ func (n *NsdDynd) Run() {
 	os.Exit(0)
 }
 
-func (n *NsdDynd) errorWebHandler(w http.ResponseWriter, r *http.Request, code int) {
+func (n *NsdDynd) errorWebHandle(w http.ResponseWriter, r *http.Request, code int) {
 	n.sugar.Debugw("Sending HTTP error in response", "status", code, "remote", r.RemoteAddr, "URL", r.URL.Path)
 	w.WriteHeader(code)
 }
 
 func (n *NsdDynd) NotFoundHandle(w http.ResponseWriter, r *http.Request) {
-	n.errorWebHandler(w, r, http.StatusNotFound)
+	n.errorWebHandle(w, r, http.StatusNotFound)
 }
 
 func (n *NsdDynd) ZoneUpdateWebHandle(w http.ResponseWriter, r *http.Request) {
@@ -154,6 +154,11 @@ func (n *NsdDynd) ZoneUpdateWebHandle(w http.ResponseWriter, r *http.Request) {
 	msg.RecursionDesired = false
 
 	key := n.Config.KeyByName(name)
+	if key == nil {
+		n.sugar.Debugw("No key associated with requeted zone", "zone", name)
+		n.errorWebHandle(w, r, http.StatusInternalServerError)
+		return
+	}
 	msg.SetTsig(key.CanonicalName(), key.HmacAlgo(), 300, time.Now().Unix())
 
 	for _, sec := range n.Config.Secondaries {
