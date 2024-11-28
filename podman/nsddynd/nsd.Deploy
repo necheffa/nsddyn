@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+set -e
+
+nsd -4 -a 0.0.0.0 -c /nsddyn/etc/nsd.conf -d

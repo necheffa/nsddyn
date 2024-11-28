@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+
+set -e
+
+STATUS=0
+RESULTS="Exited early."
+
+BLDDIR="$(dirname "$(dirname "$(dirname "$(realpath $0)")")")"
+PODDIR="$BLDDIR"/podman/nsddynd
+TESTLOG="run.log"
+PODNAME="onebigpod"
+NETNAME="onebignet"
+IMGNAME="nsddyntesting"
+
+VOLNAME="nsddyn_test_volume"
+VOL="$HOME"/.local/share/containers/storage/volumes/"$VOLNAME"/_data
+
+if ! [ -f "$BLDDIR"/cmd/nsddynd/nsddynd ]; then
+    echo "Did you run the build first?"
+    exit 1
+fi
+
+podman volume create "$VOLNAME"
+
+function cleanup {
+    cd "$PODDIR" || exit 1
+    podman pod stop "$PODNAME" || echo "Failed to stop pod..."
+    podman pod rm "$PODNAME" || echo "Failed to remove pod..."
+    podman volume rm --force "$VOLNAME" || echo "Failed to cleanup the volume..."
+    podman network rm --force "$NETNAME" || echo "Failed to cleanup the network..."
+
+    echo ""
+    echo "$RESULTS"
+    echo ""
+
+    if [[ $STATUS -gt 0 ]]; then
+        exit $STATUS
+    fi
+}
+
+trap cleanup EXIT
+
+cd "$VOL"
+
+mkdir bin
+cp "$BLDDIR"/cmd/nsddynd/nsddynd bin/
+cp "$PODDIR"/nsddynd.Deploy bin/
+cp "$PODDIR"/nsd.Deploy bin/
+cp "$PODDIR"/runtest bin/
+cp "$PODDIR"/runtest.Deploy bin/
+
+mkdir etc
+cp "$PODDIR"/example.com.zone etc/
+cp "$PODDIR"/nsddynd.toml etc/
+cp "$PODDIR"/nsd.conf etc/
+chmod 0755 etc # need to let NSD read this dir for the zone file
+
+cd "$PODDIR"
+
+podman image build -t "$IMGNAME" -f Containerfile .
+
+podman network create "$NETNAME"
+
+podman pod create --name "$PODNAME" --volume "$VOLNAME":/nsddyn:z --network "$NETNAME"
+podman create --pod "$PODNAME" --name nsddynd --workdir /nsddyn "$IMGNAME" /nsddyn/bin/nsddynd.Deploy
+podman create --pod "$PODNAME" --name nsd --workdir /nsddyn "$IMGNAME" /nsddyn/bin/nsd.Deploy
+podman create --pod "$PODNAME" --name runtest --workdir /nsddyn "$IMGNAME" /nsddyn/bin/runtest.Deploy
+podman pod start "$PODNAME"
+
+podman wait runtest
+
+EXPECTED_VAL="All tests passed!"
+RES=$(< "$VOL"/"$TESTLOG")
+RESULTS="$RES"
+
+if [[ $RES != $EXPECTED_VAL ]]; then
+    STATUS=1
+fi
+

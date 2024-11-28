@@ -1,0 +1,11 @@
+[[Secondaries]]
+Name = "nsd"
+
+[[Keys]]
+Name = "thexfrkey"
+Algo = "hmac-sha512"
+Secret = "passwordpasswordpassword"
+
+[[Zones]]
+Name = "example.com."
+File = "/nsddyn/etc/example.com.zone"

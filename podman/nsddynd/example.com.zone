@@ -1,0 +1,14 @@
+$ORIGIN example.com.
+$TTL 1800
+@   IN  SOA ns0.example.com. admin.example.com. (
+    2020062800
+    3600
+    900
+    1209600
+    1800
+    )
+
+IN  NS  ns0.example.com.
+
+; 192.0.2.0/24 is reserved for documentation and examples by the IETF
+ns0 IN  A   192.0.2.1

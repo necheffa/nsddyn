@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# Simulate a zone update via dynupd.
+sed -i 's/2020062800/2020062801/g' /nsddyn/etc/example.com.zone
+echo "test  IN A 192.0.2.99" >> /nsddyn/etc/example.com.zone
+curl -s -X POST http://nsddynd:8080/example.com
+
+RETADDR=$(host test.example.com nsd | grep host1 | head -1 | awk '{print $4}')
+if [[ "$RETADDR" != "192.0.2.99" ]]; then
+    echo "Test of good update request failed."
+    echo "Expected 192.0.2.99 but got: $RETADDR"
+    exit 1
+fi
+
+echo "All tests passed!"
+

@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+set -e
+
+BROKERURI="http://nsd:8081/api/dynupd-broker"
+/nsddyn/bin/dynupd -d -a 0.0.0.0:8080 -n example.com -z /nsddyn/etc/example.com.zone -b $BROKERURI
