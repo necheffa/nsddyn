@@ -1,7 +1,7 @@
 LogLevel = "debug"
 
 [[Secondaries]]
-Name = "nsd"
+Name = "127.0.0.1:53"
 
 [[Keys]]
 Name = "thexfrkey"
@@ -10,4 +10,5 @@ Secret = "passwordpasswordpassword"
 
 [[Zones]]
 Name = "example.com"
+Key = "thexfrkey"
 File = "/nsddyn/etc/example.com.zone"
