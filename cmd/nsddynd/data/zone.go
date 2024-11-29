@@ -61,7 +61,11 @@ func (z *Zone) CacheRecords() error {
 	}
 
 	// TODO: probably delete the old cache first
+	var soa dns.RR
 	for _, e := range zf.Entries() {
+		if bytes.Equal(e.Command(), []byte("$ORIGIN")) || bytes.Equal(e.Command(), []byte("$TTL")) {
+			continue
+		}
 		rr, err := dns.NewRR(convertToString(e))
 		if err != nil {
 			// TODO: don't just bail on error here.
@@ -70,12 +74,24 @@ func (z *Zone) CacheRecords() error {
 		}
 		if bytes.Equal(e.Type(), []byte("SOA")) {
 			z.cache = slices.Insert(z.cache, 0, rr)
+			soa = rr
 		} else {
 			z.cache = append(z.cache, rr)
 		}
 	}
 
+	// The envelope appears to also want the SOA record duplicated at the end.
+	z.cache = append(z.cache, soa)
+
 	return nil
+}
+
+func (z *Zone) Envelope() (error, []dns.RR) {
+	err := z.CacheRecords()
+	if err != nil {
+		return err, []dns.RR{}
+	}
+	return nil, z.cache
 }
 
 func (z *Zone) CachedRecords() []dns.RR {
@@ -103,7 +119,8 @@ func convertToString(e zonefile.Entry) string {
 		return s
 	}
 
-	s := string(e.Domain()) + " " + string(e.Class()) + " " + string(e.Type()) + " "
+	// TODO: fudge a TTL of 2
+	s := string(e.Domain()) + " 2 " + string(e.Class()) + " " + string(e.Type()) + " "
 	for _, val := range e.Values() {
 		s = s + string(val) + " "
 	}

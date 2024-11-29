@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/signal"
 	"path"
+	"sync"
 	"time"
 
 	"github.com/miekg/dns"
@@ -189,47 +190,29 @@ func (n *NsdDynd) ZoneUpdateDnsHandle(w dns.ResponseWriter, r *dns.Msg) {
 	n.sugar.Debugw("Receving DNS message...", "opcode", r.Opcode, "questionType", r.Question[0].Qtype, "name", r.Question[0].Name)
 	// We only support AXFR, RFC says we can reply to IXFR with AXFR instead.
 	if r.Opcode == dns.OpcodeQuery && r.Question[0].Qtype == dns.TypeAXFR || r.Question[0].Qtype == dns.TypeIXFR {
-		n.sugar.Debugw("Receving an AXFR DNS message...")
-		if r.IsTsig() == nil {
-			n.sugar.Debugw("TSIG verification failed")
-			return
-		}
-
-		msg := new(dns.Msg)
-		msg.SetReply(r)
-		msg.Authoritative = true
-		status := w.TsigStatus()
-		if status != nil {
-			if w.TsigStatus() == nil {
-				// TSIG is validated, good to go
-			} else {
-				n.sugar.Debugw("TSIG invalid status", "status", status)
-				return
-			}
-		}
-
-		n.sugar.Debugw("AXFR message for zone", "zone", r.Question[0].Name)
-
-		// TODO: look up the patterns and see if this host is even permitted to request AXFR from us.
-
 		// TODO: the name may be compressed, will need to look in to how to decompress.
 		name := r.Question[0].Name
-		key := n.Config.KeyByZone(name)
-		if key == nil {
-			n.sugar.Debugw("Failed to look up key by zone name", "zoneName", name)
+		n.sugar.Debugw("AXFR message for zone", "zone", name)
+		zone := n.Config.ZoneByName(name)
+
+		ch := make(chan *dns.Envelope)
+		tr := new(dns.Transfer)
+		var wg sync.WaitGroup
+		wg.Add(1)
+		go func() {
+			tr.Out(w, r, ch)
+			wg.Done()
+		}()
+
+		err, envelope := zone.Envelope()
+		if err != nil {
+			n.sugar.Debugw("Error generating envelope", "zone", name, "error", err)
+			w.Close()
 			return
 		}
-		msg.SetTsig(key.Name, key.HmacAlgo(), 300, time.Now().Unix())
 
-		zone := n.Config.ZoneByName(name)
-		// TODO: the cache is broken so read the zone file every time for now
-		zone.CacheRecords()
-		zoneRecords := zone.CachedRecords()
-		n.sugar.Debugw("Prepairing to send records", "records", zoneRecords)
-		for _, rec := range zoneRecords {
-			msg.Answer = append(msg.Answer, rec)
-		}
-
-		w.WriteMsg(msg)
+		ch <- &dns.Envelope{RR: envelope}
+		wg.Wait()
+		w.Close()
 	}
 }
