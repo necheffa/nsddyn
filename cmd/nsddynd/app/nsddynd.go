@@ -196,7 +196,9 @@ func (n *NsdDynd) ZoneUpdateDnsHandle(w dns.ResponseWriter, r *dns.Msg) {
 		zone := n.Config.ZoneByName(name)
 
 		ch := make(chan *dns.Envelope)
-		tr := new(dns.Transfer)
+		tr := &dns.Transfer{
+			TsigSecret: n.Config.TsigSecrets(),
+		}
 		var wg sync.WaitGroup
 		wg.Add(1)
 		go func() {
