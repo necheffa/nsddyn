@@ -1,11 +1,11 @@
 $ORIGIN example.com.
-$TTL 1800
+$TTL 3
 @   IN  SOA ns0.example.com. admin.example.com. (
     2020062800
-    3600
-    900
+    4
+    3
     1209600
-    1800
+    2
     )
 
 IN  NS  ns0.example.com.
