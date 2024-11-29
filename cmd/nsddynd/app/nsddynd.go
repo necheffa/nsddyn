@@ -114,9 +114,23 @@ func (n *NsdDynd) Run() {
 	}
 
 	go func() {
-		n.sugar.Debugw("starting up nsddynd dns server", "address", defaultDnsListen)
+		n.sugar.Debugw("starting up nsddynd TCP dns server", "address", defaultDnsListen)
 		if err := dnsServer.ListenAndServe(); err != nil {
-			n.sugar.Debugw("nsddyn dns server exited on error", "error", err)
+			n.sugar.Debugw("nsddyn TCP dns server exited on error", "error", err)
+		}
+	}()
+
+	dnsUdpServer := &dns.Server{
+		Addr:       defaultDnsListen,
+		Net:        "udp",
+		Handler:    n.DnsRouter,
+		TsigSecret: secrets,
+	}
+
+	go func() {
+		n.sugar.Debugw("starting up nsddynd UDP dns server", "address", defaultDnsListen)
+		if err := dnsUdpServer.ListenAndServe(); err != nil {
+			n.sugar.Debugw("nsddyn UDP dns server exited on error", "error", err)
 		}
 	}()
 
@@ -202,7 +216,10 @@ func (n *NsdDynd) ZoneUpdateDnsHandle(w dns.ResponseWriter, r *dns.Msg) {
 		var wg sync.WaitGroup
 		wg.Add(1)
 		go func() {
-			tr.Out(w, r, ch)
+			err := tr.Out(w, r, ch)
+			if err != nil {
+				n.sugar.Debugw("Error sending XFR out", "zone", name, "error", err)
+			}
 			wg.Done()
 		}()
 
