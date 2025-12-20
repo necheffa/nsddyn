@@ -1,8 +1,9 @@
 XXXX-YY-ZZ Alexander Necheff <alex@necheff.net>
-    * Set version to 1.2.0-dev3.
+    * Set version to 1.2.0-dev4.
     * Update vendored dependencies.
     * Complete overhaul of build system.
     * Overhaul E2E test system, including migration from Docker to Podman.
+    * Correct bad printf format statements.
 
 2024-04-04 Alexander Necheff <alex@necheff.net>
     * Set version to 1.1.2.
