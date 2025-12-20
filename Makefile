@@ -1,5 +1,5 @@
 BUILD_ROOT:=$(CURDIR)
-COVERLOG:="./coverage.out"
+COVERLOG:="coverage.out"
 GOAMD64:=v3
 
 all: nsddynum dynupd dynupd-broker
