@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2020-2022, 2024 Alexander Necheff
+   Copyright (C) 2020-2022, 2024-2025 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -229,7 +229,7 @@ func (d *DynUpd) UpdateZone(r dynreq.DynReq) string {
 
 	_, err = http.Post(d.brokerUrl, "text/plain", strings.NewReader(nsddynHome))
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "dynupd: error: broker call failed, error was: "+err.Error())
+		fmt.Fprintf(os.Stderr, "dynupd: error: broker call failed, error was: %s", err.Error())
 		return zoneUpdateFail
 	}
 	// SEE: https://gitlab.com/necheffa/nsddyn/-/issues/102
@@ -303,7 +303,7 @@ func (d *DynUpd) DynUpdHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if config.Debug {
-			fmt.Fprintf(os.Stderr, "authentication successful, updating: "+d.zoneFile+"\n")
+			fmt.Fprintf(os.Stderr, "authentication successful, updating: %s\n", d.zoneFile)
 		}
 
 		status := d.UpdateZone(msg)

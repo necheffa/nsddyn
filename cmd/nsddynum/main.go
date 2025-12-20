@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2019-2022, 2024 Alexander Necheff
+   Copyright (C) 2019-2022, 2024-2025 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -199,7 +199,7 @@ func main() {
 		defer auth.EraseBuf(passwd)
 
 		if _, err := os.Stat(fileName); errors.Is(err, os.ErrNotExist) {
-			log.Print(fmt.Errorf("nsddynum: creating nsddynpasswd file at: " + fileName))
+			log.Print(fmt.Errorf("nsddynum: creating nsddynpasswd file at: %s", fileName))
 
 			f, err := os.Create(fileName)
 			if err != nil {

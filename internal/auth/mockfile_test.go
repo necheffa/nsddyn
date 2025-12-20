@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2020 Alexander Necheff
+   Copyright (C) 2020, 2025 Alexander Necheff
 
    This file is part of nsddyn.
 
@@ -133,7 +133,7 @@ func TestMockWrite(t *testing.T) {
 
 	n, err := mf.Write([]byte(Hello))
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Errorf("%s",err.Error())
 	}
 	if n != len([]byte(Hello)) {
 		t.Errorf("Expected write length of \"%s\" to be %v but got %v", Hello, len([]byte(Hello)), n)
@@ -147,7 +147,7 @@ func TestMockWrite(t *testing.T) {
 
 	n, err = mf.Write([]byte(Hello))
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Errorf("%s", err.Error())
 	}
 	if n != len([]byte(Hello)) {
 		t.Errorf("Expected write length of \"%s\" to be %v but got %v", Hello, len([]byte(Hello)), n)
