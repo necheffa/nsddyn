@@ -1,5 +1,6 @@
 XXXX-YY-ZZ Alexander Necheff <alex@necheff.net>
-    * Set version to 1.2.0-dev4.
+    * Set version to 1.2.0-dev5.
+    * Require a minimum of Go 1.26.1 when compiling.
     * Update vendored dependencies.
     * Complete overhaul of build system.
     * Overhaul E2E test system, including migration from Docker to Podman.
